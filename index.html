@@ -113,8 +113,19 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-entrata" id="btnEntrata" onclick="timbra('ENTRATA')">🟢 ENTRATA</button>
 <button class="btn btn-uscita" id="btnUscita" onclick="timbra('USCITA')">🔴 USCITA</button>
 </div>
-<div style="text-align:center; margin-top:8px">
-<button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
+<div style="background:#f5f3ff; border:2px solid #7c3aed; border-radius:10px; padding:8px; margin-top:8px">
+<b style="font-size:12px">🖨️ Stampa resoconto ore - scegli periodo</b>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
+<div><label style="font-size:10px; font-weight:700">DAL</label><input type="date" id="dataDal" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
+<div><label style="font-size:10px; font-weight:700">AL</label><input type="date" id="dataAl" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
+</div>
+<div style="display:flex; gap:6px; margin-top:6px">
+<button class="btn btn-small" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="impostaPeriodo('oggi')">Oggi</button>
+<button class="btn btn-small" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="impostaPeriodo('settimana')">Settimana</button>
+<button class="btn btn-small" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="impostaPeriodo('mese')">Mese</button>
+</div>
+<button class="btn" style="background:#7c3aed; color:white; margin-top:6px" onclick="stampaResoconto()">🖨️ STAMPA RESOCONTO PERIODO</button>
+<small style="font-size:10px; color:#64748b; display:block; margin-top:4px">Se lasci vuoto stampa tutto. Se scegli date, stampa solo quel periodo.</small>
 </div>
 </div>
 <div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
@@ -132,7 +143,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
 
-<div id="anagraficaForm" style="display:none; margin-top:8px">
+<div id="anagraficaForm" style="display:none; margin-top:8px"><div style="background:#fffbeb; border:1.5px solid #f59e0b; border-radius:8px; padding:6px 8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px"><small id="pinAttualeInfo" style="font-size:10px; font-weight:700">PIN: ****</small><div style="display:flex; gap:4px"><button class="btn btn-small" style="background:#f59e0b; color:white; font-size:10px" onclick="cambiaPIN()">🔑 Cambia PIN</button><button class="btn btn-small" style="background:#f1f5f9; font-size:10px" onclick="mostraPIN()">👁️ Mostra</button></div></div>
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
 <!-- QUALIFICHE COME CHIESTO -->
@@ -257,8 +268,22 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; } else alert('PIN errato'); }
+function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinAttualeInfo').innerText='PIN attuale: '+pinSalvato+' (clicca Cambia)'; } else alert('PIN errato - prova 1234 se non lo hai cambiato'); }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+function cambiaPIN(){
+  let vecchio=prompt('Inserisci vecchio PIN attuale:');
+  if(vecchio===null) return;
+  if(vecchio!==pinSalvato){ alert('Vecchio PIN errato! PIN attuale: '+pinSalvato); return; }
+  let nuovo=prompt('Inserisci NUOVO PIN (min 4 cifre, es. 2025):', pinSalvato);
+  if(nuovo===null) return;
+  nuovo=nuovo.trim();
+  if(nuovo.length<3){ alert('PIN troppo corto!'); return; }
+  pinSalvato=nuovo;
+  localStorage.setItem('pin_v90', nuovo);
+  document.getElementById('pinAttualeInfo').innerText='PIN cambiato! Nuovo PIN: '+nuovo;
+  alert('✅ PIN cambiato! Nuovo PIN: '+nuovo+'\nSalvato sul tablet.');
+}
+function mostraPIN(){ alert('PIN attuale: '+pinSalvato); }
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
@@ -439,10 +464,41 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
+function impostaPeriodo(tipo){
+  const oggi=new Date();
+  const fmt=d=>d.toISOString().slice(0,10);
+  if(tipo==='oggi'){ document.getElementById('dataDal').value=fmt(oggi); document.getElementById('dataAl').value=fmt(oggi); }
+  else if(tipo==='settimana'){ const lun=new Date(oggi); lun.setDate(oggi.getDate()-oggi.getDay()+1); document.getElementById('dataDal').value=fmt(lun); document.getElementById('dataAl').value=fmt(oggi); }
+  else if(tipo==='mese'){ const primo=new Date(oggi.getFullYear(), oggi.getMonth(), 1); document.getElementById('dataDal').value=fmt(primo); document.getElementById('dataAl').value=fmt(oggi); }
+}
+function parseDataItaliana(str){
+  try{
+    // formato "13/09/2025, 14:30:00" oppure "13/09/2025 14:30:00"
+    let p=str.split(',')[0].trim();
+    let parts=p.split('/'); if(parts.length!==3) return null;
+    return new Date(parts[2], parts[1]-1, parts[0]);
+  }catch(e){ return null; }
+}
 function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
 function stampaResocontoNome(nome){
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
+  let timbri=timbratureSalvate.filter(t=>t.nome===nome);
+  const dalVal=document.getElementById('dataDal').value;
+  const alVal=document.getElementById('dataAl').value;
+  let dal=null, al=null;
+  if(dalVal){ dal=new Date(dalVal); dal.setHours(0,0,0,0); }
+  if(alVal){ al=new Date(alVal); al.setHours(23,59,59,999); }
+  if(dal||al){
+    timbri=timbri.filter(t=>{
+      const d=parseDataItaliana(t.data);
+      if(!d) return true;
+      if(dal && d<dal) return false;
+      if(al && d>al) return false;
+      return true;
+    });
+  }
+  timbri=timbri.slice(0,200);
+
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
   const tabOrari=Object.keys(giorniMap).map(g=>{
     const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
@@ -451,7 +507,8 @@ function stampaResocontoNome(nome){
     const h=Math.floor(tot/60), m=tot%60;
     return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
   }).join('');
-  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+  const periodoTxt=(dalVal||alVal)? `Periodo: <b>${dalVal||'inizio'} → ${alVal||'oggi'}</b> | Timbrature nel periodo: <b>${timbri.length}</b>` : `Tutte le timbrature (${timbri.length})`;
+  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>${periodoTxt}<br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature nel periodo selezionato (${timbri.length})</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura in questo periodo</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
 window.addEventListener('load', ()=>{
