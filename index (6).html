@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IC Frosinone 2 - v95 Orario Settimanale + Qualifiche + Ristampa</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
+.top-verde{border:3px solid #16a34a; background:white; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center}
+.top-left b{font-size:17px} .top-left small{font-size:12px; color:#14532d; display:block; margin-top:4px}
+.top-right{text-align:right; font-size:12px; line-height:1.3; color:#334155; font-weight:600}
+.top-right .istituto{font-size:13px; font-weight:800; color:#0f172a}
+.box-combinato{border:2px solid #cbd5e1; border-radius:14px; background:#fff5f5; display:grid; grid-template-columns:1.05fr 1.2fr; overflow:hidden; margin-bottom:8px}
+@media(max-width:800px){.box-combinato{grid-template-columns:1fr}}
+.left-plessi{background:#fef2f2; padding:10px; border-right:2px solid #e2a0a0}
+.right-gps{background:#fef2f2; padding:10px}
+.grid-plessi{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px}
+.card-pl{border-radius:12px; background:white; padding:8px; font-size:12px; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.card-pl.pietrobono{border:2.5px solid #0ea5e9; background:#e0f2fe}
+.card-pl.rinascita{border:2.5px solid #16a34a; background:#dcfce7}
+.card-pl.xxiii{border:2.5px solid #f59e0b; background:#fef3c7}
+.card-pl.verdi{border:2.5px solid #8b5cf6; background:#ede9fe}
+.card-pl.pinocchio{border:2.5px solid #ec4899; background:#fce7f3}
+.card-pl.spinelli{border:2.5px solid #f97316; background:#ffedd5}
+.card-pl.casa{border:2.5px dashed #16a34a; background:#f0fdf4}
+.btn-maps{display:inline-block; background:#0ea5e9; color:white; padding:4px 10px; border-radius:999px; font-size:10px; font-weight:800; text-decoration:none; margin-top:4px}
+.badge-rosso{background:#ef4444; color:white; padding:6px 12px; border-radius:999px; font-weight:800; font-size:12px; display:inline-block}
+.chip-dist{display:inline-block; background:#fee2e2; border:1.5px solid #fca5a5; padding:5px 8px; border-radius:999px; font-size:10px; font-weight:700; margin:3px}
+.red-banner{background:#ef4444; color:white; text-align:center; font-weight:800; font-size:14px; padding:10px; border-radius:12px; margin-bottom:8px}
+.bottom-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:8px}
+@media(max-width:850px){.bottom-grid{grid-template-columns:1fr}}
+.card-white{background:white; border:2px solid #94a3b8; border-radius:12px; padding:12px; box-shadow:0 2px 4px rgba(0,0,0,.06)}
+.card-timbra{background:linear-gradient(135deg, #ffffff 0%, #f0fdf4 50%, #dbeafe 100%); border:2.5px solid #0ea5e9; border-radius:14px; padding:14px}
+.btn{border:0; padding:10px; border-radius:10px; font-weight:800; width:100%; cursor:pointer; font-size:13px}
+.btn:disabled{background:#cbd5e1; color:#94a3b8}
+.btn-gray{background:#cbd5e1; color:#475569} .btn-dark{background:#1e293b; color:white} .btn-blue{background:#0ea5e9; color:white} .btn-green{background:#16a34a; color:white} .btn-orange{background:#f97316; color:white} .btn-red{background:#ef4444; color:white}
+.btn-small{padding:6px 10px; font-size:11px; width:auto}
+.btn-entrata{background:linear-gradient(135deg,#16a34a,#22c55e); color:white; font-size:16px; padding:14px}
+.btn-uscita{background:linear-gradient(135deg,#dc2626,#ef4444); color:white; font-size:16px; padding:14px}
+.pin-box{background:#fffbeb; border:2px solid #fbbf24; border-radius:10px; padding:6px 10px; display:flex; align-items:center; gap:8px}
+.select-big{width:100%; padding:12px; border:3px solid #0ea5e9; border-radius:12px; font-size:15px; font-weight:700; background:white; box-sizing:border-box}
+.orario-box{background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; text-align:center; font-size:13px; font-weight:700; margin:6px 0}
+.day-tab{display:inline-block; padding:6px 10px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; margin:2px; border:1.5px solid #cbd5e1; background:#f8fafc}
+.day-tab.active{background:#0ea5e9; color:white; border-color:#0ea5e9}
+.day-panel{background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:8px; margin:6px 0}
+.slot-row{display:grid; grid-template-columns:1fr 1fr auto; gap:6px; align-items:end; background:white; border:1px solid #bfdbfe; border-radius:8px; padding:6px; margin:4px 0}
+.badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="top-verde">
+<div class="top-left">
+<b>✅ v95 - Orario settimanale + Qualifiche</b>
+<small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
+</div>
+<div class="top-right">
+<div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div>
+<div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora Naddei</b></div>
+</div>
+</div>
+
+<div class="box-combinato">
+<div class="left-plessi">
+<div style="display:flex; justify-content:space-between; align-items:center">
+<div style="font-size:14px; font-weight:800">📍 6 Plessi + Test</div>
+<span style="font-size:10px; background:#f1f5f9; padding:4px 10px; border-radius:999px; border:1px solid #cbd5e1">Maps</span>
+</div>
+<div class="grid-plessi" id="gridPlessi"></div>
+<div style="background:#f0fdf4; border:2px dashed #16a34a; border-radius:10px; padding:8px; margin-top:8px; text-align:center">
+<b style="font-size:11px">🏠 Plesso Casa Test - Viale Portogallo 4</b><br>
+<button class="btn btn-green btn-small" onclick="aggiungiCasaDaGPS()" style="font-size:10px; margin-top:4px">📍 Usa mia posizione come Casa</button>
+<button class="btn btn-orange btn-small" onclick="aggiungiCasaManuale()" style="font-size:10px">➕ Aggiungi</button>
+<button id="btnRimuoviCasa" class="btn btn-small" style="background:#ef4444; color:white; display:none; margin-top:4px; font-size:10px" onclick="rimuoviCasa()">🗑️ Rimuovi Casa Test</button>
+<div id="casaStatus" style="font-size:9px; margin-top:4px; color:#166534"></div>
+</div>
+</div>
+<div class="right-gps">
+<div style="display:flex; justify-content:space-between; align-items:center">
+<div style="font-size:14px; font-weight:800">📡 GPS ±<span id="precTop">--</span>m</div>
+<div id="badgeStato" class="badge-rosso" style="background:#f59e0b">AUTO...</div>
+</div>
+<div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto...</div>
+<div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
+<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico</div>
+</div>
+</div>
+
+<div id="bloccoBox" class="red-banner">Avvicinati a un plesso per timbrare.</div>
+<div id="okBox" class="red-banner" style="display:none; background:#16a34a">✅ Sei dentro il plesso - Puoi timbrare anche se fai servizio in un altro plesso</div>
+
+<div class="bottom-grid">
+<div class="card-timbra">
+<b style="font-size:15px">📷 Scanner + Timbratura</b>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0">
+<button class="btn btn-gray" id="btnContinuo" onclick="avviaContinuo()">📷 Continuo</button>
+<button class="btn btn-dark" id="btnSingolo" onclick="avviaSingolo()">📷 Singola</button>
+</div>
+<label style="font-size:11px"><input type="checkbox" id="beepCheck" checked> 🔊 BIP</label> <label style="font-size:11px; margin-left:10px"><input type="checkbox" id="continuoCheck" checked> 🔁 Continuo</label>
+<button class="btn" style="background:#64748b; display:none" id="stopBtn" onclick="fermaScanner()">⏹️ Ferma</button>
+<div id="reader" style="width:100%; max-width:420px; margin:8px auto; border-radius:12px; overflow:hidden; display:none; border:3px solid #7c3aed"></div>
+<div id="qrResult" style="font-size:13px; text-align:center; font-weight:800; padding:4px"></div>
+<div id="ultimoScansionato" style="font-size:12px; background:#f0fdf4; padding:8px; border-radius:8px; text-align:center; border:2px solid #16a34a; font-weight:700">Nessuna scansione</div>
+
+<div style="border:2.5px solid #0ea5e9; border-radius:12px; padding:10px; background:linear-gradient(135deg,#f0f9ff,#f0fdf4); margin-top:10px">
+<b style="font-size:15px">📋 Timbratura manuale - GRANDE</b>
+<select id="dipendente" class="select-big" style="margin-top:6px"><option>⏳ Caricamento...</option></select>
+<div id="orarioPrevisto" class="orario-box">Seleziona nome per vedere orario del giorno</div>
+<div id="orarioGiornoBox" style="background:#e0f2fe; border:2px solid #0ea5e9; border-radius:8px; padding:8px; margin:6px 0; font-size:13px; text-align:center; font-weight:700">Oggi: --</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px">
+<button class="btn btn-entrata" id="btnEntrata" onclick="timbra('ENTRATA')">🟢 ENTRATA</button>
+<button class="btn btn-uscita" id="btnUscita" onclick="timbra('USCITA')">🔴 USCITA</button>
+</div>
+<div style="text-align:center; margin-top:8px">
+<button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
+</div>
+</div>
+<div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+</div>
+
+<div class="card-white">
+<div style="display:flex; justify-content:space-between; align-items:center">
+<b style="font-size:15px">👤 Anagrafica</b>
+<span style="font-size:10px; background:#fffbeb; padding:3px 8px; border-radius:999px; border:1.5px solid #f59e0b">🔒 PIN</span>
+</div>
+
+<div id="pinLock" class="pin-box" style="margin-top:8px">
+<div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
+<input id="pinInput" type="password" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
+<button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
+</div>
+
+<div id="anagraficaForm" style="display:none; margin-top:8px">
+<input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
+<!-- QUALIFICHE COME CHIESTO -->
+<select id="qualifica" style="padding:9px; border:2px solid #7c3aed; border-radius:8px; font-size:12px; font-weight:700; background:#f5f3ff">
+<option value="DSGA">DSGA</option>
+<option value="Assistente Amministrativo">Assistente Amministrativo</option>
+<option value="Collaboratore scolastico">Collaboratore scolastico</option>
+<option value="Collaboratore Scolastico annuale">Collaboratore Scolastico annuale</option>
+<option value="Collaboratore Scolastico Supplente Breve" selected>Collaboratore Scolastico Supplente Breve</option>
+</select>
+<select id="plessoAnagrafica" style="padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px"><option>Pietrobono</option><option selected>Rinascita</option><option>XXIII</option><option>Verdi</option><option>Pinocchio</option><option>Spinelli</option><option>Casa Test - Viale Portogallo 4</option></select>
+</div>
+
+<!-- ORARIO SETTIMANALE GIORNALIERO DIVERSO -->
+<div style="background:#fff7ed; border:2.5px solid #f97316; border-radius:12px; padding:10px; margin:8px 0">
+<b style="font-size:13px">📅 Orario settimanale - diverso per ogni giorno</b><br>
+<small style="font-size:11px">Clicca sul giorno e inserisci le fasce. Es. Lunedì 7:30-13:30, Martedì 7:30-13:30 + 14:00-15:40, ecc.</small>
+<div style="margin-top:8px; text-align:center">
+<span class="day-tab active" data-day="lun" onclick="selezionaGiorno('lun')">LUN</span>
+<span class="day-tab" data-day="mar" onclick="selezionaGiorno('mar')">MAR</span>
+<span class="day-tab" data-day="mer" onclick="selezionaGiorno('mer')">MER</span>
+<span class="day-tab" data-day="gio" onclick="selezionaGiorno('gio')">GIO</span>
+<span class="day-tab" data-day="ven" onclick="selezionaGiorno('ven')">VEN</span>
+<span class="day-tab" data-day="sab" onclick="selezionaGiorno('sab')">SAB</span>
+<span class="day-tab" data-day="dom" onclick="selezionaGiorno('dom')">DOM</span>
+</div>
+<div id="dayPanel" class="day-panel">
+<div style="display:flex; justify-content:space-between; align-items:center">
+<b id="giornoTitolo" style="font-size:13px">Lunedì</b>
+<button class="btn btn-green btn-small" onclick="aggiungiSlotGiorno()">➕ Aggiungi fascia a questo giorno</button>
+</div>
+<div id="slotsGiornoContainer"></div>
+<div style="margin-top:6px; display:flex; gap:6px">
+<button class="btn btn-small" style="background:#e2e8f0; color:#334155" onclick="copiaGiornoATutti()">📋 Copia questo giorno a tutta la settimana</button>
+<button class="btn btn-small" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b" onclick="svuotaGiorno()">🗑️ Svuota giorno</button>
+</div>
+</div>
+<div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
+</div>
+
+<button class="btn btn-green" style="margin-top:6px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge</button>
+<button class="btn" style="background:#f1f5f9; color:#334155; font-size:11px; border:1px solid #cbd5e1; margin-top:4px" onclick="bloccaPIN()">🔒 Blocca</button>
+<div style="margin-top:8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px; font-size:10px">
+<b>💡 Badge smarrito? Come ridarlo:</b><br>
+I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b>🖨️ Ristampa</b> sul nome. Si ristampa identico con stesso QR. Non serve rifare anagrafica!
+</div>
+</div>
+
+<div style="margin-top:12px">
+<b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
+<input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
+<div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
+</div>
+
+<div id="badgeBox" class="badge-ris">
+<div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
+<div id="bNome" style="font-size:16px; font-weight:900">Nome</div>
+<div id="bQualifica" style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed; margin:2px 0">Qualifica</div>
+<div id="bPlesso" style="font-size:11px">Plesso</div>
+<div id="bOrario" style="font-size:9px; line-height:1.2; margin:2px 0"></div>
+<div id="qrcode" style="width:78px; height:78px; margin:6px auto"></div>
+<div id="bId" style="font-size:7px"></div>
+<div style="font-size:8px; color:#64748b; margin-top:4px">Se smarrito: ristampa da Elenco → Badge</div>
+</div>
+</div>
+</div>
+
+<div id="printArea" style="display:none"></div>
+
+<script>
+const GEOFENCE=150;
+let PLESSI_BASE=[
+ {n:'Pietrobono', lat:41.626603, lon:13.331938, cls:'pietrobono', maps:'https://maps.google.com/?q=41.626603,13.331938', icon:'🏫'},
+ {n:'Rinascita', lat:41.639722, lon:13.3425, cls:'rinascita', maps:'https://maps.app.goo.gl/x26Tji7C34tJxsu77', icon:'🌱'},
+ {n:'XXIII', lat:41.623487, lon:13.323672, cls:'xxiii', maps:'https://maps.google.com/?q=41.623487,13.323672', icon:'📚'},
+ {n:'Verdi', lat:41.622454, lon:13.334451, cls:'verdi', maps:'https://maps.google.com/?q=41.622454,13.334451', icon:'🎵'},
+ {n:'Pinocchio', lat:41.6404, lon:13.3501, cls:'pinocchio', maps:'https://maps.app.goo.gl/v2sHzUAjFGAFwMav5?g_st=ac', icon:'🥺'},
+ {n:'Spinelli', lat:41.613259, lon:13.336852, cls:'spinelli', maps:'https://maps.google.com/?q=41.613259,13.336852', icon:'⭐'}
+];
+let PLESSI=[...PLESSI_BASE];
+let customPlesso=JSON.parse(localStorage.getItem('plesso_casa_v94')||'null');
+function dist(a,b,c,d){const R=6371e3,toRad=x=>x*Math.PI/180,dLat=toRad(c-a),dLon=toRad(d-b),aa=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));}
+let last=null, vicino=null, html5Qr=null, ultimoQR='', ultimoTempo=0, dentro=false;
+
+function renderPlessiUI(){
+  const grid=document.getElementById('gridPlessi'); grid.innerHTML='';
+  PLESSI.forEach(pl=>{
+    const div=document.createElement('div'); div.className='card-pl '+(pl.cls||'');
+    div.innerHTML=`${pl.icon||'📍'} ${pl.n}<br><a class="btn-maps" href="${pl.maps}" target="_blank">Maps</a>`+(pl.isCasa?'<br><span style="font-size:8px; background:#16a34a; color:white; padding:2px 6px; border-radius:999px">TEST</span>':'');
+    grid.appendChild(div);
+  });
+  const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
+}
+function aggiungiCasaDaGPS(){
+  if(!last){ alert('Aspetta GPS ATTIVO'); return; }
+  customPlesso={n:'Casa Test - Viale Portogallo 4', lat:last.coords.latitude, lon:last.coords.longitude, cls:'casa', maps:`https://maps.google.com/?q=${last.coords.latitude},${last.coords.longitude}`, icon:'🏠', isCasa:true};
+  localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI();
+  document.getElementById('casaStatus').innerHTML='✅ Casa creata!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
+}
+function aggiungiCasaManuale(){
+  let lat=41.6345, lon=13.3350; if(last){lat=last.coords.latitude; lon=last.coords.longitude;}
+  customPlesso={n:'Casa Test - Viale Portogallo 4', lat, lon, cls:'casa', maps:`https://maps.google.com/?q=${lat},${lon}`, icon:'🏠', isCasa:true};
+  localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI();
+  document.getElementById('casaStatus').innerHTML='✅ Casa Test aggiunto!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
+}
+function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
+
+function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
+function aggiornaUIBlocco(){
+  const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
+  const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
+  if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
+  else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
+}
+function attivaGPS(){
+  navigator.geolocation.getCurrentPosition(p=>{
+    last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
+    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
+    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
+  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+}
+
+// PIN
+let pinSalvato=localStorage.getItem('pin_v90')||'1234';
+function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; } else alert('PIN errato'); }
+function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+
+// ORARIO SETTIMANALE
+const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
+let orariSettimana={lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
+let giornoSelezionato='lun';
+
+function selezionaGiorno(g){
+  giornoSelezionato=g;
+  document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-day="${g}"]`).classList.add('active');
+  document.getElementById('giornoTitolo').textContent=giorniMap[g];
+  renderSlotsGiorno();
+}
+function renderSlotsGiorno(){
+  const cont=document.getElementById('slotsGiornoContainer'); cont.innerHTML='';
+  const slots=orariSettimana[giornoSelezionato];
+  if(slots.length===0){ cont.innerHTML='<div style="text-align:center; font-size:11px; color:#64748b; padding:8px">Nessuna fascia per '+giorniMap[giornoSelezionato]+' - aggiungi con ➕</div>'; }
+  slots.forEach((s,i)=>{
+    const div=document.createElement('div'); div.className='slot-row';
+    div.innerHTML=`<div><label style="font-size:10px">Entrata</label><input type="time" value="${s.entrata}" style="width:100%; padding:6px; border-radius:6px; border:1px solid #cbd5e1" onchange="orariSettimana['${giornoSelezionato}'][${i}].entrata=this.value; aggiornaRiepilogo()"></div><div><label style="font-size:10px">Uscita</label><input type="time" value="${s.uscita}" style="width:100%; padding:6px; border-radius:6px; border:1px solid #cbd5e1" onchange="orariSettimana['${giornoSelezionato}'][${i}].uscita=this.value; aggiornaRiepilogo()"></div><button style="background:#ef4444; color:white; border:0; border-radius:6px; padding:6px 8px" onclick="rimuoviSlotGiorno(${i})">✕</button>`;
+    cont.appendChild(div);
+  });
+  aggiornaRiepilogo();
+}
+function aggiungiSlotGiorno(){ orariSettimana[giornoSelezionato].push({entrata:'07:30', uscita:'13:30'}); renderSlotsGiorno(); }
+function rimuoviSlotGiorno(i){ orariSettimana[giornoSelezionato].splice(i,1); renderSlotsGiorno(); }
+function svuotaGiorno(){ if(!confirm('Svuotare '+giorniMap[giornoSelezionato]+'?')) return; orariSettimana[giornoSelezionato]=[]; renderSlotsGiorno(); }
+function copiaGiornoATutti(){
+  if(!confirm('Copiare orario di '+giorniMap[giornoSelezionato]+' a tutta la settimana (Lun-Ven)?')) return;
+  const src=[...orariSettimana[giornoSelezionato]];
+  ['lun','mar','mer','gio','ven'].forEach(g=>{ orariSettimana[g]=[...src.map(s=>({...s}))]; });
+  aggiornaRiepilogo(); alert('Copiato a Lun-Ven!');
+}
+function aggiornaRiepilogo(){
+  let totSett=0; let html='<b>Riepilogo settimanale:</b><br>';
+  Object.keys(giorniMap).forEach(g=>{
+    const slots=orariSettimana[g];
+    let totG=0; slots.forEach(s=>{ const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; totG+=d; });
+    totSett+=totG;
+    if(totG>0){ const h=Math.floor(totG/60), m=totG%60; html+=`${giorniMap[g].substring(0,3)}: ${slots.map(s=>s.entrata+'-'+s.uscita).join(' + ')} = ${h}h${String(m).padStart(2,'0')} | `; }
+  });
+  const hTot=Math.floor(totSett/60), mTot=totSett%60;
+  html+=`<br><span style="background:white; padding:3px 8px; border-radius:999px; border:1.5px solid #16a34a">TOT SETTIMANA: ${hTot}h${String(mTot).padStart(2,'0')}m (${(totSett/60).toFixed(2)}h)</span>`;
+  document.getElementById('riepilogoSettimana').innerHTML=html;
+}
+function resetOrariSettimana(){
+  orariSettimana={lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
+  // default esempio Naddei: Lun-Ven 7:30-13:30 + 14:00-15:40
+  ['lun','mar','mer','gio','ven'].forEach(g=>{ orariSettimana[g]=[{entrata:'07:30', uscita:'13:30'}, {entrata:'14:00', uscita:'15:40'}]; });
+  selezionaGiorno('lun');
+}
+
+let timbratureSalvate=JSON.parse(localStorage.getItem('timbrature_v93')||'[]');
+function timbra(tipo, nomeF=null){
+  if(!dentro){ alert('Avvicinati a un plesso'); return; }
+  const nome=nomeF||document.getElementById('dipendente').value; if(!nome) return;
+  const ora=new Date(); const oraStr=ora.toLocaleString('it-IT'); const oraTime=ora.toTimeString().slice(0,5);
+  const d=last&&vicino?Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon)):0;
+  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||''};
+  timbratureSalvate.unshift(entry); localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  document.getElementById('log').innerHTML='<br>✅ '+oraStr+' - '+tipo+' - '+nome+' @ '+(vicino?vicino.n:'')+' '+d+'m'+document.getElementById('log').innerHTML;
+  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime;
+  if(document.getElementById('beepCheck').checked) beep();
+}
+function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(); }
+function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
+function avviaScanner(){
+  if(!dentro){ alert('Avvicinati a un plesso'); return; }
+  const continuo=document.getElementById('continuoCheck').checked;
+  const reader=document.getElementById('reader'); reader.style.display='block'; document.getElementById('stopBtn').style.display='block';
+  if(html5Qr){ try{html5Qr.stop();}catch(e){} }
+  html5Qr=new Html5Qrcode("reader");
+  html5Qr.start({facingMode:"environment"}, {fps:12, qrbox:280}, (decoded)=>{
+    if(!dentro) return; const now=Date.now(); if(decoded===ultimoQR && (now-ultimoTempo)<3000) return; ultimoQR=decoded; ultimoTempo=now;
+    let nome=decoded; if(decoded.includes('|')){ const p=decoded.split('|'); nome=p[1]||p[0]; }
+    timbra('ENTRATA', nome); if(!continuo) setTimeout(()=>fermaScanner(), 1200);
+  }, ()=>{}).catch(()=>{});
+}
+function fermaScanner(){ if(html5Qr){ html5Qr.stop().then(()=>{document.getElementById('reader').style.display='none'; document.getElementById('stopBtn').style.display='none';}).catch(()=>{}); } }
+
+let anagrafiche=[];
+function loadAnag(){
+  try{const s=localStorage.getItem('anagrafiche_v95')||localStorage.getItem('anagrafiche_v90'); if(s) anagrafiche=JSON.parse(s);}catch(e){}
+  if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
+  render();
+}
+function saveAnag(){localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));}
+function render(){
+  const sel=document.getElementById('dipendente'); sel.innerHTML=''; anagrafiche.forEach(a=>{const o=document.createElement('option'); const riepilogo=Object.keys(a.orariSettimana||{}).map(g=>{if((a.orariSettimana[g]||[]).length===0) return ''; return g.toUpperCase()+':'+a.orariSettimana[g].map(s=>s.entrata+'-'+s.uscita).join('/')}).filter(x=>x).join(' '); o.text=`${a.nome} - ${a.qualifica||''} - ${a.plesso} (${riepilogo.substring(0,50)})`; o.value=a.nome; sel.appendChild(o);});
+  sel.onchange=mostraOrario;
+  filtraElenco();
+  mostraOrario();
+}
+function filtraElenco(){
+  const q=(document.getElementById('cercaDip').value||'').toLowerCase();
+  const cont=document.getElementById('tabellaOrari'); cont.innerHTML='';
+  anagrafiche.filter(a=>a.nome.toLowerCase().includes(q) || (a.qualifica||'').toLowerCase().includes(q)).forEach(a=>{
+    const riepilogoGiorni=Object.keys(giorniMap).map(g=>{
+      const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
+      if(slots.length===0) return '';
+      return `<div style="font-size:9px"><b>${g.toUpperCase()}</b>: ${slots.map(s=>s.entrata+'-'+s.uscita).join(' + ')}</div>`;
+    }).join('');
+    const div=document.createElement('div');
+    div.style.cssText='display:grid; grid-template-columns:1.3fr 1fr 1.5fr 0.7fr; gap:4px; padding:8px; border-bottom:1.5px solid #e2e8f0; align-items:start; background:white';
+    div.innerHTML=`
+      <div><b style="font-size:12px">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed">${a.qualifica||''}</span><br><span style="font-size:10px">${a.plesso}</span></div>
+      <div style="font-size:10px">${riepilogoGiorni}</div>
+      <div style="font-size:10px; text-align:center"><b>${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">sett.</span></div>
+      <div style="display:grid; gap:4px">
+        <button onclick="creaBadgeDa('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#7c3aed; color:white; border:0; border-radius:6px; padding:5px">🖨️ Badge<br><small>Ristampa se smarrito</small></button>
+        <button onclick="modificaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px">✏️ Modifica</button>
+        <button onclick="eliminaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#ef4444; color:white; border:0; border-radius:6px; padding:4px">🗑️ Elimina</button>
+        <button onclick="stampaResocontoNome('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:4px">📊 Ore</button>
+      </div>
+    `;
+    cont.appendChild(div);
+  });
+  if(cont.innerHTML==='') cont.innerHTML='<div style="text-align:center; padding:12px; color:#64748b">Nessun dipendente trovato</div>';
+}
+function mostraOrario(){
+  const nome=document.getElementById('dipendente').value;
+  const a=anagrafiche.find(x=>x.nome===nome);
+  if(!a) return;
+  const oggi=new Date(); const giornoIdx=oggi.getDay(); const mapIdx=['dom','lun','mar','mer','gio','ven','sab']; const gKey=mapIdx[giornoIdx];
+  const slotsOggi=a.orariSettimana&&a.orariSettimana[gKey]?a.orariSettimana[gKey]:[];
+  const txtOggi=slotsOggi.length? slotsOggi.map(s=>s.entrata+'-'+s.uscita).join(' + ') : 'LIBERO / Non in servizio';
+  const totOggi=slotsOggi.reduce((acc,s)=>{const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; return acc+d;},0);
+  const h=Math.floor(totOggi/60), m=totOggi%60;
+  document.getElementById('orarioPrevisto').innerHTML=`Dipendente: <b>${a.nome}</b> - ${a.qualifica||''} - ${a.plesso}`;
+  document.getElementById('orarioGiornoBox').innerHTML=`📅 Oggi ${giorniMap[gKey]}: <b>${txtOggi}</b> ${totOggi?` = ${h}h${String(m).padStart(2,'0')}`:''} | Sett: ${a.totale||''}`;
+}
+
+function aggiungiAnagrafica(){
+  const nome=document.getElementById('nuovaAnagrafica').value.trim();
+  const plesso=document.getElementById('plessoAnagrafica').value;
+  const qualifica=document.getElementById('qualifica').value;
+  if(!nome){alert('Inserisci nome'); return;}
+  // calcola totale settimana
+  let totSett=0; Object.values(orariSettimana).forEach(arr=>{arr.forEach(s=>{const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; totSett+=d;});});
+  const hTot=Math.floor(totSett/60), mTot=totSett%60; const totale=`${hTot}h${String(mTot).padStart(2,'0')}m`;
+  const obj={nome, plesso, qualifica, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
+  const idx=anagrafiche.findIndex(a=>a.nome.toLowerCase()===nome.toLowerCase());
+  if(idx>=0) anagrafiche[idx]=obj; else anagrafiche.push(obj);
+  saveAnag(); render(); creaBadgeDa(nome); document.getElementById('nuovaAnagrafica').value='';
+  alert('✅ Salvato '+nome+' - '+qualifica+' - Tot sett '+totale+'\nBadge pronto per ristampa se smarrito!');
+}
+function modificaAnag(nome){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN prima!'); return; }
+  const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
+  document.getElementById('nuovaAnagrafica').value=a.nome;
+  document.getElementById('plessoAnagrafica').value=a.plesso;
+  document.getElementById('qualifica').value=a.qualifica||'Collaboratore scolastico';
+  orariSettimana=a.orariSettimana? JSON.parse(JSON.stringify(a.orariSettimana)) : {lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
+  selezionaGiorno('lun');
+  window.scrollTo(0, document.getElementById('anagraficaForm').offsetTop);
+}
+function eliminaAnag(nome){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN!'); return; }
+  if(!confirm('Eliminare definitivamente '+nome+' ?\nIl badge non sarà più valido.')) return;
+  anagrafiche=anagrafiche.filter(a=>a.nome!==nome);
+  saveAnag(); render();
+}
+
+function creaBadgeDa(nome){
+  const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
+  const box=document.getElementById('badgeBox'); box.style.display='flex';
+  document.getElementById('bNome').innerText=a.nome;
+  document.getElementById('bQualifica').innerText=a.qualifica||'';
+  document.getElementById('bPlesso').innerText=a.plesso;
+  const riepilogoBreve=Object.keys(giorniMap).map(g=>{
+    const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
+    if(slots.length===0) return '';
+    return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/');
+  }).filter(x=>x).join(' ');
+  document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
+  document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||'');
+  const qr=document.getElementById('qrcode'); qr.innerHTML=''; new QRCode(qr, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:78, height:78});
+  // scroll al badge
+  box.scrollIntoView({behavior:'smooth'});
+}
+function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
+function stampaResocontoNome(nome){
+  const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
+  const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
+  const printArea=document.getElementById('printArea'); printArea.style.display='block';
+  const tabOrari=Object.keys(giorniMap).map(g=>{
+    const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
+    if(slots.length===0) return `<tr><td style="border:1px solid #ccc; padding:4px">${giorniMap[g]}</td><td colspan=2 style="border:1px solid #ccc; padding:4px; text-align:center; color:#94a3b8">Libero</td></tr>`;
+    const tot=slots.reduce((acc,s)=>{const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; return acc+d;},0);
+    const h=Math.floor(tot/60), m=tot%60;
+    return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
+  }).join('');
+  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+}
+
+window.addEventListener('load', ()=>{
+  if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
+  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+});
+</script>
+
+</body>
+</html>
