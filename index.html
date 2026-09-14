@@ -235,7 +235,19 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div id="assenzeFormProtetta" style="display:none">
 
 <div style="background:#fef2f2; border:2px solid #fca5a5; border-radius:10px; padding:10px; margin-top:8px">
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+<div style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:6px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+<div style="font-size:12px; font-weight:800">🏖️ Giorni ferie annui:</div>
+<div style="display:flex; gap:6px; align-items:center">
+<select id="ferieTotali" style="padding:6px 10px; border:2px solid #16a34a; border-radius:999px; font-weight:800; background:white" onchange="salvaFerieTotali()">
+<option value="30">30 giorni</option>
+<option value="32" selected>32 giorni</option>
+</select>
+<button class="btn btn-small" style="background:#16a34a; color:white" onclick="salvaFerieTotali()">💾</button>
+</div>
+</div>
+<small style="font-size:10px; color:#166534">Scegli 30 o 32 - vale per tutti. Si può cambiare quando vuoi.</small>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
 <div>
 <label style="font-size:11px; font-weight:800">👤 Dipendente</label>
 <select id="assenzeDipendente" style="width:100%; padding:9px; border:2px solid #dc2626; border-radius:8px; font-weight:700"></select>
@@ -761,7 +773,9 @@ function renderAssenze(){
   // Calcolo ferie residue per dipendente selezionato
   let ferieBox=document.getElementById('ferieResidueBox');
   if(ferieBox){
-    const FERIE_TOTALI=32; // giorni annui
+    let FERIE_TOTALI=parseInt(localStorage.getItem('ferie_totali_v98')||'32'); // scelta 30 o 32
+    document.getElementById('ferieTotali').value=FERIE_TOTALI;
+    // giorni annui
     let ferieMap={};
     assenzeSalvate.filter(a=>a.tipo==='Ferie').forEach(a=>{ ferieMap[a.nome]=(ferieMap[a.nome]||0)+ (a.giorni||calcolaGiorniFeriali(a.dal,a.al)); });
     let htmlFerie='<b>🏖️ Ferie residue (32 giorni annui):</b><br>';
@@ -800,6 +814,12 @@ function stampaAssenze(){
   printArea.style.display='block';
   const rows=filtered.map(a=>`<tr><td style="border:1px solid #ccc; padding:5px">${a.dal} → ${a.al} (${a.giorni||''}gg)</td><td style="border:1px solid #ccc; padding:5px"><b>${a.nome}</b></td><td style="border:1px solid #ccc; padding:5px">${a.tipo}</td><td style="border:1px solid #ccc; padding:5px">${a.ore||''}</td><td style="border:1px solid #ccc; padding:5px">${a.prot||''}</td><td style="border:1px solid #ccc; padding:5px">${a.note||''}</td></tr>`).join('');
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:900px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center">Istituto Comprensivo Frosinone 2°<br>Registro Assenze - ${fd} → ${fa}</h2><p style="text-align:center; font-size:12px">Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')} | Filtro: ${cerca||'tutti'} | Tot: ${filtered.length}</p><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#7f1d1d; color:white"><th>Periodo</th><th>Dipendente</th><th>Tipo</th><th>Ore</th><th>Prot.</th><th>Note</th></tr>${rows||'<tr><td colspan=6 style="text-align:center; padding:10px">Nessuna assenza</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#dc2626; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+}
+function salvaFerieTotali(){
+  const val=document.getElementById('ferieTotali').value;
+  localStorage.setItem('ferie_totali_v98', val);
+  renderAssenze();
+  alert('✅ Impostato '+val+' giorni di ferie annui per tutti!');
 }
 function esportaExcelAssenze(){
   let filtered=assenzeSalvate;
@@ -855,7 +875,7 @@ function handleFotoInput(event, nome){
 window.addEventListener('load', ()=>{
 
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); renderAssenze(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  let ft=localStorage.getItem('ferie_totali_v98')||'32'; let elFT=document.getElementById('ferieTotali'); if(elFT) elFT.value=ft; renderPlessiUI(); loadAnag(); resetOrariSettimana(); renderAssenze(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
