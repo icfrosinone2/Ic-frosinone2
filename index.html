@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v101 FINALE con Ferie Residue + Badge Carta Credito</title>
+<title>IC Frosinone 2 - v95 Orario Settimanale + Qualifiche + Ristampa</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -47,24 +47,13 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .day-panel{background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:8px; margin:6px 0}
 .slot-row{display:grid; grid-template-columns:1fr 1fr auto; gap:6px; align-items:end; background:white; border:1px solid #bfdbfe; border-radius:8px; padding:6px; margin:4px 0}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
-
-.badge-carta{width:85.6mm; height:53.98mm; border-radius:8px; border:2.5px solid #1e293b; background:linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,.2); margin:12px auto; position:relative}
-.badge-carta-left{width:35%; background:#0f172a; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px; text-align:center}
-.badge-carta-right{width:65%; padding:8px; display:flex; flex-direction:column; justify-content:space-between}
-.badge-foto{width:68px; height:84px; border-radius:8px; border:2px solid white; object-fit:cover; background:#334155}
-@media print{
-  body *{ visibility:hidden; }
-  #badgeCartaBox, #badgeCartaBox *{ visibility:visible; }
-  #badgeCartaBox{ position:absolute; left:0; top:0; width:85.6mm !important; height:53.98mm !important; margin:0 !important; box-shadow:none !important; border:2px solid black !important; display:flex !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  @page{ size:85.6mm 53.98mm; margin:0; }
-}
 </style>
 </head>
 <body>
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v101 - Ferie Residue + ROL + Badge Carta Credito</b>
+<b>✅ v95 - Orario settimanale + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -124,18 +113,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-entrata" id="btnEntrata" onclick="timbra('ENTRATA')">🟢 ENTRATA</button>
 <button class="btn btn-uscita" id="btnUscita" onclick="timbra('USCITA')">🔴 USCITA</button>
 </div>
-<div style="background:#f5f3ff; border:2px solid #7c3aed; border-radius:10px; padding:8px; margin-top:8px">
-<b style="font-size:12px">🖨️ Stampa resoconto ore - scegli periodo DAL/AL</b>
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
-<div><label style="font-size:10px; font-weight:700">DAL</label><input type="date" id="dataDal" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-<div><label style="font-size:10px; font-weight:700">AL</label><input type="date" id="dataAl" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-</div>
-<div style="display:flex; gap:6px; margin-top:6px">
-<button class="btn btn-small" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="impostaPeriodo('oggi')">Oggi</button>
-<button class="btn btn-small" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="impostaPeriodo('settimana')">Settimana</button>
-<button class="btn btn-small" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="impostaPeriodo('mese')">Mese</button>
-</div>
-<button class="btn" style="background:#7c3aed; color:white; margin-top:6px" onclick="stampaResoconto()">🖨️ STAMPA RESOCONTO PERIODO</button>
+<div style="text-align:center; margin-top:8px">
+<button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
 <div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
@@ -153,7 +132,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
 
-<div id="anagraficaForm" style="display:none; margin-top:8px"><div style="background:#fffbeb; border:1.5px solid #f59e0b; border-radius:8px; padding:6px 8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px"><small id="pinAttualeInfo" style="font-size:10px; font-weight:700">PIN: ****</small><div style="display:flex; gap:4px"><button class="btn btn-small" style="background:#f59e0b; color:white; font-size:10px" onclick="cambiaPIN()">🔑 Cambia</button><button class="btn btn-small" style="background:#f1f5f9; font-size:10px" onclick="mostraPIN()">👁️</button></div></div>
+<div id="anagraficaForm" style="display:none; margin-top:8px">
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
 <!-- QUALIFICHE COME CHIESTO -->
@@ -165,34 +144,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <option value="Collaboratore Scolastico Supplente Breve" selected>Collaboratore Scolastico Supplente Breve</option>
 </select>
 <select id="plessoAnagrafica" style="padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px"><option>Pietrobono</option><option selected>Rinascita</option><option>XXIII</option><option>Verdi</option><option>Pinocchio</option><option>Spinelli</option><option>Casa Test - Viale Portogallo 4</option></select>
-<select id="feriePerDip" style="padding:9px; border:2px solid #16a34a; border-radius:8px; font-size:12px; font-weight:800; background:#d1fae5">
-<option value="30">🏖️ 30 gg ferie</option>
-<option value="32" selected>🏖️ 32 gg ferie</option>
-</select>
-</div>
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
-<select id="rolPerDip" style="padding:9px; border:2px solid #f59e0b; border-radius:8px; font-size:12px; font-weight:800; background:#fffbeb">
-<option value="0">⏰ ROL: 0h</option>
-<option value="20">⏰ ROL: 20h</option>
-<option value="32" selected>⏰ ROL: 32h</option>
-<option value="56">⏰ ROL: 56h</option>
-<option value="72">⏰ ROL: 72h</option>
-<option value="100">⏰ ROL: 100h</option>
-</select>
-<select id="permessiPerDip" style="padding:9px; border:2px solid #0ea5e9; border-radius:8px; font-size:12px; font-weight:800; background:#e0f2fe">
-<option value="0">📝 Permessi: 0h</option>
-<option value="18">📝 Permessi: 18h</option>
-<option value="32" selected>📝 Permessi: 32h</option>
-<option value="36">📝 Permessi: 36h</option>
-<option value="50">📝 Permessi: 50h</option>
-</select>
-</div>
-<div style="margin-top:6px; background:#f0fdf4; border:1.5px solid #16a34a; border-radius:8px; padding:6px; font-size:10px; font-weight:700">
-<span>🏖️ Ferie 30/32 + ⏰ ROL + 📝 Permessi - per ogni dipendente | 📸 Foto per badge carta credito</span>
-</div>
-<div style="display:flex; gap:6px; margin-top:6px">
-<input id="nuovaAnagraficaFoto" style="display:none">
-<label style="background:#0ea5e9; color:white; padding:8px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; text-align:center">📸 Carica Foto Badge<input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="handleFotoAnagrafica(event)"></label>
 </div>
 
 <!-- ORARIO SETTIMANALE GIORNALIERO DIVERSO -->
@@ -236,7 +187,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
 </div>
 
-<div id="badgeBox" class="badge-ris">
+<div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
 <div id="bNome" style="font-size:16px; font-weight:900">Nome</div>
 <div id="bQualifica" style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed; margin:2px 0">Qualifica</div>
@@ -247,121 +198,6 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div style="font-size:8px; color:#64748b; margin-top:4px">Se smarrito: ristampa da Elenco → Badge</div>
 </div>
 </div>
-</div>
-
-<!-- removed -->
-
-<script>
-
-<!-- MODULO GESTIONE ASSENZE + FERIE RESIDUE + ROL + PERMESSI -->
-<div style="margin-top:12px; background:white; border:3px solid #dc2626; border-radius:14px; padding:12px; box-shadow:0 2px 6px rgba(0,0,0,.1)">
-<div style="display:flex; justify-content:space-between; align-items:center">
-<b style="font-size:16px">🏥 Gestione Assenze + Ferie Residue</b>
-<span style="font-size:10px; background:#fee2e2; border:1.5px solid #dc2626; padding:4px 10px; border-radius:999px; font-weight:800">PIN</span>
-</div>
-<small style="font-size:11px; color:#7f1d1d"><b>DOVE INSERIRE LE FERIE RESIDUE?</b> → 1) Nell'Anagrafica scegli 30/32 gg, ROL e Permessi. 2) Qui sotto inserisci le ferie già usate (malattia, ferie, permessi). Il sistema calcola AUTOMATICAMENTE le residue!</small>
-
-<div id="pinAssenzeLock" class="pin-box" style="margin-top:8px">
-<div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Assenze protette</b><br><small style="font-size:10px">Stesso PIN anagrafica</small></div>
-<input id="pinAssenzeInput" type="password" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #dc2626; border-radius:8px; text-align:center; letter-spacing:4px">
-<button class="btn btn-green btn-small" style="padding:8px 12px; background:#dc2626" onclick="sbloccaAssenzePIN()">🔓</button>
-</div>
-
-<div id="assenzeFormProtetta" style="display:none">
-
-<div style="background:#fef2f2; border:2px solid #fca5a5; border-radius:10px; padding:10px; margin-top:8px">
-<div style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:6px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-<div style="font-size:12px; font-weight:800">🏖️ Default ferie annue:</div>
-<div style="display:flex; gap:6px; align-items:center">
-<select id="ferieTotali" style="padding:6px 10px; border:2px solid #16a34a; border-radius:999px; font-weight:800; background:white" onchange="salvaFerieTotali()">
-<option value="30">30 giorni</option>
-<option value="32" selected>32 giorni</option>
-</select>
-<button class="btn btn-small" style="background:#16a34a; color:white" onclick="salvaFerieTotali()">💾</button>
-</div>
-</div>
-
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
-<div><label style="font-size:11px; font-weight:800">👤 Dipendente</label><select id="assenzeDipendente" style="width:100%; padding:9px; border:2px solid #dc2626; border-radius:8px; font-weight:700"></select></div>
-<div><label style="font-size:11px; font-weight:800">📋 Tipo assenza</label>
-<select id="tipoAssenza" style="width:100%; padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; font-weight:700">
-<option value="Malattia">🤒 Malattia</option>
-<option value="Ferie">🏖️ Ferie (scala ferie residue)</option>
-<option value="Permesso breve">⏰ Permesso breve (scala Permessi)</option>
-<option value="ROL">⏰ ROL</option>
-<option value="Permesso L.104">♿ Permesso L.104 (scala Permessi)</option>
-<option value="Congedo">👶 Congedo</option>
-<option value="Permesso sindacale">📢 Sindacale</option>
-<option value="Donazione sangue">🩸 Donazione</option>
-<option value="Altro">📝 Altro</option>
-</select></div>
-</div>
-
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
-<div><label style="font-size:11px; font-weight:700">📅 DAL</label><input type="date" id="assDal" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-<div><label style="font-size:11px; font-weight:700">📅 AL</label><input type="date" id="assAl" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-</div>
-
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
-<div><label style="font-size:11px; font-weight:700">🕒 Ore (es. 2h o 07:30-09:30)</label><input type="text" id="assOre" placeholder="es. 2h" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-<div><label style="font-size:11px; font-weight:700">📄 Prot./Note</label><input type="text" id="assProtocollo" placeholder="protocollo" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-</div>
-
-<div style="margin-top:8px"><label style="font-size:11px; font-weight:700">📝 Note dettagliate</label><input type="text" id="assNote" placeholder="es. certificato medico..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
-
-<div style="display:flex; gap:8px; margin-top:10px">
-<button class="btn" style="background:#dc2626; color:white; flex:2" onclick="aggiungiAssenza()">➕ Salva Assenza</button>
-<button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="pulisciAssenza()">🧹</button>
-</div>
-</div>
-
-<div style="margin-top:12px">
-<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px">
-<b style="font-size:13px">📋 Elenco + Residui AUTOMATICI</b>
-<div style="display:flex; gap:4px; flex-wrap:wrap">
-<input type="date" id="filtroAssDal" style="padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px">
-<input type="date" id="filtroAssAl" style="padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px">
-<button class="btn btn-small" style="background:#f1f5f9" onclick="filtraAssenze()">🔍</button>
-<button class="btn btn-small" style="background:#16a34a; color:white" onclick="stampaAssenze()">🖨️</button>
-<button class="btn btn-small" style="background:#0ea5e9; color:white" onclick="esportaExcelAssenze()">📊 Excel</button>
-<button class="btn btn-small" style="background:#f1f5f9" onclick="bloccaAssenzePIN()">🔒</button>
-</div>
-</div>
-<input id="cercaAssenza" placeholder="🔍 Cerca per nome o tipo..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="renderAssenze()">
-<div id="tabellaAssenze" style="max-height:320px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; font-size:11px; background:#f8fafc"></div>
-<div id="riepilogoAssenze" style="margin-top:8px; background:#fffbeb; border:2px solid #f59e0b; border-radius:8px; padding:8px; font-size:11px; font-weight:700"></div>
-<div id="ferieResidueBox" style="margin-top:8px; background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; font-size:12px"></div>
-</div>
-
-</div>
-</div>
-
-<!-- BADGE CARTA DI CREDITO 85.6 x 53.98 mm - STAMPA GRANDEZZA NATURALE -->
-<div id="badgeCartaBox" class="badge-carta">
-<div class="badge-carta-left">
-<img id="badgeFoto" class="badge-foto" src="" style="display:none">
-<div id="badgeFotoPlaceholder" style="width:68px; height:84px; border-radius:8px; background:#334155; display:flex; align-items:center; justify-content:center; font-size:28px">👤</div>
-<div id="bNomeCarta" style="font-size:12px; font-weight:900; margin-top:6px; line-height:1.1">Nome</div>
-<div id="bQualificaCarta" style="font-size:8px; background:#f5f3ff; color:#0f172a; padding:2px 6px; border-radius:999px; margin-top:4px">Qualifica</div>
-</div>
-<div class="badge-carta-right">
-<div style="display:flex; justify-content:space-between; align-items:flex-start">
-<div style="font-size:8px; color:#7c3aed; font-weight:800">IC FROSINONE 2°<br><span style="color:#334155">BADGE PERSONALE - 85.6 x 53.98 mm</span></div>
-<div id="qrcodeCarta" style="width:62px; height:62px"></div>
-</div>
-<div>
-<div id="bPlessoCarta" style="font-size:11px; font-weight:700">Plesso</div>
-<div id="bOrarioCarta" style="font-size:7px; line-height:1.2; margin-top:2px; color:#475569"></div>
-</div>
-<div style="display:flex; justify-content:space-between; align-items:flex-end">
-<div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div>
-<div style="font-size:6px; color:#64748b">Formato Carta Credito</div>
-</div>
-</div>
-</div>
-<div style="text-align:center; margin:6px 0">
-<button class="btn btn-small" style="background:#1e293b; color:white; padding:8px 16px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE FORMATO CARTA DI CREDITO (85.6 x 53.98 mm)</button>
-<small style="display:block; font-size:10px; color:#64748b; margin-top:4px">Stampa già impostata a grandezza naturale - ritaglia lungo il bordo - plastifica!</small>
 </div>
 
 <div id="printArea" style="display:none"></div>
@@ -420,55 +256,9 @@ function attivaGPS(){
 }
 
 // PIN
-// PIN - VERSIONE CORRETTA v101
-function caricaPIN(){
-  let p=localStorage.getItem('pin_v101') || localStorage.getItem('pin_v100') || localStorage.getItem('pin_v98') || localStorage.getItem('pin_v96') || localStorage.getItem('pin_v90') || '1234';
-  return p;
-}
-let pinSalvato=caricaPIN();
-function sbloccaPIN(){
-  pinSalvato=caricaPIN();
-  const pin=document.getElementById('pinInput').value.trim();
-  if(pin===pinSalvato){
-    document.getElementById('pinLock').style.display='none';
-    document.getElementById('anagraficaForm').style.display='block';
-    document.getElementById('pinAttualeInfo').innerText='✅ Sbloccato! PIN: '+pinSalvato;
-  } else alert('PIN errato! PIN salvato: '+pinSalvato);
-}
-function bloccaPIN(){
-  document.getElementById('pinLock').style.display='flex';
-  document.getElementById('anagraficaForm').style.display='none';
-  document.getElementById('pinInput').value='';
-}
-function cambiaPIN(){
-  pinSalvato=caricaPIN();
-  let vecchio=prompt('Vecchio PIN:', pinSalvato);
-  if(vecchio===null) return;
-  if(vecchio.trim()!==pinSalvato){ alert('Vecchio PIN errato! Attuale: '+pinSalvato); return; }
-  let nuovo=prompt('Nuovo PIN (min 4 cifre):', pinSalvato);
-  if(nuovo===null) return;
-  nuovo=nuovo.trim();
-  if(nuovo.length<3){ alert('Troppo corto'); return; }
-  ['pin_v101','pin_v100','pin_v98','pin_v96','pin_v95','pin_v90','pin'].forEach(k=>localStorage.setItem(k,nuovo));
-  pinSalvato=nuovo;
-  document.getElementById('pinAttualeInfo').innerText='✅ PIN CAMBIATO: '+nuovo;
-  alert('✅ PIN CAMBIATO: '+nuovo+' - Rimane anche dopo chiusura!');
-}
-function mostraPIN(){ alert('PIN attuale: '+caricaPIN()); }
-let pinAssenzeSbloccato=false;
-function sbloccaAssenzePIN(){
-  if(document.getElementById('pinAssenzeInput').value.trim()===caricaPIN()){
-    pinAssenzeSbloccato=true;
-    document.getElementById('pinAssenzeLock').style.display='none';
-    document.getElementById('assenzeFormProtetta').style.display='block';
-  } else alert('PIN errato!');
-}
-function bloccaAssenzePIN(){
-  pinAssenzeSbloccato=false;
-  document.getElementById('pinAssenzeLock').style.display='flex';
-  document.getElementById('assenzeFormProtetta').style.display='none';
-}
-
+let pinSalvato=localStorage.getItem('pin_v90')||'1234';
+function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; } else alert('PIN errato'); }
+function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
@@ -524,9 +314,6 @@ function resetOrariSettimana(){
 let timbratureSalvate=JSON.parse(localStorage.getItem('timbrature_v93')||'[]');
 function timbra(tipo, nomeF=null){
   if(!dentro){ alert('Avvicinati a un plesso'); return; }
-  const nomeCheck=nomeF||document.getElementById('dipendente').value;
-  const mal=isInMalattia(nomeCheck);
-  if(mal){ if(!confirm('⚠️ ATTENZIONE: '+nomeCheck+' risulta in MALATTIA dal '+mal.dal+' al '+mal.al+'\nVuoi timbrare lo stesso?')) return; }
   const nome=nomeF||document.getElementById('dipendente').value; if(!nome) return;
   const ora=new Date(); const oraStr=ora.toLocaleString('it-IT'); const oraTime=ora.toTimeString().slice(0,5);
   const d=last&&vicino?Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon)):0;
@@ -544,7 +331,7 @@ function avviaScanner(){
   const reader=document.getElementById('reader'); reader.style.display='block'; document.getElementById('stopBtn').style.display='block';
   if(html5Qr){ try{html5Qr.stop();}catch(e){} }
   html5Qr=new Html5Qrcode("reader");
-  html5Qr.start({facingMode:"user"}, {fps:12, qrbox:280}, (decoded)=>{
+  html5Qr.start({facingMode:"environment"}, {fps:12, qrbox:280}, (decoded)=>{
     if(!dentro) return; const now=Date.now(); if(decoded===ultimoQR && (now-ultimoTempo)<3000) return; ultimoQR=decoded; ultimoTempo=now;
     let nome=decoded; if(decoded.includes('|')){ const p=decoded.split('|'); nome=p[1]||p[0]; }
     timbra('ENTRATA', nome); if(!continuo) setTimeout(()=>fermaScanner(), 1200);
@@ -555,18 +342,15 @@ function fermaScanner(){ if(html5Qr){ html5Qr.stop().then(()=>{document.getEleme
 let anagrafiche=[];
 function loadAnag(){
   try{const s=localStorage.getItem('anagrafiche_v95')||localStorage.getItem('anagrafiche_v90'); if(s) anagrafiche=JSON.parse(s);}catch(e){}
-  if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", ferieAnnuali:32, rolAnnuale:32, permessiAnnuali:32, orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
-  anagrafiche=anagrafiche.map(a=>{ if(!a.ferieAnnuali) a.ferieAnnuali=32; if(a.rolAnnuale===undefined) a.rolAnnuale=32; if(a.permessiAnnuali===undefined) a.permessiAnnuali=32; return a; });
+  if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
   render();
 }
 function saveAnag(){localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));}
 function render(){
-  const sel=document.getElementById('dipendente'); sel.innerHTML=''; anagrafiche.forEach(a=>{const o=document.createElement('option'); const riepilogo=Object.keys(a.orariSettimana||{}).map(g=>{if((a.orariSettimana[g]||[]).length===0) return ''; return g.toUpperCase()+':'+a.orariSettimana[g].map(s=>s.entrata+'-'+s.uscita).join('/')}).filter(x=>x).join(' '); o.text=`${a.nome} - ${a.qualifica||''} - ${a.plesso} (${riepilogo.substring(0,50)}) F:${a.ferieAnnuali||32} ROL:${a.rolAnnuale||32}h`; o.value=a.nome; sel.appendChild(o);});
+  const sel=document.getElementById('dipendente'); sel.innerHTML=''; anagrafiche.forEach(a=>{const o=document.createElement('option'); const riepilogo=Object.keys(a.orariSettimana||{}).map(g=>{if((a.orariSettimana[g]||[]).length===0) return ''; return g.toUpperCase()+':'+a.orariSettimana[g].map(s=>s.entrata+'-'+s.uscita).join('/')}).filter(x=>x).join(' '); o.text=`${a.nome} - ${a.qualifica||''} - ${a.plesso} (${riepilogo.substring(0,50)})`; o.value=a.nome; sel.appendChild(o);});
   sel.onchange=mostraOrario;
   filtraElenco();
   mostraOrario();
-  aggiornaSelectAssenze();
-  renderAssenze();
 }
 function filtraElenco(){
   const q=(document.getElementById('cercaDip').value||'').toLowerCase();
@@ -580,7 +364,7 @@ function filtraElenco(){
     const div=document.createElement('div');
     div.style.cssText='display:grid; grid-template-columns:1.3fr 1fr 1.5fr 0.7fr; gap:4px; padding:8px; border-bottom:1.5px solid #e2e8f0; align-items:start; background:white';
     div.innerHTML=`
-      <div><b style="font-size:12px">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed">${a.qualifica||''}</span><br><span style="font-size:10px">${a.plesso}</span><br><span style="font-size:9px; background:#d1fae5; border:1px solid #16a34a; padding:1px 5px; border-radius:999px">🏖️ ${a.ferieAnnuali||32}gg</span> <span style="font-size:8px; background:#fffbeb; border:1px solid #f59e0b; padding:1px 5px; border-radius:999px">ROL ${a.rolAnnuale||32}h</span> <span style="font-size:8px; background:#e0f2fe; border:1px solid #0ea5e9; padding:1px 5px; border-radius:999px">${a.permessiAnnuali||32}h</span></div>
+      <div><b style="font-size:12px">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed">${a.qualifica||''}</span><br><span style="font-size:10px">${a.plesso}</span></div>
       <div style="font-size:10px">${riepilogoGiorni}</div>
       <div style="font-size:10px; text-align:center"><b>${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">sett.</span></div>
       <div style="display:grid; gap:4px">
@@ -611,14 +395,11 @@ function aggiungiAnagrafica(){
   const nome=document.getElementById('nuovaAnagrafica').value.trim();
   const plesso=document.getElementById('plessoAnagrafica').value;
   const qualifica=document.getElementById('qualifica').value;
-  const ferieAnnuali=parseInt(document.getElementById('feriePerDip')?.value||'32');
-  const rolAnnuale=parseInt(document.getElementById('rolPerDip')?.value||'32');
-  const permessiAnnuali=parseInt(document.getElementById('permessiPerDip')?.value||'32');
   if(!nome){alert('Inserisci nome'); return;}
   // calcola totale settimana
   let totSett=0; Object.values(orariSettimana).forEach(arr=>{arr.forEach(s=>{const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; totSett+=d;});});
   const hTot=Math.floor(totSett/60), mTot=totSett%60; const totale=`${hTot}h${String(mTot).padStart(2,'0')}m`;
-  const obj={nome, plesso, qualifica, ferieAnnuali, rolAnnuale, permessiAnnuali, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
+  const obj={nome, plesso, qualifica, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
   const idx=anagrafiche.findIndex(a=>a.nome.toLowerCase()===nome.toLowerCase());
   if(idx>=0) anagrafiche[idx]=obj; else anagrafiche.push(obj);
   saveAnag(); render(); creaBadgeDa(nome); document.getElementById('nuovaAnagrafica').value='';
@@ -630,9 +411,6 @@ function modificaAnag(nome){
   document.getElementById('nuovaAnagrafica').value=a.nome;
   document.getElementById('plessoAnagrafica').value=a.plesso;
   document.getElementById('qualifica').value=a.qualifica||'Collaboratore scolastico';
-  const ferieSel=document.getElementById('feriePerDip'); if(ferieSel) ferieSel.value=a.ferieAnnuali||32;
-  const rolSel=document.getElementById('rolPerDip'); if(rolSel) rolSel.value=a.rolAnnuale||32;
-  const permSel=document.getElementById('permessiPerDip'); if(permSel) permSel.value=a.permessiAnnuali||32;
   orariSettimana=a.orariSettimana? JSON.parse(JSON.stringify(a.orariSettimana)) : {lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
   selezionaGiorno('lun');
   window.scrollTo(0, document.getElementById('anagraficaForm').offsetTop);
@@ -645,27 +423,8 @@ function eliminaAnag(nome){
 }
 
 function creaBadgeDa(nome){
-  const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', ferieAnnuali:32, orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
-  const box=document.getElementById('badgeBox'); if(box){ box.style.display='flex'; document.getElementById('bNome').innerText=a.nome; document.getElementById('bQualifica').innerText=a.qualifica||''; document.getElementById('bPlesso').innerText=a.plesso; const riepilogo=Object.keys(giorniMap).map(g=>{ const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[]; if(slots.length===0) return ''; return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/'); }).filter(x=>x).join(' '); document.getElementById('bOrario').innerText=riepilogo.substring(0,120)+' ('+(a.totale||'')+')'; document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso; const qr=document.getElementById('qrcode'); qr.innerHTML=''; new QRCode(qr, {text:'IC2|'+a.nome+'|'+a.plesso, width:78, height:78}); }
-  const boxCarta=document.getElementById('badgeCartaBox');
-  if(boxCarta){
-    boxCarta.style.display='flex';
-    document.getElementById('bNomeCarta').innerText=a.nome;
-    document.getElementById('bQualificaCarta').innerText=a.qualifica||'';
-    document.getElementById('bPlessoCarta').innerText=a.plesso;
-    const riepilogoBreve=Object.keys(giorniMap).map(g=>{ const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[]; if(slots.length===0) return ''; return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/'); }).filter(x=>x).join(' ');
-    document.getElementById('bOrarioCarta').innerText=riepilogoBreve.substring(0,140)+' ('+(a.totale||'')+')';
-    document.getElementById('bIdCarta').innerText='IC2|'+a.nome+'|'+a.plesso;
-    let fotos=JSON.parse(localStorage.getItem('foto_badge_v101')||localStorage.getItem('foto_badge_v98')||'{}');
-    let foto=fotos[a.nome];
-    const imgEl=document.getElementById('badgeFoto');
-    const phEl=document.getElementById('badgeFotoPlaceholder');
-    if(foto){ imgEl.src=foto; imgEl.style.display='block'; phEl.style.display='none'; }
-    else { imgEl.style.display='none'; phEl.style.display='flex'; }
-    const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML=''; new QRCode(qrCarta, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:62, height:62});
-    boxCarta.scrollIntoView({behavior:'smooth'});
-  }
-
+  const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
+  const box=document.getElementById('badgeBox'); box.style.display='flex';
   document.getElementById('bNome').innerText=a.nome;
   document.getElementById('bQualifica').innerText=a.qualifica||'';
   document.getElementById('bPlesso').innerText=a.plesso;
@@ -680,35 +439,10 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
-function impostaPeriodo(tipo){
-  const oggi=new Date(); const fmt=d=>d.toISOString().slice(0,10);
-  if(tipo==='oggi'){ document.getElementById('dataDal').value=fmt(oggi); document.getElementById('dataAl').value=fmt(oggi); }
-  else if(tipo==='settimana'){ const lun=new Date(oggi); lun.setDate(oggi.getDate()-oggi.getDay()+1); document.getElementById('dataDal').value=fmt(lun); document.getElementById('dataAl').value=fmt(oggi); }
-  else if(tipo==='mese'){ const primo=new Date(oggi.getFullYear(), oggi.getMonth(), 1); document.getElementById('dataDal').value=fmt(primo); document.getElementById('dataAl').value=fmt(oggi); }
-}
-function parseDataItaliana(str){
-  try{ let p=str.split(',')[0].trim(); let parts=p.split('/'); if(parts.length!==3) return null; return new Date(parts[2], parts[1]-1, parts[0]); }catch(e){ return null; }
-}
 function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
 function stampaResocontoNome(nome){
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  let timbri=timbratureSalvate.filter(t=>t.nome===nome);
-  const dalVal=document.getElementById('dataDal').value;
-  const alVal=document.getElementById('dataAl').value;
-  let dal=null, al=null;
-  if(dalVal){ dal=new Date(dalVal); dal.setHours(0,0,0,0); }
-  if(alVal){ al=new Date(alVal); al.setHours(23,59,59,999); }
-  if(dal||al){
-    timbri=timbri.filter(t=>{
-      const d=parseDataItaliana(t.data);
-      if(!d) return true;
-      if(dal && d<dal) return false;
-      if(al && d>al) return false;
-      return true;
-    });
-  }
-  timbri=timbri.slice(0,200);
-
+  const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
   const tabOrari=Object.keys(giorniMap).map(g=>{
     const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
@@ -720,209 +454,9 @@ function stampaResocontoNome(nome){
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
-
-// ========== GESTIONE ASSENZE + FERIE + ROL + PERMESSI v101 ==========
-let assenzeSalvate=JSON.parse(localStorage.getItem('assenze_v101')||localStorage.getItem('assenze_v100')||localStorage.getItem('assenze_v98')||'[]');
-function parseOreAssenza(str){
-  if(!str) return 0;
-  str=str.trim().toLowerCase();
-  if(str.includes('-')){
-    let parts=str.split('-');
-    if(parts.length===2){
-      let s=parts[0].trim().split(':'); let e=parts[1].trim().split(':');
-      if(s.length>=2 && e.length>=2){
-        let sh=parseInt(s[0])||0, sm=parseInt(s[1])||0;
-        let eh=parseInt(e[0])||0, em=parseInt(e[1])||0;
-        let diff=(eh*60+em)-(sh*60+sm);
-        if(diff<0) diff+=24*60;
-        return diff/60;
-      }
-    }
-  }
-  let num=parseFloat(str.replace('h','').replace(',','.'));
-  return isNaN(num)?0:num;
-}
-function calcolaGiorniFeriali(dal, al){
-  if(!dal || !al) return 0;
-  let d1=new Date(dal), d2=new Date(al);
-  let diff=Math.ceil((d2-d1)/(1000*60*60*24))+1;
-  return diff>0?diff:0;
-}
-function salvaFerieTotali(){
-  const val=document.getElementById('ferieTotali').value;
-  localStorage.setItem('ferie_totali_v101', val);
-  localStorage.setItem('ferie_totali_v98', val);
-  renderAssenze();
-  alert('✅ Default ferie impostato a '+val+' giorni!');
-}
-function aggiungiAssenza(){
-  const nome=document.getElementById('assenzeDipendente').value;
-  const tipo=document.getElementById('tipoAssenza').value;
-  const dal=document.getElementById('assDal').value;
-  const al=document.getElementById('assAl').value||dal;
-  const ore=document.getElementById('assOre').value;
-  const prot=document.getElementById('assProtocollo').value;
-  const note=document.getElementById('assNote').value;
-  if(!nome){ alert('Seleziona dipendente'); return; }
-  if(!dal){ alert('Inserisci DAL'); return; }
-  const id=Date.now();
-  const giorni=calcolaGiorniFeriali(dal, al);
-  const obj={id, nome, tipo, dal, al, giorni, ore, prot, note, dataInserimento:new Date().toLocaleString('it-IT')};
-  assenzeSalvate.unshift(obj);
-  localStorage.setItem('assenze_v101', JSON.stringify(assenzeSalvate));
-  renderAssenze();
-  pulisciAssenza();
-  alert('✅ Assenza salvata: '+nome+' - '+tipo+' '+dal+'→'+al);
-}
-function pulisciAssenza(){
-  document.getElementById('assDal').value='';
-  document.getElementById('assAl').value='';
-  document.getElementById('assOre').value='';
-  document.getElementById('assProtocollo').value='';
-  document.getElementById('assNote').value='';
-}
-function eliminaAssenza(id){
-  if(!confirm('Eliminare?')) return;
-  assenzeSalvate=assenzeSalvate.filter(a=>a.id!==id);
-  localStorage.setItem('assenze_v101', JSON.stringify(assenzeSalvate));
-  renderAssenze();
-}
-function renderAssenze(){
-  const cont=document.getElementById('tabellaAssenze');
-  if(!cont) return;
-  const cerca=(document.getElementById('cercaAssenza').value||'').toLowerCase();
-  const fDal=document.getElementById('filtroAssDal').value;
-  const fAl=document.getElementById('filtroAssAl').value;
-  let list=assenzeSalvate;
-  if(cerca) list=list.filter(a=> (a.nome+' '+a.tipo+' '+(a.note||'')).toLowerCase().includes(cerca));
-  if(fDal) list=list.filter(a=> a.dal>=fDal);
-  if(fAl) list=list.filter(a=> a.dal<=fAl);
-  let ferieMap={}, rolMap={}, permMap={};
-  assenzeSalvate.filter(a=>a.tipo==='Ferie').forEach(a=>{ ferieMap[a.nome]=(ferieMap[a.nome]||0)+(a.giorni||calcolaGiorniFeriali(a.dal,a.al)); });
-  assenzeSalvate.forEach(a=>{
-    let ore=parseOreAssenza(a.ore);
-    if(ore===0 && a.giorni && a.tipo!=='Ferie' && a.tipo!=='Malattia') ore=a.giorni*6;
-    if(a.tipo==='ROL') rolMap[a.nome]=(rolMap[a.nome]||0)+ore;
-    else if(a.tipo==='Permesso breve' || a.tipo==='Permesso L.104' || a.tipo==='Permesso sindacale') permMap[a.nome]=(permMap[a.nome]||0)+ore;
-  });
-  const ferieBox=document.getElementById('ferieResidueBox');
-  if(ferieBox){
-    let htmlF='<b>📊 DOVE VEDI LE FERIE RESIDUE - CALCOLO AUTOMATICO:</b><br>';
-    htmlF+='<small style="color:#166534">Ferie residue = Totale annuo (30 o 32) - giorni di FERIE inseriti qui. ROL e Permessi = Tot ore - ore di permessi/ROL inseriti.</small><br><br>';
-    anagrafiche.forEach(ana=>{
-      let ferieUsate=ferieMap[ana.nome]||0;
-      let totFerie=ana.ferieAnnuali||parseInt(localStorage.getItem('ferie_totali_v101')||'32');
-      let ferieRes=totFerie-ferieUsate;
-      let rolUs=rolMap[ana.nome]||0;
-      let rolTot=ana.rolAnnuale||32;
-      let rolRes=rolTot-rolUs;
-      let permUs=permMap[ana.nome]||0;
-      let permTot=ana.permessiAnnuali||32;
-      let permRes=permTot-permUs;
-      let cF=ferieRes<5?'color:#dc2626; font-weight:900':'color:#166534';
-      let cR=rolRes<5?'color:#dc2626':'color:#92400e';
-      let cP=permRes<5?'color:#dc2626':'color:#1e40af';
-      htmlF+=`<div style="border-bottom:1px dashed #cbd5e1; padding:6px 0"><b>👤 ${ana.nome} (Tot: ${totFerie} gg ferie, ${rolTot}h ROL, ${permTot}h Perm)</b><br>`;
-      htmlF+=`<span style="${cF}">🏖️ Ferie: ${totFerie} - ${ferieUsate} = <b>${ferieRes} gg RESIDUI</b></span> | `;
-      htmlF+=`<span style="${cR}">⏰ ROL: ${rolTot}h - ${rolUs.toFixed(1)}h = <b>${rolRes.toFixed(1)}h RESIDUI</b></span> | `;
-      htmlF+=`<span style="${cP}">📝 Permessi: ${permTot}h - ${permUs.toFixed(1)}h = <b>${permRes.toFixed(1)}h RESIDUI</b></span></div>`;
-    });
-    if(anagrafiche.length===0) htmlF+='Nessun dipendente - aggiungi in Anagrafica sopra!';
-    ferieBox.innerHTML=htmlF;
-    const ftEl=document.getElementById('ferieTotali'); if(ftEl) ftEl.value=localStorage.getItem('ferie_totali_v101')||'32';
-  }
-  if(list.length===0){ cont.innerHTML='<div style="padding:12px; text-align:center; color:#64748b">Nessuna assenza - inserisci ferie/malattia qui e vedi i residui sopra!</div>'; document.getElementById('riepilogoAssenze').innerHTML='Tot: 0'; return; }
-  let htmlTab='<table style="width:100%; border-collapse:collapse"><tr style="background:#7f1d1d; color:white"><th style="padding:6px">Data</th><th>Nome</th><th>Tipo</th><th>Periodo</th><th>Note</th><th></th></tr>';
-  let riepilogo={};
-  list.forEach(a=>{
-    riepilogo[a.tipo]=(riepilogo[a.tipo]||0)+1;
-    htmlTab+=`<tr style="border-bottom:1px solid #e2e8f0; background:${a.tipo==='Malattia'?'#fee2e2':a.tipo==='Ferie'?'#dbeafe':'#fff'}"><td style="padding:6px; font-size:10px">${a.dataInserimento.split(',')[0]}</td><td style="padding:6px; font-weight:700">${a.nome.split(' ').slice(0,2).join(' ')}</td><td style="padding:6px"><span style="padding:2px 6px; border-radius:999px; background:#fee2e2; border:1px solid #fca5a5; font-size:10px">${a.tipo}</span><br><small>${a.giorni||''} gg ${a.ore||''}</small></td><td style="padding:6px; font-size:10px">${a.dal} → ${a.al}</td><td style="padding:6px; font-size:10px">${a.prot||''} ${a.note||''}</td><td style="padding:6px"><button style="background:#ef4444; color:white; border:0; border-radius:6px; padding:4px 6px; font-size:10px" onclick="eliminaAssenza(${a.id})">✕</button></td></tr>`;
-  });
-  htmlTab+='</table>';
-  cont.innerHTML=htmlTab;
-  document.getElementById('riepilogoAssenze').innerHTML='📊 Tot '+list.length+' | '+Object.keys(riepilogo).map(k=>k+': '+riepilogo[k]).join(' | ');
-}
-function filtraAssenze(){ renderAssenze(); }
-function stampaAssenze(){
-  const fd=document.getElementById('filtroAssDal').value||'inizio';
-  const fa=document.getElementById('filtroAssAl').value||'oggi';
-  const cerca=document.getElementById('cercaAssenza').value||'';
-  let filtered=assenzeSalvate;
-  if(cerca) filtered=filtered.filter(a=> (a.nome+' '+a.tipo).toLowerCase().includes(cerca.toLowerCase()));
-  if(document.getElementById('filtroAssDal').value) filtered=filtered.filter(a=> a.dal>=document.getElementById('filtroAssDal').value);
-  if(document.getElementById('filtroAssAl').value) filtered=filtered.filter(a=> a.dal<=document.getElementById('filtroAssAl').value);
-  const printArea=document.getElementById('printArea');
-  printArea.style.display='block';
-  const rows=filtered.map(a=>`<tr><td style="border:1px solid #ccc; padding:5px">${a.dal} → ${a.al} (${a.giorni||''}gg)</td><td style="border:1px solid #ccc; padding:5px"><b>${a.nome}</b></td><td style="border:1px solid #ccc; padding:5px">${a.tipo}</td><td style="border:1px solid #ccc; padding:5px">${a.ore||''}</td><td style="border:1px solid #ccc; padding:5px">${a.prot||''}</td><td style="border:1px solid #ccc; padding:5px">${a.note||''}</td></tr>`).join('');
-  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:900px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center">Registro Assenze - ${fd} → ${fa}</h2><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#7f1d1d; color:white"><th>Periodo</th><th>Dipendente</th><th>Tipo</th><th>Ore</th><th>Prot.</th><th>Note</th></tr>${rows}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#dc2626; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
-}
-function esportaExcelAssenze(){
-  let filtered=assenzeSalvate;
-  const fd=document.getElementById('filtroAssDal').value;
-  const fa=document.getElementById('filtroAssAl').value;
-  if(fd) filtered=filtered.filter(a=> a.dal>=fd);
-  if(fa) filtered=filtered.filter(a=> a.dal<=fa);
-  let csv='Dal;Al;Giorni;Dipendente;Tipo;Ore;Prot;Note;Data\n';
-  filtered.forEach(a=>{ csv+=`${a.dal};${a.al};${a.giorni||''};${a.nome};${a.tipo};${a.ore||''};${a.prot||''};${(a.note||'').replace(/;/g,',')};${a.dataInserimento}\n`; });
-  let blob=new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  let url=URL.createObjectURL(blob);
-  let a=document.createElement('a'); a.href=url; a.download='Assenze_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
-  URL.revokeObjectURL(url);
-}
-function aggiornaSelectAssenze(){
-  const selAss=document.getElementById('assenzeDipendente');
-  if(!selAss) return;
-  const val=selAss.value;
-  selAss.innerHTML='';
-  anagrafiche.forEach(a=>{
-    const o=document.createElement('option');
-    o.value=a.nome;
-    o.text=a.nome+' - '+(a.qualifica||'')+' (F:'+(a.ferieAnnuali||32)+' ROL:'+(a.rolAnnuale||32)+'h)';
-    selAss.appendChild(o);
-  });
-  if(val) selAss.value=val;
-}
-function isInMalattia(nome){
-  const oggi=new Date().toISOString().slice(0,10);
-  return assenzeSalvate.find(a=> a.nome===nome && a.tipo==='Malattia' && a.dal<=oggi && oggi<=a.al);
-}
-function stampaBadgeCarta(){
-  const box=document.getElementById('badgeCartaBox');
-  if(!box || box.style.display==='none'){ alert('Prima clicca Badge su un dipendente!'); return; }
-  window.print();
-}
-function handleFotoAnagrafica(event){
-  const nome=document.getElementById('nuovaAnagrafica').value.trim();
-  if(!nome){ alert('Inserisci prima il nome!'); return; }
-  handleFotoInput(event, nome);
-}
-function handleFotoInput(event, nome){
-  const file=event.target.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const base64=e.target.result;
-    let fotos=JSON.parse(localStorage.getItem('foto_badge_v101')||localStorage.getItem('foto_badge_v98')||'{}');
-    fotos[nome]=base64;
-    localStorage.setItem('foto_badge_v101', JSON.stringify(fotos));
-    localStorage.setItem('foto_badge_v98', JSON.stringify(fotos));
-    alert('✅ Foto salvata per '+nome);
-    if(document.getElementById('bNomeCarta') && document.getElementById('bNomeCarta').innerText.includes(nome.split(' ')[0])){
-      document.getElementById('badgeFoto').src=base64;
-      document.getElementById('badgeFoto').style.display='block';
-      document.getElementById('badgeFotoPlaceholder').style.display='none';
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
 window.addEventListener('load', ()=>{
-  pinSalvato=caricaPIN();
-  let ft=localStorage.getItem('ferie_totali_v101')||localStorage.getItem('ferie_totali_v98')||'32';
-  let elFT=document.getElementById('ferieTotali'); if(elFT) elFT.value=ft;
-
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  let ft2=localStorage.getItem('ferie_totali_v101')||'32'; let elFT2=document.getElementById('ferieTotali'); if(elFT2) elFT2.value=ft2; renderPlessiUI(); loadAnag(); resetOrariSettimana(); renderAssenze(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
