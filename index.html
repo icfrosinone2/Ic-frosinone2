@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 Orario Settimanale + Qualifiche + Ristampa</title>
+<title>IC Frosinone 2 - v97 Orario + Qualifiche + Assenze Collegate</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -53,7 +53,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95 - Orario settimanale + Qualifiche</b>
+<b>✅ v97 - Orario + Qualifiche + Assenze</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -211,7 +211,75 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
+
+<!-- GESTIONE ASSENZE - NUOVO MODULO COLLEGATO -->
+<div style="margin-top:10px; background:white; border:3px solid #dc2626; border-radius:14px; padding:12px; box-shadow:0 2px 6px rgba(0,0,0,.1)">
+<div style="display:flex; justify-content:space-between; align-items:center">
+<b style="font-size:16px">🏥 Gestione Assenze - Collegata</b>
+<span style="font-size:10px; background:#fee2e2; border:1.5px solid #dc2626; padding:4px 10px; border-radius:999px; font-weight:800">NUOVO</span>
+</div>
+<small style="font-size:11px; color:#7f1d1d">Inserisci ferie, malattia, permessi, L.104. Si collega alle timbrature e al resoconto!</small>
+
+<div style="background:#fef2f2; border:2px solid #fca5a5; border-radius:10px; padding:10px; margin-top:8px">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+<div>
+<label style="font-size:11px; font-weight:800">👤 Dipendente</label>
+<select id="assenzeDipendente" style="width:100%; padding:9px; border:2px solid #dc2626; border-radius:8px; font-weight:700"></select>
+</div>
+<div>
+<label style="font-size:11px; font-weight:800">📋 Tipo assenza</label>
+<select id="tipoAssenza" style="width:100%; padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; font-weight:700">
+<option value="Malattia">🤒 Malattia</option>
+<option value="Ferie">🏖️ Ferie</option>
+<option value="Permesso breve">⏰ Permesso breve</option>
+<option value="Permesso L.104">♿ Permesso L.104</option>
+<option value="Congedo">👶 Congedo / Maternità</option>
+<option value="Permesso sindacale">📢 Permesso sindacale</option>
+<option value="Donazione sangue">🩸 Donazione sangue</option>
+<option value="Altro">📝 Altro</option>
+</select>
+</div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
+<div><label style="font-size:11px; font-weight:700">📅 DAL</label><input type="date" id="assDal" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
+<div><label style="font-size:11px; font-weight:700">📅 AL</label><input type="date" id="assAl" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
+<div><label style="font-size:11px; font-weight:700">🕒 Ore (se permesso breve)</label><input type="text" id="assOre" placeholder="es. 2h o 07:30-09:30" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
+<div><label style="font-size:11px; font-weight:700">📄 Prot. / Certificato</label><input type="text" id="assProtocollo" placeholder="n. protocollo o note" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px"></div>
+</div>
+
+<div style="margin-top:8px">
+<label style="font-size:11px; font-weight:700">📝 Note</label>
+<input type="text" id="assNote" placeholder="es. Visita medica, certificato medico del..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px">
+</div>
+
+<div style="display:flex; gap:8px; margin-top:10px">
+<button class="btn" style="background:#dc2626; color:white; flex:2" onclick="aggiungiAssenza()">➕ Salva Assenza</button>
+<button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1; flex:1" onclick="pulisciAssenza()">🧹 Pulisci</button>
+</div>
+</div>
+
+<div style="margin-top:10px">
+<div style="display:flex; justify-content:space-between; align-items:center; gap:6px">
+<b style="font-size:13px">📋 Elenco Assenze</b>
+<div style="display:flex; gap:4px">
+<input type="date" id="filtroAssDal" style="padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px">
+<input type="date" id="filtroAssAl" style="padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:11px">
+<button class="btn btn-small" style="background:#f1f5f9" onclick="filtraAssenze()">🔍</button>
+<button class="btn btn-small" style="background:#16a34a; color:white" onclick="stampaAssenze()">🖨️ Stampa</button>
+</div>
+</div>
+<input id="cercaAssenza" placeholder="🔍 Cerca per nome o tipo..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="renderAssenze()">
+<div id="tabellaAssenze" style="max-height:300px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; font-size:11px; background:#f8fafc"></div>
+<div id="riepilogoAssenze" style="margin-top:8px; background:#fffbeb; border:2px solid #f59e0b; border-radius:8px; padding:8px; font-size:11px; font-weight:700"></div>
+</div>
+</div>
+
 <div id="printArea" style="display:none"></div>
+
 
 <script>
 const GEOFENCE=150;
@@ -404,11 +472,25 @@ function loadAnag(){
   render();
 }
 function saveAnag(){localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));}
+function aggiornaSelectAssenze(){
+  const selAss=document.getElementById('assenzeDipendente');
+  if(!selAss) return;
+  const val=selAss.value;
+  selAss.innerHTML='';
+  anagrafiche.forEach(a=>{
+    const o=document.createElement('option');
+    o.value=a.nome;
+    o.text=a.nome+' - '+(a.qualifica||'');
+    selAss.appendChild(o);
+  });
+  if(val) selAss.value=val;
+}
 function render(){
   const sel=document.getElementById('dipendente'); sel.innerHTML=''; anagrafiche.forEach(a=>{const o=document.createElement('option'); const riepilogo=Object.keys(a.orariSettimana||{}).map(g=>{if((a.orariSettimana[g]||[]).length===0) return ''; return g.toUpperCase()+':'+a.orariSettimana[g].map(s=>s.entrata+'-'+s.uscita).join('/')}).filter(x=>x).join(' '); o.text=`${a.nome} - ${a.qualifica||''} - ${a.plesso} (${riepilogo.substring(0,50)})`; o.value=a.nome; sel.appendChild(o);});
   sel.onchange=mostraOrario;
   filtraElenco();
   mostraOrario();
+  aggiornaSelectAssenze();
 }
 function filtraElenco(){
   const q=(document.getElementById('cercaDip').value||'').toLowerCase();
@@ -544,8 +626,86 @@ function stampaResocontoNome(nome){
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>${periodoTxt}<br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature nel periodo selezionato (${timbri.length})</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura in questo periodo</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
+
+// ========== GESTIONE ASSENZE ==========
+let assenzeSalvate=JSON.parse(localStorage.getItem('assenze_v97')||'[]');
+function aggiungiAssenza(){
+  const nome=document.getElementById('assenzeDipendente').value;
+  const tipo=document.getElementById('tipoAssenza').value;
+  const dal=document.getElementById('assDal').value;
+  const al=document.getElementById('assAl').value||dal;
+  const ore=document.getElementById('assOre').value;
+  const prot=document.getElementById('assProtocollo').value;
+  const note=document.getElementById('assNote').value;
+  if(!nome){ alert('Seleziona dipendente'); return; }
+  if(!dal){ alert('Inserisci data DAL'); return; }
+  const id=Date.now();
+  const obj={id, nome, tipo, dal, al, ore, prot, note, dataInserimento:new Date().toLocaleString('it-IT')};
+  assenzeSalvate.unshift(obj);
+  localStorage.setItem('assenze_v97', JSON.stringify(assenzeSalvate));
+  renderAssenze();
+  pulisciAssenza();
+  alert('✅ Assenza salvata per '+nome+' - '+tipo+' dal '+dal+' al '+al);
+}
+function pulisciAssenza(){
+  document.getElementById('assDal').value='';
+  document.getElementById('assAl').value='';
+  document.getElementById('assOre').value='';
+  document.getElementById('assProtocollo').value='';
+  document.getElementById('assNote').value='';
+}
+function eliminaAssenza(id){
+  if(!confirm('Eliminare questa assenza?')) return;
+  assenzeSalvate=assenzeSalvate.filter(a=>a.id!==id);
+  localStorage.setItem('assenze_v97', JSON.stringify(assenzeSalvate));
+  renderAssenze();
+}
+function renderAssenze(){
+  const cont=document.getElementById('tabellaAssenze');
+  const cerca=document.getElementById('cercaAssenza').value.toLowerCase();
+  const fDal=document.getElementById('filtroAssDal').value;
+  const fAl=document.getElementById('filtroAssAl').value;
+  let list=assenzeSalvate;
+  if(cerca){ list=list.filter(a=> (a.nome+' '+a.tipo+' '+(a.note||'')).toLowerCase().includes(cerca)); }
+  if(fDal){ list=list.filter(a=> a.dal>=fDal); }
+  if(fAl){ list=list.filter(a=> a.dal<=fAl); }
+  if(list.length===0){ cont.innerHTML='<div style="padding:12px; text-align:center; color:#64748b">Nessuna assenza</div>'; document.getElementById('riepilogoAssenze').innerHTML='Tot: 0 assenze'; return; }
+  let html='<table style="width:100%; border-collapse:collapse"><tr style="background:#7f1d1d; color:white"><th style="padding:6px">Data</th><th>Nome</th><th>Tipo</th><th>Periodo</th><th>Note</th><th></th></tr>';
+  let riepilogo={};
+  list.forEach(a=>{
+    riepilogo[a.tipo]=(riepilogo[a.tipo]||0)+1;
+    html+=`<tr style="border-bottom:1px solid #e2e8f0; background:${a.tipo==='Malattia'?'#fee2e2':a.tipo==='Ferie'?'#dbeafe':'#fff'}"><td style="padding:6px; font-size:10px">${a.dataInserimento.split(',')[0]}</td><td style="padding:6px; font-weight:700">${a.nome.split(' ').slice(0,2).join(' ')}</td><td style="padding:6px"><span style="padding:2px 6px; border-radius:999px; background:#fee2e2; border:1px solid #fca5a5; font-size:10px">${a.tipo}</span></td><td style="padding:6px; font-size:10px">${a.dal} → ${a.al}<br><small>${a.ore||''}</small></td><td style="padding:6px; font-size:10px">${a.prot||''} ${a.note||''}</td><td style="padding:6px"><button style="background:#ef4444; color:white; border:0; border-radius:6px; padding:4px 6px; font-size:10px" onclick="eliminaAssenza(${a.id})">✕</button></td></tr>`;
+  });
+  html+='</table>';
+  cont.innerHTML=html;
+  let rip='📊 Riepilogo: Tot '+list.length+' assenze | ';
+  Object.keys(riepilogo).forEach(k=>{ rip+=k+': '+riepilogo[k]+' | '; });
+  document.getElementById('riepilogoAssenze').innerHTML=rip;
+}
+function filtraAssenze(){ renderAssenze(); }
+function stampaAssenze(){
+  const fDal=document.getElementById('filtroAssDal').value||'inizio';
+  const fAl=document.getElementById('filtroAssAl').value||'oggi';
+  const list=assenzeSalvate; // per stampa semplice usa filtro attuale da render
+  const cerca=document.getElementById('cercaAssenza').value;
+  let filtered=list;
+  if(cerca){ filtered=filtered.filter(a=> (a.nome+' '+a.tipo).toLowerCase().includes(cerca.toLowerCase())); }
+  const fd=document.getElementById('filtroAssDal').value;
+  const fa=document.getElementById('filtroAssAl').value;
+  if(fd) filtered=filtered.filter(a=> a.dal>=fd);
+  if(fa) filtered=filtered.filter(a=> a.dal<=fa);
+  const printArea=document.getElementById('printArea');
+  printArea.style.display='block';
+  const rows=filtered.map(a=>`<tr><td style="border:1px solid #ccc; padding:5px">${a.dal} → ${a.al}</td><td style="border:1px solid #ccc; padding:5px"><b>${a.nome}</b></td><td style="border:1px solid #ccc; padding:5px">${a.tipo}</td><td style="border:1px solid #ccc; padding:5px">${a.ore||''}</td><td style="border:1px solid #ccc; padding:5px">${a.prot||''}</td><td style="border:1px solid #ccc; padding:5px">${a.note||''}</td></tr>`).join('');
+  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:900px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center">Istituto Comprensivo Frosinone 2°<br>Registro Assenze - ${fDal} → ${fAl}</h2><p style="text-align:center; font-size:12px">Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')} | Filtro: ${cerca||'tutti'} | Tot: ${filtered.length}</p><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#7f1d1d; color:white"><th>Periodo</th><th>Dipendente</th><th>Tipo</th><th>Ore</th><th>Prot.</th><th>Note</th></tr>${rows||'<tr><td colspan=6 style="text-align:center; padding:10px">Nessuna assenza</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#dc2626; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+}
+
 window.addEventListener('load', ()=>{
   pinSalvato=caricaPIN();
+  // init assenze
+  const selAss=document.getElementById('assenzeDipendente'); if(selAss){ selAss.innerHTML=''; (anagrafiche||[]).forEach(a=>{ const o=document.createElement('option'); o.value=a.nome; o.text=a.nome; selAss.appendChild(o); }); }
+  renderAssenze();
+
   console.log('PIN caricato all\'avvio:', pinSalvato);
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
   renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
