@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 GPS OK + Badge Foto Colore Tenue</title>
+<title>IC Frosinone 2 - v95 TENUE CHIARO - NO NERO</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -48,16 +48,17 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .slot-row{display:grid; grid-template-columns:1fr 1fr auto; gap:6px; align-items:end; background:white; border:1px solid #bfdbfe; border-radius:8px; padding:6px; margin:4px 0}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
 
-/* BADGE TENUE - NERO TOLTO */
-.badge-carta{width:85.6mm; height:53.98mm; border-radius:12px; border:2px solid #cbd5e1; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.15); margin:14px auto; position:relative}
-.badge-carta-left{width:36%; background:#e0f2fe; /* AZZURRO TENUE */ color:#1e293b; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border-right:2px solid #bae6fd}
+/* BADGE TENUE - NERO TOLTO DEFINITIVAMENTE */
+.badge-carta{width:85.6mm; height:53.98mm; border-radius:12px; border:2px solid #93c5fd; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.12); margin:16px auto; position:relative}
+.badge-carta-left{width:36%; background:#f0f9ff !important; /* TENUE AZZURRO CHIARISSIMO */ background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
-.badge-foto{width:72px; height:88px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 6px rgba(0,0,0,.15); object-fit:cover; background:#f1f5f9; display:block}
-.badge-foto-placeholder{width:72px; height:88px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:32px; border:2.5px solid #e2e8f0}
+.badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
+.badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 @media print{
   body *{ visibility:hidden; }
   #badgeCartaBox, #badgeCartaBox *{ visibility:visible; }
-  #badgeCartaBox{ position:absolute; left:10mm; top:10mm; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; border:2px solid #64748b !important}
+  #badgeCartaBox{ position:absolute; left:10mm; top:10mm; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; border:2px solid #93c5fd !important; background:white !important}
+  #badgeCartaBox .badge-carta-left{ background:#f0f9ff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
   @page{ size:A4; margin:0; }
 }
 </style>
@@ -186,11 +187,11 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
 </div>
 
-<div style="margin-top:8px; background:#f0f9ff; border:2px solid #7dd3fc; border-radius:10px; padding:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap">
-<label style="background:#0ea5e9; color:white; padding:10px 14px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer">📸 Carica Foto per Badge<input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="handleFotoAnagrafica(event)"></label>
-<small style="font-size:11px; color:#0c4a6e"><b>FOTO:</b> 1) Scrivi nome 2) Carica foto 3) Salva!</small>
+<div style="margin-top:8px; background:#f0f9ff; border:2px solid #7dd3fc; border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+<label style="background:#0ea5e9; color:white; padding:10px 16px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer">📸 Carica Foto per Badge<input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="handleFotoAnagrafica(event)"></label>
+<small style="font-size:11px; color:#0c4a6e; font-weight:600">1) Scrivi nome 2) Carica foto 3) Salva!</small>
 </div>
-<button class="btn btn-green" style="margin-top:8px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue con Foto</button>
+<button class="btn btn-green" style="margin-top:10px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue con Foto</button>
 <button class="btn" style="background:#f1f5f9; color:#334155; font-size:11px; border:1px solid #cbd5e1; margin-top:4px" onclick="bloccaPIN()">🔒 Blocca</button>
 <div style="margin-top:8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px; font-size:10px">
 <b>💡 Badge smarrito? Come ridarlo:</b><br>
@@ -208,23 +209,23 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div class="badge-carta-left">
 <img id="badgeFoto" class="badge-foto" src="" style="display:none">
 <div id="badgeFotoPlaceholder" class="badge-foto-placeholder">👤</div>
-<div id="bNomeCarta" style="font-size:13px; font-weight:900; margin-top:8px; line-height:1.1; color:#0f172a">Nome</div>
-<div id="bQualificaCarta" style="font-size:9px; background:white; color:#334155; padding:4px 8px; border-radius:999px; margin-top:6px; font-weight:700; border:1px solid #cbd5e1">Qualifica</div>
+<div id="bNomeCarta" style="font-size:13px; font-weight:900; margin-top:10px; line-height:1.1; color:#0c4a6e">Nome</div>
+<div id="bQualificaCarta" style="font-size:9px; background:white; color:#334155; padding:4px 10px; border-radius:999px; margin-top:8px; font-weight:700; border:1.5px solid #bae6fd">Qualifica</div>
 </div>
 <div class="badge-carta-right">
 <div style="display:flex; justify-content:space-between; align-items:flex-start">
-<div style="font-size:9px; color:#7c3aed; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#94a3b8; font-size:7px">85.6 x 53.98 mm - Colore Tenue</span></div>
-<div id="qrcodeCarta" style="width:68px; height:68px; background:white; padding:2px; border-radius:6px; border:1px solid #e2e8f0"></div>
+<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#7dd3fc; font-size:7px; font-weight:700">85.6 x 53.98 mm - TENUE CHIARO</span></div>
+<div id="qrcodeCarta" style="width:68px; height:68px; background:white; padding:2px; border-radius:8px; border:1.5px solid #bae6fd"></div>
 </div>
-<div><div id="bPlessoCarta" style="font-size:12px; font-weight:800; color:#1e293b">Plesso</div><div id="bOrarioCarta" style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569"></div></div>
-<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#64748b; font-weight:600">Tenue - Con Foto</div></div>
+<div><div id="bPlessoCarta" style="font-size:12px; font-weight:800; color:#0c4a6e">Plesso</div><div id="bOrarioCarta" style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569"></div></div>
+<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE - NO NERO</div></div>
 </div>
 </div>
-<div style="text-align:center; margin:10px 0; background:#f0f9ff; border:2px solid #7dd3fc; border-radius:12px; padding:12px">
-<b style="font-size:14px; color:#0c4a6e">📸 BADGE CON FOTO - COLORE TENUE (Nero Tolto!)</b><br>
-<span style="font-size:11px; color:#0369a1">Azzurro chiaro tenue - più elegante e leggibile!</span><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 22px; font-size:13px; font-weight:800; margin-top:8px; border-radius:10px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO 85.6 x 53.98 mm</button><br>
-<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica in background: Sì</small>
+<div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
+<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO - NERO TOLTO!</b><br>
+<span style="font-size:12px; color:#0369a1; font-weight:600">Azzurro tenue chiarissimo #f0f9ff - elegante!</span><br>
+<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO 85.6 x 53.98</button><br>
+<small style="font-size:11px; color:#0369a1; font-weight:600">Stampa grandezza naturale - Margini: Nessuno - Grafica: Sì</small>
 </div>
 
 <div id="badgeBox" class="badge-ris" style="display:none !important">
