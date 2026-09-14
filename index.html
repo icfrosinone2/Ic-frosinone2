@@ -160,6 +160,30 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <option value="Collaboratore Scolastico Supplente Breve" selected>Collaboratore Scolastico Supplente Breve</option>
 </select>
 <select id="plessoAnagrafica" style="padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px"><option>Pietrobono</option><option selected>Rinascita</option><option>XXIII</option><option>Verdi</option><option>Pinocchio</option><option>Spinelli</option><option>Casa Test - Viale Portogallo 4</option></select>
+<select id="feriePerDip" style="padding:9px; border:2px solid #16a34a; border-radius:8px; font-size:12px; font-weight:800; background:#d1fae5">
+<option value="30">🏖️ 30 gg ferie</option>
+<option value="32" selected>🏖️ 32 gg ferie</option>
+</select>
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
+<select id="rolPerDip" style="padding:9px; border:2px solid #f59e0b; border-radius:8px; font-size:12px; font-weight:800; background:#fffbeb">
+<option value="0">⏰ ROL: 0h</option>
+<option value="20">⏰ ROL: 20h</option>
+<option value="32" selected>⏰ ROL: 32h</option>
+<option value="56">⏰ ROL: 56h</option>
+<option value="72">⏰ ROL: 72h</option>
+<option value="100">⏰ ROL: 100h</option>
+</select>
+<select id="permessiPerDip" style="padding:9px; border:2px solid #0ea5e9; border-radius:8px; font-size:12px; font-weight:800; background:#e0f2fe">
+<option value="0">📝 Permessi: 0h</option>
+<option value="18">📝 Permessi: 18h</option>
+<option value="32" selected>📝 Permessi: 32h</option>
+<option value="36">📝 Permessi: 36h</option>
+<option value="50">📝 Permessi: 50h</option>
+</select>
+</div>
+<div style="margin-top:6px; background:#f0fdf4; border:1.5px solid #16a34a; border-radius:8px; padding:6px; font-size:10px; font-weight:700">
+<span id="ferieInfoPerDip">🏖️ Ferie 30/32 + ⏰ ROL + 📝 Permessi - tutto personalizzabile per dipendente</span>
 </div>
 
 <!-- ORARIO SETTIMANALE GIORNALIERO DIVERSO -->
@@ -257,7 +281,8 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <select id="tipoAssenza" style="width:100%; padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; font-weight:700">
 <option value="Malattia">🤒 Malattia</option>
 <option value="Ferie">🏖️ Ferie</option>
-<option value="Permesso breve">⏰ Permesso breve</option>
+<option value="Permesso breve">⏰ Permesso breve (scala da Permessi)</option>
+<option value="ROL">⏰ ROL</option>
 <option value="Permesso L.104">♿ Permesso L.104</option>
 <option value="Congedo">👶 Congedo</option>
 <option value="Permesso sindacale">📢 Sindacale</option>
@@ -548,7 +573,10 @@ function fermaScanner(){ if(html5Qr){ html5Qr.stop().then(()=>{document.getEleme
 let anagrafiche=[];
 function loadAnag(){
   try{const s=localStorage.getItem('anagrafiche_v95')||localStorage.getItem('anagrafiche_v90'); if(s) anagrafiche=JSON.parse(s);}catch(e){}
-  if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
+  if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", ferieAnnuali:32, rolAnnuale:32, permessiAnnuali:32, orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
+  // migra vecchie anagrafiche senza ferieAnnuali -> imposta 32 di default
+  anagrafiche=anagrafiche.map(a=>{ if(!a.ferieAnnuali) a.ferieAnnuali=32; if(a.rolAnnuale===undefined) a.rolAnnuale=32; if(a.permessiAnnuali===undefined) a.permessiAnnuali=32; return a; });
+
   render();
 }
 function saveAnag(){localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));}
@@ -572,7 +600,7 @@ function filtraElenco(){
     const div=document.createElement('div');
     div.style.cssText='display:grid; grid-template-columns:1.3fr 1fr 1.5fr 0.7fr; gap:4px; padding:8px; border-bottom:1.5px solid #e2e8f0; align-items:start; background:white';
     div.innerHTML=`
-      <div><b style="font-size:12px">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed">${a.qualifica||''}</span><br><span style="font-size:10px">${a.plesso}</span></div>
+      <div><b style="font-size:12px">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed">${a.qualifica||''}</span><br><span style="font-size:10px">${a.plesso}</span><br><span style="font-size:9px; background:#d1fae5; border:1px solid #16a34a; padding:1px 5px; border-radius:999px">🏖️ ${a.ferieAnnuali||32} gg</span><br><span style="font-size:8px; background:#fffbeb; border:1px solid #f59e0b; padding:1px 5px; border-radius:999px">⏰ ROL ${a.rolAnnuale||32}h</span> <span style="font-size:8px; background:#e0f2fe; border:1px solid #0ea5e9; padding:1px 5px; border-radius:999px">📝 ${a.permessiAnnuali||32}h</span></div>
       <div style="font-size:10px">${riepilogoGiorni}</div>
       <div style="font-size:10px; text-align:center"><b>${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">sett.</span></div>
       <div style="display:grid; gap:4px">
@@ -603,11 +631,14 @@ function aggiungiAnagrafica(){
   const nome=document.getElementById('nuovaAnagrafica').value.trim();
   const plesso=document.getElementById('plessoAnagrafica').value;
   const qualifica=document.getElementById('qualifica').value;
+  const ferieAnnuali=parseInt(document.getElementById('feriePerDip')?.value||'32');
+  const rolAnnuale=parseInt(document.getElementById('rolPerDip')?.value||'32');
+  const permessiAnnuali=parseInt(document.getElementById('permessiPerDip')?.value||'32');
   if(!nome){alert('Inserisci nome'); return;}
   // calcola totale settimana
   let totSett=0; Object.values(orariSettimana).forEach(arr=>{arr.forEach(s=>{const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; totSett+=d;});});
   const hTot=Math.floor(totSett/60), mTot=totSett%60; const totale=`${hTot}h${String(mTot).padStart(2,'0')}m`;
-  const obj={nome, plesso, qualifica, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
+  const obj={nome, plesso, qualifica, ferieAnnuali, rolAnnuale, permessiAnnuali, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
   const idx=anagrafiche.findIndex(a=>a.nome.toLowerCase()===nome.toLowerCase());
   if(idx>=0) anagrafiche[idx]=obj; else anagrafiche.push(obj);
   saveAnag(); render(); creaBadgeDa(nome); document.getElementById('nuovaAnagrafica').value='';
@@ -619,6 +650,9 @@ function modificaAnag(nome){
   document.getElementById('nuovaAnagrafica').value=a.nome;
   document.getElementById('plessoAnagrafica').value=a.plesso;
   document.getElementById('qualifica').value=a.qualifica||'Collaboratore scolastico';
+  const ferieSel=document.getElementById('feriePerDip'); if(ferieSel) ferieSel.value=a.ferieAnnuali||32;
+  const rolSel=document.getElementById('rolPerDip'); if(rolSel) rolSel.value=a.rolAnnuale||32;
+  const permSel=document.getElementById('permessiPerDip'); if(permSel) permSel.value=a.permessiAnnuali||32;
   orariSettimana=a.orariSettimana? JSON.parse(JSON.stringify(a.orariSettimana)) : {lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
   selezionaGiorno('lun');
   window.scrollTo(0, document.getElementById('anagraficaForm').offsetTop);
@@ -721,6 +755,27 @@ function stampaResocontoNome(nome){
 
 // ========== GESTIONE ASSENZE + FERIE + EXCEL ==========
 let assenzeSalvate=JSON.parse(localStorage.getItem('assenze_v98')||localStorage.getItem('assenze_v97')||'[]');
+function parseOreAssenza(str){
+  if(!str) return 0;
+  str=str.trim().toLowerCase();
+  // se formato 07:30-09:30 calcola differenza
+  if(str.includes('-')){
+    let parts=str.split('-');
+    if(parts.length===2){
+      let s=parts[0].trim().split(':'); let e=parts[1].trim().split(':');
+      if(s.length>=2 && e.length>=2){
+        let sh=parseInt(s[0])||0, sm=parseInt(s[1])||0;
+        let eh=parseInt(e[0])||0, em=parseInt(e[1])||0;
+        let diff=(eh*60+em)-(sh*60+sm);
+        if(diff<0) diff+=24*60;
+        return diff/60;
+      }
+    }
+  }
+  // se formato 2h, 2.5h, 2
+  let num=parseFloat(str.replace('h','').replace(',','.'));
+  return isNaN(num)?0:num;
+}
 function calcolaGiorniFeriali(dal, al){
   if(!dal || !al) return 0;
   let d1=new Date(dal), d2=new Date(al);
@@ -776,16 +831,45 @@ function renderAssenze(){
     let FERIE_TOTALI=parseInt(localStorage.getItem('ferie_totali_v98')||'32'); // scelta 30 o 32
     document.getElementById('ferieTotali').value=FERIE_TOTALI;
     // giorni annui
-    let ferieMap={};
+    // FERIE / ROL / PERMESSI PER DIPENDENTE
+    let ferieMap={}; let rolMap={}; let permMap={};
     assenzeSalvate.filter(a=>a.tipo==='Ferie').forEach(a=>{ ferieMap[a.nome]=(ferieMap[a.nome]||0)+ (a.giorni||calcolaGiorniFeriali(a.dal,a.al)); });
-    let htmlFerie='<b>🏖️ Ferie residue (32 giorni annui):</b><br>';
-    Object.keys(ferieMap).forEach(n=>{
-      let usate=ferieMap[n];
-      let residue=FERIE_TOTALI-usate;
-      let colore=residue<5?'color:#dc2626; font-weight:900':'color:#166534';
-      htmlFerie+=`<span style="${colore}">${n}: usate ${usate} gg, residue ${residue} gg</span> | `;
+    assenzeSalvate.filter(a=>a.tipo==='Permesso breve' || a.tipo==='ROL' || a.tipo==='Permesso L.104' || a.tipo==='Permesso sindacale').forEach(a=>{
+      let ore=parseOreAssenza(a.ore);
+      if(ore===0 && a.giorni) ore=a.giorni*6; // se non specificato, 1 giorno = 6h
+      if(a.tipo==='Permesso breve') permMap[a.nome]=(permMap[a.nome]||0)+ore;
+      else if(a.tipo.includes('ROL') || a.tipo==='Altro') rolMap[a.nome]=(rolMap[a.nome]||0)+ore;
+      else permMap[a.nome]=(permMap[a.nome]||0)+ore;
     });
-    if(Object.keys(ferieMap).length===0) htmlFerie+='Nessuna ferie inserita ancora - Totale disponibile 32 gg per tutti';
+    // Per semplificazione: Permesso breve e L.104 vanno su Permessi, Altro su ROL
+    // Ma contiamo anche ore generiche
+    assenzeSalvate.forEach(a=>{
+      if(a.tipo==='Permesso breve' || a.tipo==='Permesso L.104'){
+        // già contato sopra con ore
+      }
+    });
+    let htmlFerie='<b>📊 RESIDUI PER DIPENDENTE:</b><br>';
+    anagrafiche.forEach(ana=>{
+      let ferieUsate=ferieMap[ana.nome]||0;
+      let totaleFerie=ana.ferieAnnuali||parseInt(localStorage.getItem('ferie_totali_v98')||'32');
+      let ferieRes=totaleFerie-ferieUsate;
+      let rolUsato=rolMap[ana.nome]||0;
+      let rolTot=ana.rolAnnuale||32;
+      let rolRes=rolTot-rolUsato;
+      let permUsato=permMap[ana.nome]||0;
+      let permTot=ana.permessiAnnuali||32;
+      let permRes=permTot-permUsato;
+      let colF=ferieRes<5?'color:#dc2626; font-weight:900':'color:#166534';
+      let colR=rolRes<5?'color:#dc2626; font-weight:900':'color:#92400e';
+      let colP=permRes<5?'color:#dc2626; font-weight:900':'color:#1e40af';
+      htmlFerie+=`<div style="border-bottom:1px dashed #cbd5e1; padding:4px 0"><b>${ana.nome}</b><br>`;
+      htmlFerie+=`<span style="${colF}">🏖️ Ferie: ${totaleFerie} - ${ferieUsate} = <b>${ferieRes} gg</b></span> | `;
+      htmlFerie+=`<span style="${colR}">⏰ ROL: ${rolTot}h - ${rolUsato.toFixed(1)}h = <b>${rolRes.toFixed(1)}h</b></span> | `;
+      htmlFerie+=`<span style="${colP}">📝 Perm: ${permTot}h - ${permUsato.toFixed(1)}h = <b>${permRes.toFixed(1)}h</b></span>`;
+      htmlFerie+=`</div>`;
+    });
+    if(anagrafiche.length===0) htmlFerie+='Nessun dipendente';
+
     ferieBox.innerHTML=htmlFerie;
   }
   if(list.length===0){ cont.innerHTML='<div style="padding:12px; text-align:center; color:#64748b">Nessuna assenza - inserisci la prima!</div>'; document.getElementById('riepilogoAssenze').innerHTML='Tot: 0 assenze'; return; }
