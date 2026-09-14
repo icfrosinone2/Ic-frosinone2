@@ -341,32 +341,65 @@ function aggiornaUIBlocco(){
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
 let gpsWatchId=null;
+let gpsFixInterval=null;
 function attivaGPS(){
-  if(!navigator.geolocation){ document.getElementById('coordBox').innerHTML='❌ GPS non supportato dal browser'; return; }
-  if(gpsWatchId!==null){ try{ navigator.geolocation.clearWatch(gpsWatchId); }catch(e){} }
-  document.getElementById('coordBox').innerHTML='🔄 Avvio GPS... attendi permesso...';
+  if(!navigator.geolocation){ 
+    let el=document.getElementById('coordBox'); if(el) el.innerHTML='❌ GPS non supportato dal browser - usa Chrome!'; 
+    return; 
+  }
+  if(gpsWatchId!==null){ try{ navigator.geolocation.clearWatch(gpsWatchId); }catch(e){} gpsWatchId=null; }
+  if(gpsFixInterval) clearInterval(gpsFixInterval);
+  let elStart=document.getElementById('coordBox'); if(elStart) elStart.innerHTML='🔄 Avvio GPS... attendi permesso posizione...<br><small>Se non chiede permesso, clicca lucchetto vicino indirizzo e Consenti Posizione</small>';
+  let elBadge=document.getElementById('badgeStato'); if(elBadge){ elBadge.textContent='GPS IN AVVIO...'; elBadge.style.background='#f59e0b'; }
+  
   gpsWatchId=navigator.geolocation.watchPosition(p=>{
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a; font-weight:800':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
+    let min=1e9,best=null, chips=''; 
+    PLESSI.forEach(pl=>{
+      const d=dist(lat,lon,pl.lat,pl.lon); 
+      const ok=d<=GEOFENCE; 
+      chips+=`<span class="chip-dist" style="${ok?'background:#d1fae5; border:2px solid #16a34a; font-weight:800; color:#166534':''}">${pl.n} ${Math.round(d)}m ${ok?'✅ DENTRO':'⛔'}</span>`; 
+      if(d<min){min=d; best=pl;}
+    });
     vicino=best; dentro=min<=GEOFENCE; 
     let el=document.getElementById('precTop'); if(el) el.textContent=acc;
     let el2=document.getElementById('vicinoBox'); if(el2) el2.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} | Prec ±${acc}m`;
     let el3=document.getElementById('listaDistanze'); if(el3) el3.innerHTML=chips;
-    let el4=document.getElementById('coordBox'); if(el4) el4.innerHTML=`📍 ${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO ✅ | ${new Date().toLocaleTimeString('it-IT')}`;
+    let el4=document.getElementById('coordBox'); if(el4) el4.innerHTML=`📍 <b>GPS OK</b> ${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | <span style="color:${dentro?'#16a34a':'#dc2626'}; font-weight:800">${dentro?'✅ DENTRO PLesso - PUOI TIMBRARE':'⛔ FUORI - avvicinati'}</span> | ${new Date().toLocaleTimeString('it-IT')}`;
     aggiornaUIBlocco();
   }, e=>{
-    let msg='Errore GPS: '+e.message;
-    if(e.code===1) msg='❌ PERMESSO NEGATO! Consenti posizione nelle impostazioni browser!';
+    let msg='Errore GPS (cod '+e.code+'): '+e.message;
+    if(e.code===1) msg='❌ <b>PERMESSO NEGATO!</b><br>1) Clicca sul lucchetto 🔒 vicino all\'indirizzo in alto<br>2) Impostazioni sito → Posizione → Consenti<br>3) Ricarica pagina e clicca FORZA GPS<br><small>Su iPhone: Impostazioni → Privacy → Localizzazione → Safari → Consenti</small>';
+    else if(e.code===2) msg='❌ Posizione non disponibile - sei al chiuso? Vai vicino finestra o all\'aperto!';
+    else if(e.code===3) msg='⏳ Timeout GPS - il segnale è debole, riprovo... vai all\'aperto!';
     let el=document.getElementById('coordBox'); if(el) el.innerHTML=msg;
     last=null; dentro=false; aggiornaUIBlocco();
-  }, {enableHighAccuracy:true, timeout:30000, maximumAge:0});
+    // riprova automatico dopo 5 sec se non è permesso negato
+    if(e.code!==1){
+      setTimeout(()=>{ attivaGPS(); }, 5000);
+    }
+  }, {enableHighAccuracy:true, timeout:30000, maximumAge:0, enableHighAccuracy:true});
+  
+  // fallback: se dopo 10 sec ancora last null, prova getCurrentPosition
+  setTimeout(()=>{
+    if(!last){
+      navigator.geolocation.getCurrentPosition(p=>{
+        last=p;
+        let el=document.getElementById('coordBox'); if(el) el.innerHTML+='<br>✅ Fix con getCurrentPosition';
+        const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
+        let min=1e9,best=null; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); if(d<min){min=d; best=pl;}});
+        vicino=best; dentro=min<=GEOFENCE; aggiornaUIBlocco();
+      }, ()=>{}, {enableHighAccuracy:true, timeout:15000});
+    }
+  }, 10000);
 }
 function forzaGPS(){
   if(gpsWatchId!==null){ try{ navigator.geolocation.clearWatch(gpsWatchId); }catch(e){} gpsWatchId=null; }
   last=null; dentro=false;
-  document.getElementById('coordBox').innerHTML='🔄 Forzo GPS...';
-  attivaGPS();
+  let el=document.getElementById('coordBox'); if(el) el.innerHTML='🔄 <b>FORZO GPS...</b> attendi 5 sec...';
+  setTimeout(()=>{ attivaGPS(); }, 500);
 }
+
 
 
 // PIN
@@ -574,20 +607,7 @@ function creaBadgeDa(nome){
     const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML=''; new QRCode(qrCarta, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:62, height:62});
     boxCarta.scrollIntoView({behavior:'smooth'});
   }
-
-  document.getElementById('bNome').innerText=a.nome;
-  document.getElementById('bQualifica').innerText=a.qualifica||'';
-  document.getElementById('bPlesso').innerText=a.plesso;
-  const riepilogoBreve=Object.keys(giorniMap).map(g=>{
-    const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
-    if(slots.length===0) return '';
-    return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/');
-  }).filter(x=>x).join(' ');
-  document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
-  document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||'');
-  const qr=document.getElementById('qrcode'); qr.innerHTML=''; new QRCode(qr, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:78, height:78});
-  // scroll al badge
-  box.scrollIntoView({behavior:'smooth'});
+  // solo badge carta credito - vecchio rimosso
 }
 function impostaPeriodo(tipo){
   const oggi=new Date(); const fmt=d=>d.toISOString().slice(0,10);
@@ -645,7 +665,7 @@ window.addEventListener('load', ()=>{
   let ft=localStorage.getItem('ferie_totali_v103')||'32'; let elFT=document.getElementById('ferieTotali'); if(elFT) elFT.value=ft;
 
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  let ft2=localStorage.getItem('ferie_totali_v103')||'32'; let elFT2=document.getElementById('ferieTotali'); if(elFT2) elFT2.value=ft2; renderPlessiUI(); loadAnag(); resetOrariSettimana(); renderAssenze(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  let ft2=localStorage.getItem('ferie_totali_v103')||'32'; let elFT2=document.getElementById('ferieTotali'); if(elFT2) elFT2.value=ft2; renderPlessiUI(); loadAnag(); resetOrariSettimana(); renderAssenze(); setTimeout(()=>{attivaGPS();}, 800);
 });
 </script>
 
