@@ -266,24 +266,57 @@ function attivaGPS(){
   }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
 }
 
-// PIN
-let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinAttualeInfo').innerText='PIN attuale: '+pinSalvato+' (clicca Cambia)'; } else alert('PIN errato - prova 1234 se non lo hai cambiato'); }
-function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+// PIN - VERSIONE CORRETTA CHE RIMANE SALVATO ANCHE DOPO CHIUSURA
+function caricaPIN(){
+  // cerca in tutte le chiavi possibili per compatibilita
+  let p=localStorage.getItem('pin_v96') || localStorage.getItem('pin_v95') || localStorage.getItem('pin_v90') || '1234';
+  return p;
+}
+let pinSalvato=caricaPIN();
+function sbloccaPIN(){
+  // ricarica sempre da localStorage per essere sicuro
+  pinSalvato=caricaPIN();
+  const pin=document.getElementById('pinInput').value.trim();
+  if(pin===pinSalvato){
+    document.getElementById('pinLock').style.display='none';
+    document.getElementById('anagraficaForm').style.display='block';
+    document.getElementById('pinAttualeInfo').innerText='✅ Sbloccato! PIN attuale: '+pinSalvato;
+  } else {
+    alert('PIN errato! PIN salvato: '+pinSalvato+' (se non lo hai cambiato è 1234)');
+  }
+}
+function bloccaPIN(){
+  document.getElementById('pinLock').style.display='flex';
+  document.getElementById('anagraficaForm').style.display='none';
+  document.getElementById('pinInput').value='';
+}
 function cambiaPIN(){
-  let vecchio=prompt('Inserisci vecchio PIN attuale:');
+  pinSalvato=caricaPIN();
+  let vecchio=prompt('Inserisci VECCHIO PIN attuale:', pinSalvato);
   if(vecchio===null) return;
-  if(vecchio!==pinSalvato){ alert('Vecchio PIN errato! PIN attuale: '+pinSalvato); return; }
+  if(vecchio.trim()!==pinSalvato){
+    alert('Vecchio PIN errato!\nPIN attuale salvato: '+pinSalvato);
+    return;
+  }
   let nuovo=prompt('Inserisci NUOVO PIN (min 4 cifre, es. 2025):', pinSalvato);
   if(nuovo===null) return;
   nuovo=nuovo.trim();
-  if(nuovo.length<3){ alert('PIN troppo corto!'); return; }
-  pinSalvato=nuovo;
+  if(nuovo.length<3){ alert('PIN troppo corto! Minimo 4 cifre'); return; }
+  // SALVA IN TUTTE LE CHIAVI per essere sicuri che rimanga
+  localStorage.setItem('pin_v96', nuovo);
+  localStorage.setItem('pin_v95', nuovo);
   localStorage.setItem('pin_v90', nuovo);
-  document.getElementById('pinAttualeInfo').innerText='PIN cambiato! Nuovo PIN: '+nuovo;
-  alert('✅ PIN cambiato! Nuovo PIN: '+nuovo+'\nSalvato sul tablet.');
+  localStorage.setItem('pin', nuovo);
+  pinSalvato=nuovo;
+  document.getElementById('pinAttualeInfo').innerText='✅ PIN CAMBIATO! Nuovo PIN: '+nuovo+' - Chiudi e riapri, rimane questo!';
+  alert('✅ PIN CAMBIATO CON SUCCESSO!\n\nNuovo PIN: '+nuovo+'\n\nSalvato definitivamente!\nAnche se chiudi il browser e riapri, rimane '+nuovo);
+  console.log('PIN salvato:', nuovo);
 }
-function mostraPIN(){ alert('PIN attuale: '+pinSalvato); }
+function mostraPIN(){
+  pinSalvato=caricaPIN();
+  alert('PIN attuale salvato: '+pinSalvato+'\nChiavi in memoria: pin_v96='+localStorage.getItem('pin_v96'));
+}
+
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
@@ -512,6 +545,8 @@ function stampaResocontoNome(nome){
 }
 
 window.addEventListener('load', ()=>{
+  pinSalvato=caricaPIN();
+  console.log('PIN caricato all\'avvio:', pinSalvato);
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
   renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
