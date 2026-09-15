@@ -55,12 +55,20 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 @media print{
-  body *{ visibility:hidden; }
-  #badgeCartaBox, #badgeCartaBox *{ visibility:visible; }
-  #badgeCartaBox{ position:absolute; left:10mm; top:10mm; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; border:2px solid #93c5fd !important; background:white !important}
-  #badgeCartaBox .badge-carta-left{ background:#f0f9ff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
-  @page{ size:A4; margin:0; }
+  body *{ visibility:hidden !important; }
+  #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img, #qrcodeCarta table, #qrcodeCarta div{
+    visibility:visible !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important; box-shadow:none !important}
+  #badgeCartaBox .badge-carta-left{ background:#e0f2fe !important; background-color:#e0f2fe !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important}
+  #badgeCartaBox .badge-carta-right{ background:white !important}
+  #qrcodeCarta{ background:white !important; border:1.5px solid #0ea5e9 !important; display:block !important}
+  #qrcodeCarta canvas, #qrcodeCarta img{ display:block !important; max-width:100% !important; width:64px !important; height:64px !important}
+  @page{ size:A4; margin:10mm; }
 }
+
 </style>
 </head>
 <body>
@@ -113,7 +121,17 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-dark" id="btnSingolo" onclick="avviaSingolo()">📷 Singola</button>
 </div>
 <label style="font-size:11px"><input type="checkbox" id="beepCheck" checked> 🔊 BIP</label> <label style="font-size:11px; margin-left:10px"><input type="checkbox" id="continuoCheck" checked> 🔁 Continuo</label>
-<button class="btn" style="background:#64748b; display:none" id="stopBtn" onclick="fermaScanner()">⏹️ Ferma</button>
+<div style="display:flex; gap:6px">
+<button class="btn" style="background:#64748b; display:none; flex:1" id="stopBtn" onclick="fermaScanner()">⏹️ Ferma</button>
+<button class="btn btn-small" style="background:#0ea5e9; color:white; display:none; flex:1" id="switchBtn" onclick="switchCamera()">🔄 Cambia Camera</button>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  // mostra switch quando scanner attivo
+  const origAvvia = avviaScanner;
+});
+</script>
+
 <div id="reader" style="width:100%; max-width:420px; margin:8px auto; border-radius:12px; overflow:hidden; display:none; border:3px solid #7c3aed"></div>
 <div id="qrResult" style="font-size:13px; text-align:center; font-weight:800; padding:4px"></div>
 <div id="ultimoScansionato" style="font-size:12px; background:#f0fdf4; padding:8px; border-radius:8px; text-align:center; border:2px solid #16a34a; font-weight:700">Nessuna scansione</div>
@@ -366,19 +384,73 @@ function timbra(tipo, nomeF=null){
 }
 function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(); }
 function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
-function avviaScanner(){
+function avviaScanner(facingPref){
   if(!dentro){ alert('Avvicinati a un plesso'); return; }
   const continuo=document.getElementById('continuoCheck').checked;
-  const reader=document.getElementById('reader'); reader.style.display='block'; document.getElementById('stopBtn').style.display='block';
-  if(html5Qr){ try{html5Qr.stop();}catch(e){} }
+  const reader=document.getElementById('reader'); 
+  reader.style.display='block'; 
+  document.getElementById('stopBtn').style.display='block';
+  let sw=document.getElementById('switchBtn'); if(sw) sw.style.display='block';
+  document.getElementById('qrResult').innerHTML='📷 Avvio fotocamera anteriore (selfie)... attendi...';
+  if(html5Qr){ try{html5Qr.stop();}catch(e){} try{html5Qr.clear();}catch(e){} }
   html5Qr=new Html5Qrcode("reader");
-  html5Qr.start({facingMode:"environment"}, {fps:12, qrbox:280}, (decoded)=>{
-    if(!dentro) return; const now=Date.now(); if(decoded===ultimoQR && (now-ultimoTempo)<3000) return; ultimoQR=decoded; ultimoTempo=now;
-    let nome=decoded; if(decoded.includes('|')){ const p=decoded.split('|'); nome=p[1]||p[0]; }
-    timbra('ENTRATA', nome); if(!continuo) setTimeout(()=>fermaScanner(), 1200);
-  }, ()=>{}).catch(()=>{});
+  // FOTOCAMERA ANTERIORE PREDEFINITA come richiesto
+  let cameraConfig = facingPref || {facingMode:"user"}; // user = anteriore, environment = posteriore
+  html5Qr.start(cameraConfig, {fps:15, qrbox:{width:280, height:280}, aspectRatio:1.0, disableFlip:false}, (decoded)=>{
+    if(!dentro) return; 
+    const now=Date.now(); 
+    if(decoded===ultimoQR && (now-ultimoTempo)<2500) return; 
+    ultimoQR=decoded; ultimoTempo=now;
+    document.getElementById('qrResult').innerHTML='✅ Letto: '+decoded.substring(0,60);
+    document.getElementById('ultimoScansionato').innerHTML='✅ QR: <b>'+decoded.substring(0,50)+'</b>';
+    if(document.getElementById('beepCheck').checked) beep();
+    let nome=decoded.trim(); 
+    if(decoded.includes('|')){ const p=decoded.split('|'); nome=(p[1]||p[0]).trim(); }
+    // pulizia nome
+    nome=nome.replace(/IC2\|/g,'').split('|')[0].trim();
+    timbra('ENTRATA', nome); 
+    if(!continuo) setTimeout(()=>fermaScanner(), 1500);
+  }, (err)=>{
+    // errore scansione continuo - ignora
+  }).then(()=>{
+    document.getElementById('qrResult').innerHTML='✅ Fotocamera anteriore ATTIVA - inquadra QR';
+  }).catch((err)=>{
+    document.getElementById('qrResult').innerHTML='⚠️ Anteriore non disponibile, provo posteriore... '+err;
+    // fallback a posteriore se anteriore fallisce
+    if(JSON.stringify(cameraConfig).includes('user')){
+      setTimeout(()=>{ avviaScanner({facingMode:"environment"}); }, 800);
+    } else {
+      document.getElementById('qrResult').innerHTML='❌ Nessuna fotocamera: '+err+'<br>Usa timbratura manuale sotto';
+    }
+  });
 }
-function fermaScanner(){ if(html5Qr){ html5Qr.stop().then(()=>{document.getElementById('reader').style.display='none'; document.getElementById('stopBtn').style.display='none';}).catch(()=>{}); } }
+function fermaScanner(){ 
+  if(html5Qr){ 
+    html5Qr.stop().then(()=>{
+      document.getElementById('reader').style.display='none'; 
+      document.getElementById('stopBtn').style.display='none';
+      let sw2=document.getElementById('switchBtn'); if(sw2) sw2.style.display='none';
+      document.getElementById('qrResult').innerHTML='⏹️ Scanner fermato';
+    }).catch(()=>{
+      document.getElementById('reader').style.display='none'; 
+      document.getElementById('stopBtn').style.display='none';
+    }); 
+  } else {
+    document.getElementById('reader').style.display='none'; 
+    document.getElementById('stopBtn').style.display='none';
+  }
+}
+function switchCamera(){
+  // bottone per cambiare camera se serve
+  if(!html5Qr) return;
+  fermaScanner();
+  setTimeout(()=>{
+    // se era user passa a environment e viceversa
+    const lastWasUser = document.getElementById('qrResult').innerHTML.includes('anteriore');
+    avviaScanner(lastWasUser ? {facingMode:"environment"} : {facingMode:"user"});
+  }, 500);
+}
+
 
 let anagrafiche=[];
 function loadAnag(){
@@ -494,7 +566,17 @@ function creaBadgeDa(nome){
     let foto=fotos[a.nome];
     const imgEl=document.getElementById('badgeFoto'); const phEl=document.getElementById('badgeFotoPlaceholder');
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
-    const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML=''; new QRCode(qrCarta, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:68, height:68});
+    const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML=''; 
+    try{
+      new QRCode(qrCarta, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:128, height:128, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H});
+    }catch(e){
+      new QRCode(qrCarta, {text:'IC2|'+a.nome+'|'+a.plesso, width:128, height:128});
+    }
+    // forza dimensioni visive
+    setTimeout(()=>{
+      const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='66px'; c.style.height='66px'; c.style.display='block'; }
+      const img=qrCarta.querySelector('img'); if(img){ img.style.width='66px'; img.style.height='66px'; img.style.display='block'; }
+    }, 100);
     box.scrollIntoView({behavior:'smooth'});
     try{
       document.getElementById('bNome').innerText=a.nome;
