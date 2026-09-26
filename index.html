@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -86,7 +85,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v101 FINALE - AUTO GPS RIMANE - Orario + Qualifiche + Tenue + QR Grande</b>
+<b>✅ v101 FINALE - AUTO GPS RIMANE - Tenue + QR Grande + Cam Anteriore</b>
 <small>AUTO GPS che rimane salvato • Una volta concesso non chiede più • Tenue chiaro + QR grande 90px + Cam anteriore</small>
 </div>
 <div class="top-right">
@@ -285,7 +284,7 @@ function renderPlessiUI(){
   const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
 }
 function aggiungiCasaDaGPS(){
-  if(!last){ alert('Aspetta GPS ATTIVO'); return; }
+  if(!last){ alert('GPS non ancora attivo - Attendi 2 secondi o clicca 🔄 Aggiorna GPS'); attivaGPS(); return; }
   customPlesso={n:'Casa Test - Viale Portogallo 4', lat:last.coords.latitude, lon:last.coords.longitude, cls:'casa', maps:`https://maps.google.com/?q=${last.coords.latitude},${last.coords.longitude}`, icon:'🏠', isCasa:true};
   localStorage.setItem('plesso_casa_v101', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI();
   document.getElementById('casaStatus').innerHTML='✅ Casa creata!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
