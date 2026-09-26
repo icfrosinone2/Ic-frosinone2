@@ -110,6 +110,11 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 </div>
 <div class="right-gps">
+<div style="text-align:center; margin-bottom:8px">
+<button onclick="attivaGPS()" style="background:#16a34a; color:white; border:0; padding:10px 18px; border-radius:12px; font-weight:900; font-size:13px; width:100%">📍 CLICCA QUI PER ATTIVARE GPS - PERMESSO</button>
+<small style="font-size:9px; color:#64748b">Se hai cliccato "Non consentire mai", clicca 🔒 in alto a sinistra > Reimposta autorizzazione</small>
+</div>
+
 <div style="display:flex; justify-content:space-between; align-items:center">
 <div style="font-size:14px; font-weight:800">📡 GPS ±<span id="precTop">--</span>m</div>
 <div id="badgeStato" class="badge-rosso" style="background:#f59e0b">AUTO...</div>
@@ -305,9 +310,8 @@ function aggiornaUIBlocco(){
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
 
-let watchId=null;
-let gpsRetry=0;
-function aggiornaDaPosizione(p, source){
+
+function aggiornaDaPosizione(p){
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
     let min=1e9,best=null, chips=''; 
     PLESSI.forEach(pl=>{
@@ -317,11 +321,10 @@ function aggiornaDaPosizione(p, source){
       if(d<min){min=d; best=pl;}
     });
     vicino=best; dentro=min<=GEOFENCE; 
-    gpsRetry=0;
     document.getElementById('precTop').textContent=acc; 
-    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} <small>(${source})</small>`; 
+    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; 
     document.getElementById('listaDistanze').innerHTML=chips; 
-    document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | 🟢 GPS OK (${source})<br><button onclick="attivaGPS()" style="margin-top:4px; background:#16a34a; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🔄 Aggiorna</button> <button onclick="testSenzaGPS()" style="background:#f59e0b; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🧪 Test senza GPS</button>`; 
+    document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | 🟢 GPS ATTIVO<br><button onclick="attivaGPS()" style="margin-top:4px; background:#16a34a; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🔄 Aggiorna</button> <button onclick="testSenzaGPS()" style="background:#f59e0b; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🧪 Test senza GPS</button>`; 
     aggiornaUIBlocco();
 }
 function attivaGPS(){
@@ -329,45 +332,22 @@ function attivaGPS(){
     document.getElementById('coordBox').innerHTML='❌ Geolocalizzazione non supportata';
     return;
   }
-  document.getElementById('coordBox').innerHTML='⏳ Cerco GPS... <br>Consenti posizione se chiesto!';
+  document.getElementById('coordBox').innerHTML='⏳ Cerco GPS... Consenti posizione se chiesto! Se non appare, clicca 🔒 in barra indirizzi > Reimposta';
   document.getElementById('badgeStato').textContent='GPS CERCO...';
   document.getElementById('badgeStato').style.background='#f59e0b';
-
-  // Pulisci watch vecchio
-  if(watchId!==null){ try{navigator.geolocation.clearWatch(watchId);}catch(e){} watchId=null; }
-
-  // 1) Tentativo immediato getCurrentPosition (più compatibile)
-  navigator.geolocation.getCurrentPosition(
-    p=>{ aggiornaDaPosizione(p, 'getCurrent'); 
-         // Poi avvia watch per aggiornamenti continui
-         watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2,'watch'), errGPS, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
-    },
-    e=>{ 
-      // Se fallisce, prova watch diretto
-      document.getElementById('coordBox').innerHTML='⏳ Primo tentativo fallito, avvio watch...';
-      watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2,'watch'), errGPS, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
-      // Ultimo fallback dopo 5 sec
-      setTimeout(()=>{ 
-        navigator.geolocation.getCurrentPosition(p=>aggiornaDaPosizione(p,'retry'), errGPS, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
-      }, 5000);
-    },
-    {enableHighAccuracy:true, timeout:15000, maximumAge:0}
-  );
+  navigator.geolocation.getCurrentPosition(p=>{
+    aggiornaDaPosizione(p);
+  }, e=>{
+    let msg='GPS errore code '+e.code;
+    if(e.code===1) msg='❌ PERMESSO NEGATO - Hai cliccato "Non consentire mai"? Clicca 🔒 in alto a sinistra > Reimposta autorizzazione > Ricarica pagina';
+    else if(e.code===2) msg='❌ Posizione non disponibile - Attiva GPS telefono e WiFi';
+    else if(e.code===3) msg='⏳ Timeout GPS - Sei al chiuso? Avvicinati a finestra e riprova';
+    document.getElementById('coordBox').innerHTML=msg+'<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🔄 Riprova GPS - CLICCA QUI</button> <button onclick="testSenzaGPS()" style="margin-top:6px; background:#f59e0b; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🧪 Test senza GPS</button>';
+    document.getElementById('badgeStato').textContent='GPS ERRORE';
+    document.getElementById('badgeStato').style.background='#ef4444';
+  }, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
 }
-function errGPS(e){
-  gpsRetry++;
-  let msg='';
-  if(e.code===1) msg='❌ PERMESSO NEGATO<br>Impostazioni > Privacy > Localizzazione > Consenti per Safari/Chrome';
-  else if(e.code===2) msg='❌ Posizione non disponibile<br>Attiva GPS e WiFi';
-  else if(e.code===3) msg='⏳ Timeout GPS, riprovo... ('+gpsRetry+')';
-  else msg='❌ Errore: '+e.message;
-  document.getElementById('coordBox').innerHTML=msg+'<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🔄 Riprova GPS</button> <button onclick="testSenzaGPS()" style="margin-top:6px; background:#f59e0b; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🧪 Test senza GPS</button>';
-  document.getElementById('badgeStato').textContent='GPS ERRORE';
-  document.getElementById('badgeStato').style.background='#ef4444';
-  if(gpsRetry<3){
-    setTimeout(attivaGPS, 4000);
-  }
-}
+function errGPS(e){ attivaGPS(); }
 function testSenzaGPS(){
   dentro=true;
   vicino=PLESSI.find(p=>p.n==='Rinascita')||PLESSI[1];
@@ -378,6 +358,7 @@ function testSenzaGPS(){
   document.getElementById('listaDistanze').innerHTML='<span class="chip-dist" style="background:#d1fae5; border-color:#16a34a">TEST MODE ✅ DENTRO</span>';
   aggiornaUIBlocco();
 }
+
 
 
 // PIN
@@ -653,6 +634,7 @@ function stampaResocontoNome(nome){
 }
 
 window.addEventListener('load', ()=>{
+  console.log('Load - GPS init');
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
   renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
