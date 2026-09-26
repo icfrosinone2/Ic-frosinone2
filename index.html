@@ -54,6 +54,22 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
+#qrcodeCarta{width:84px; height:84px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center}
+@media print{
+  body *{ visibility:hidden !important; }
+  #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
+  #badgeCartaBox .badge-carta-left{ background:#e0f2fe !important; background-color:#e0f2fe !important}
+  #qrcodeCarta canvas, #qrcodeCarta img{ width:78px !important; height:78px !important; image-rendering:pixelated !important}
+  @page{ size:A4; margin:10mm; }
+}
+
+/* BADGE TENUE CHIARISSIMO + QR GRANDE FIX */
+.badge-carta{width:85.6mm; height:53.98mm; border-radius:12px; border:2.5px solid #0ea5e9; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.12); margin:16px auto; position:relative}
+.badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
+.badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
+.badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
+.badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 #qrcodeCarta{width:90px; height:90px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center}
 @media print{
   body *{ visibility:hidden !important; }
@@ -100,7 +116,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto...</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
-<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - Consenti posizione<br><button onclick="attivaGPS()" style="margin-top:4px; background:#16a34a; color:white; border:0; padding:5px 10px; border-radius:8px; font-size:10px; font-weight:800">🔄 Attiva GPS</button></div>
+<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico</div>
 </div>
 </div>
 
@@ -115,7 +131,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-dark" id="btnSingolo" onclick="avviaSingolo()">📷 Singola</button>
 </div>
 <label style="font-size:11px"><input type="checkbox" id="beepCheck" checked> 🔊 BIP</label> <label style="font-size:11px; margin-left:10px"><input type="checkbox" id="continuoCheck" checked> 🔁 Continuo</label>
-<div style="display:flex; gap:6px; flex-wrap:wrap"><button class="btn" style="background:#64748b; display:none; flex:1" id="stopBtn" onclick="fermaScanner()">⏹️ Ferma</button><button class="btn btn-small" style="background:#0ea5e9; color:white; display:none; flex:1" id="switchBtn" onclick="switchCamera()">🔄 Cambia Camera</button><label id="fileScanBtn" style="background:#16a34a; color:white; padding:8px 12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer; display:none; flex:1; text-align:center">📁 Foto QR<input type="file" accept="image/*" capture="environment" style="display:none" onchange="scanDaFile(this)"></label></div>
+<div style="display:flex; gap:6px"><button class="btn" style="background:#64748b; display:none; flex:1" id="stopBtn" onclick="fermaScanner()">⏹️ Ferma</button><button class="btn btn-small" style="background:#0ea5e9; color:white; display:none; flex:1" id="switchBtn" onclick="switchCamera()">🔄 Cambia Camera</button></div>
 <div id="reader" style="width:100%; max-width:420px; margin:8px auto; border-radius:12px; overflow:hidden; display:none; border:3px solid #7c3aed"></div>
 <div id="qrResult" style="font-size:13px; text-align:center; font-weight:800; padding:4px"></div>
 <div id="ultimoScansionato" style="font-size:12px; background:#f0fdf4; padding:8px; border-radius:8px; text-align:center; border:2px solid #16a34a; font-weight:700">Nessuna scansione</div>
@@ -288,8 +304,10 @@ function aggiornaUIBlocco(){
   if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
+
 let watchId=null;
-function aggiornaDaPosizione(p){
+let gpsRetry=0;
+function aggiornaDaPosizione(p, source){
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
     let min=1e9,best=null, chips=''; 
     PLESSI.forEach(pl=>{
@@ -299,57 +317,66 @@ function aggiornaDaPosizione(p){
       if(d<min){min=d; best=pl;}
     });
     vicino=best; dentro=min<=GEOFENCE; 
+    gpsRetry=0;
     document.getElementById('precTop').textContent=acc; 
-    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; 
+    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} <small>(${source})</small>`; 
     document.getElementById('listaDistanze').innerHTML=chips; 
-    document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | 🟢 GPS ATTIVO WATCH`; 
+    document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | 🟢 GPS OK (${source})<br><button onclick="attivaGPS()" style="margin-top:4px; background:#16a34a; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🔄 Aggiorna</button> <button onclick="testSenzaGPS()" style="background:#f59e0b; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🧪 Test senza GPS</button>`; 
     aggiornaUIBlocco();
 }
 function attivaGPS(){
   if(!navigator.geolocation){
-    document.getElementById('coordBox').innerHTML='❌ Geolocalizzazione non supportata dal browser';
+    document.getElementById('coordBox').innerHTML='❌ Geolocalizzazione non supportata';
     return;
   }
-  document.getElementById('coordBox').innerHTML='⏳ Cerco GPS... consenti posizione...';
+  document.getElementById('coordBox').innerHTML='⏳ Cerco GPS... <br>Consenti posizione se chiesto!';
   document.getElementById('badgeStato').textContent='GPS CERCO...';
   document.getElementById('badgeStato').style.background='#f59e0b';
-  
-  // Ferma watch precedente se c'è
-  if(watchId!==null){ try{navigator.geolocation.clearWatch(watchId);}catch(e){} }
-  
-  // WATCH continuo - molto più stabile del singolo getCurrentPosition
-  watchId = navigator.geolocation.watchPosition(
-    p=>{ aggiornaDaPosizione(p); },
-    e=>{
-      let msg='GPS errore';
-      if(e.code===1) msg='❌ Permesso negato - Vai in impostazioni browser > Posizione > Consenti';
-      else if(e.code===2) msg='❌ Posizione non disponibile - Attiva GPS telefono';
-      else if(e.code===3) msg='⏳ Timeout GPS - Riprovo...';
-      else msg='❌ Errore GPS: '+e.message;
-      document.getElementById('coordBox').innerHTML=msg+'<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🔄 Riprova GPS</button> <button onclick="testSenzaGPS()" style="margin-top:6px; background:#f59e0b; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🧪 Test senza GPS</button>';
-      document.getElementById('badgeStato').textContent='GPS ERRORE';
-      document.getElementById('badgeStato').style.background='#ef4444';
-      // Fallback a getCurrentPosition dopo 3 sec
-      setTimeout(()=>{
-        navigator.geolocation.getCurrentPosition(p=>aggiornaDaPosizione(p), ()=>{}, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
-      }, 3000);
+
+  // Pulisci watch vecchio
+  if(watchId!==null){ try{navigator.geolocation.clearWatch(watchId);}catch(e){} watchId=null; }
+
+  // 1) Tentativo immediato getCurrentPosition (più compatibile)
+  navigator.geolocation.getCurrentPosition(
+    p=>{ aggiornaDaPosizione(p, 'getCurrent'); 
+         // Poi avvia watch per aggiornamenti continui
+         watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2,'watch'), errGPS, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
+    },
+    e=>{ 
+      // Se fallisce, prova watch diretto
+      document.getElementById('coordBox').innerHTML='⏳ Primo tentativo fallito, avvio watch...';
+      watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2,'watch'), errGPS, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
+      // Ultimo fallback dopo 5 sec
+      setTimeout(()=>{ 
+        navigator.geolocation.getCurrentPosition(p=>aggiornaDaPosizione(p,'retry'), errGPS, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+      }, 5000);
     },
     {enableHighAccuracy:true, timeout:15000, maximumAge:0}
   );
-  
-  // Primo fix veloce anche con getCurrentPosition
-  navigator.geolocation.getCurrentPosition(p=>aggiornaDaPosizione(p), ()=>{}, {enableHighAccuracy:true, timeout:8000, maximumAge:0});
 }
-
+function errGPS(e){
+  gpsRetry++;
+  let msg='';
+  if(e.code===1) msg='❌ PERMESSO NEGATO<br>Impostazioni > Privacy > Localizzazione > Consenti per Safari/Chrome';
+  else if(e.code===2) msg='❌ Posizione non disponibile<br>Attiva GPS e WiFi';
+  else if(e.code===3) msg='⏳ Timeout GPS, riprovo... ('+gpsRetry+')';
+  else msg='❌ Errore: '+e.message;
+  document.getElementById('coordBox').innerHTML=msg+'<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🔄 Riprova GPS</button> <button onclick="testSenzaGPS()" style="margin-top:6px; background:#f59e0b; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:700">🧪 Test senza GPS</button>';
+  document.getElementById('badgeStato').textContent='GPS ERRORE';
+  document.getElementById('badgeStato').style.background='#ef4444';
+  if(gpsRetry<3){
+    setTimeout(attivaGPS, 4000);
+  }
+}
 function testSenzaGPS(){
-  // Per test: simula dentro a Rinascita
   dentro=true;
   vicino=PLESSI.find(p=>p.n==='Rinascita')||PLESSI[1];
-  last={coords:{latitude:vicino.lat, longitude:vicino.lon, accuracy:10}};
-  document.getElementById('coordBox').innerHTML='🧪 TEST MODE - GPS simulato dentro '+vicino.n;
+  last={coords:{latitude:vicino.lat, longitude:vicino.lon, accuracy:5}};
+  document.getElementById('coordBox').innerHTML='🧪 TEST MODE - GPS simulato dentro '+vicino.n+'<br><button onclick="attivaGPS()" style="background:#16a34a; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🔄 Torna a GPS reale</button>';
   document.getElementById('vicinoBox').innerHTML='Vicino: <b>'+vicino.n+'</b> TEST MODE ✅ DENTRO';
+  document.getElementById('precTop').textContent='5';
+  document.getElementById('listaDistanze').innerHTML='<span class="chip-dist" style="background:#d1fae5; border-color:#16a34a">TEST MODE ✅ DENTRO</span>';
   aggiornaUIBlocco();
-  alert('TEST MODE attivato - Ora puoi timbrare e provare QR anche senza essere a scuola');
 }
 
 
@@ -426,136 +453,57 @@ function avviaContinuo(){ document.getElementById('continuoCheck').checked=true;
 function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
 
 let currentFacing = "user";
-let cameraIdList = [];
-
-async function listaFotocamere(){
-  try{
-    const cams = await Html5Qrcode.getCameras();
-    cameraIdList = cams;
-    return cams;
-  }catch(e){ return []; }
-}
-
 async function avviaScanner(facingPref){
-  if(!dentro){ alert('Avvicinati a un plesso'); return; }
+  if(!dentro){ alert('Avvicinati a un plesso o usa TEST MODE'); return; }
   const continuo=document.getElementById('continuoCheck').checked;
   const reader=document.getElementById('reader'); 
   reader.style.display='block'; 
   document.getElementById('stopBtn').style.display='block';
   let sw=document.getElementById('switchBtn'); if(sw) sw.style.display='block';
-  let fileBtn=document.getElementById('fileScanBtn'); if(fileBtn) fileBtn.style.display='block';
-  document.getElementById('qrResult').innerHTML='Cerco fotocamere...';
+  let fb=document.getElementById('fileScanBtn'); if(fb) fb.style.display='block';
+  document.getElementById('qrResult').innerHTML='Avvio fotocamera...';
   if(html5Qr){ try{await html5Qr.stop();}catch(e){} try{html5Qr.clear();}catch(e){} }
-
-  html5Qr=new Html5Qrcode("reader", {verbose:false, experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
-
+  html5Qr=new Html5Qrcode("reader", {verbose:false});
   if(facingPref){
     if(typeof facingPref === 'string') currentFacing = facingPref;
     else if(facingPref.facingMode) currentFacing = facingPref.facingMode;
   }
   let cameraConfig = facingPref || {facingMode: currentFacing};
-
   try{
-    const cams = await listaFotocamere();
+    const cams = await Html5Qrcode.getCameras();
     if(cams && cams.length>0){
-      let target = null;
-      if(!facingPref || currentFacing==="user"){
-        target = cams.find(c=> c.label.toLowerCase().includes('front') || c.label.toLowerCase().includes('user') ) || cams[0];
+      let target=null;
+      if(currentFacing==="user"){
+        target=cams.find(c=>c.label.toLowerCase().includes('front')||c.label.toLowerCase().includes('user'))||cams[0];
       } else {
-        target = cams.find(c=> c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('environment') ) || cams[cams.length-1];
+        target=cams.find(c=>c.label.toLowerCase().includes('back')||c.label.toLowerCase().includes('environment'))||cams[cams.length-1];
       }
-      if(target && target.id){
-        cameraConfig = target.id;
-        currentFacing = (target.label.toLowerCase().includes('front')||target.label.toLowerCase().includes('user')) ? "user" : "environment";
-      }
+      if(target && target.id) cameraConfig=target.id;
     }
   }catch(e){}
-
-  document.getElementById('qrResult').innerHTML = currentFacing==="user" ? 'Avvio ANTERIORE (selfie)...' : 'Avvio POSTERIORE...';
-
-  const configScan = {
-    fps: 30,
-    qrbox: function(viewfinderWidth, viewfinderHeight){
-      let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-      let box = Math.floor(minEdge * 0.75);
-      if(box < 250) box = 250;
-      return {width: box, height: box};
-    },
-    aspectRatio: 1.0,
-    disableFlip: false,
-    experimentalFeatures: {useBarCodeDetectorIfSupported: true},
-    rememberLastUsedCamera: true
-  };
-
-  html5Qr.start(cameraConfig, configScan, (decoded, result)=>{
+  document.getElementById('qrResult').innerHTML = currentFacing==="user" ? 'ANTERIORE ATTIVA' : 'POSTERIORE ATTIVA';
+  const cfg={fps:30, qrbox:(w,h)=>{let m=Math.min(w,h); let b=Math.floor(m*0.75); if(b<250) b=250; return {width:b,height:b};}, aspectRatio:1.0, disableFlip:false};
+  html5Qr.start(cameraConfig, cfg, (decoded)=>{
     if(!dentro) return; 
-    const now=Date.now(); 
-    if(decoded===ultimoQR && (now-ultimoTempo)<2000) return; 
-    ultimoQR=decoded; ultimoTempo=now;
-    document.getElementById('qrResult').innerHTML='LETTO: <b style="font-size:16px">'+decoded.substring(0,80)+'</b>';
-    document.getElementById('ultimoScansionato').innerHTML='QR: <b>'+decoded.substring(0,60)+'</b>';
+    const now=Date.now(); if(decoded===ultimoQR && (now-ultimoTempo)<2000) return; ultimoQR=decoded; ultimoTempo=now;
+    document.getElementById('qrResult').innerHTML='LETTO: '+decoded;
     if(document.getElementById('beepCheck').checked){ beep(); try{navigator.vibrate(200);}catch(e){} }
-    let nome=decoded.trim(); 
-    if(decoded.includes('|')){ const p=decoded.split('|'); nome=(p[1]||p[0]).trim(); }
+    let nome=decoded.trim(); if(decoded.includes('|')){ const p=decoded.split('|'); nome=(p[1]||p[0]).trim(); }
     nome=nome.replace('IC2|','').split('|')[0].trim();
-    nome=nome.replace(/  +/g,' ').trim();
     timbra('ENTRATA', nome); 
-    if(!continuo) setTimeout(()=>{fermaScanner();}, 1200);
-  }, (err)=>{}).then(()=>{
-    let tipo = currentFacing==="user" ? "ANTERIORE" : "POSTERIORE";
-    document.getElementById('qrResult').innerHTML='Fotocamera '+tipo+' ATTIVA - Avvicina QR a 10-15cm, buona luce!';
-  }).catch((err)=>{
-    document.getElementById('qrResult').innerHTML='Anteriore non disponibile: '+err+' Provo altra...';
-    if(currentFacing==="user"){
-      currentFacing="environment";
-      setTimeout(()=>{ avviaScanner({facingMode:"environment"}); }, 600);
-    } else {
-      document.getElementById('qrResult').innerHTML='Nessuna fotocamera. Consenti accesso nelle impostazioni. Usa manuale o Carica foto QR';
-    }
+    if(!continuo) setTimeout(()=>fermaScanner(), 1200);
+  }, ()=>{}).then(()=>{
+    document.getElementById('qrResult').innerHTML='Fotocamera '+(currentFacing==="user"?"ANTERIORE":"POSTERIORE")+' ATTIVA - Inquadra QR 10cm';
+  }).catch(err=>{
+    document.getElementById('qrResult').innerHTML='Errore camera: '+err+'<br><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; padding:4px 8px; border-radius:6px">Riprova GPS</button>';
+    if(currentFacing==="user"){ currentFacing="environment"; setTimeout(()=>avviaScanner({facingMode:"environment"}), 800); }
   });
 }
-
 function fermaScanner(){ 
-  if(html5Qr){ 
-    html5Qr.stop().then(()=>{
-      document.getElementById('reader').style.display='none'; 
-      document.getElementById('stopBtn').style.display='none';
-      let sw2=document.getElementById('switchBtn'); if(sw2) sw2.style.display='none';
-      let fb2=document.getElementById('fileScanBtn'); if(fb2) fb2.style.display='none';
-      document.getElementById('qrResult').innerHTML='Scanner fermato';
-    }).catch(()=>{
-      document.getElementById('reader').style.display='none'; 
-      document.getElementById('stopBtn').style.display='none';
-      let sw3=document.getElementById('switchBtn'); if(sw3) sw3.style.display='none';
-      let fb3=document.getElementById('fileScanBtn'); if(fb3) fb3.style.display='none';
-    }); 
-  } 
+  if(html5Qr){ html5Qr.stop().then(()=>{document.getElementById('reader').style.display='none'; document.getElementById('stopBtn').style.display='none'; let s=document.getElementById('switchBtn'); if(s) s.style.display='none'; let f=document.getElementById('fileScanBtn'); if(f) f.style.display='none';}).catch(()=>{}); }
 }
-function switchCamera(){
-  let nuovo = currentFacing==="user" ? "environment" : "user";
-  currentFacing = nuovo;
-  fermaScanner();
-  setTimeout(()=>{ avviaScanner({facingMode: nuovo}); }, 400);
-}
-
-async function scanDaFile(input){
-  const file = input.files[0];
-  if(!file) return;
-  document.getElementById('qrResult').innerHTML='Leggo QR da foto...';
-  if(!html5Qr) html5Qr=new Html5Qrcode("reader");
-  try{
-    const result = await html5Qr.scanFile(file, true);
-    document.getElementById('qrResult').innerHTML='LETTO DA FILE: '+result;
-    let nome=result.trim();
-    if(result.includes('|')){ const p=result.split('|'); nome=(p[1]||p[0]).trim(); }
-    nome=nome.replace('IC2|','').split('|')[0].trim();
-    timbra('ENTRATA', nome);
-    beep();
-  }catch(e){
-    document.getElementById('qrResult').innerHTML='QR non trovato nella foto: '+e;
-  }
-}
-
+function switchCamera(){ let n=currentFacing==="user"?"environment":"user"; currentFacing=n; fermaScanner(); setTimeout(()=>avviaScanner({facingMode:n}), 400); }
+async function scanDaFile(input){ const file=input.files[0]; if(!file) return; document.getElementById('qrResult').innerHTML='Leggo foto...'; if(!html5Qr) html5Qr=new Html5Qrcode("reader"); try{ const r=await html5Qr.scanFile(file,true); document.getElementById('qrResult').innerHTML='LETTO DA FILE: '+r; let nome=r.trim(); if(r.includes('|')){ const p=r.split('|'); nome=(p[1]||p[0]).trim(); } nome=nome.replace('IC2|','').split('|')[0].trim(); timbra('ENTRATA', nome); beep(); }catch(e){ document.getElementById('qrResult').innerHTML='QR non trovato: '+e; } }
 
 
 function filtraElenco(){
@@ -660,8 +608,8 @@ function creaBadgeDa(nome){
     const imgEl=document.getElementById('badgeFoto'); const phEl=document.getElementById('badgeFotoPlaceholder');
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
     const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
-    const qrText=a.nome.toUpperCase();
-    try{ new QRCode(qrCarta, {text:qrText, width:400, height:400, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:300, height:300}); }
+    const qrText=a.nome;
+    try{ new QRCode(qrCarta, {text:qrText, width:300, height:300, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:300, height:300}); }
     setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='78px'; c.style.height='78px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='78px'; im.style.height='78px'; im.style.display='block'; } }, 120);
     box.scrollIntoView({behavior:'smooth'});
     try{
@@ -685,7 +633,7 @@ function creaBadgeDa(nome){
   }).filter(x=>x).join(' ');
   document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
   document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||'');
-  const qr=document.getElementById('qrcode'); qr.innerHTML=''; new QRCode(qr, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:78, height:78});
+  const qr=document.getElementById('qrcode'); if(qr){ qr.innerHTML=''; new QRCode(qr, {text:a.nome.toUpperCase(), width:200, height:200}); }
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
