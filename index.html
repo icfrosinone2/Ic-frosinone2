@@ -585,74 +585,109 @@ function stampaResocontoNome(nome){
 }
 
 
-// ===== CLOUD CONDIVISO VERO - REST API - FUNZIONA SU TUTTI I TABLET =====
-// Usa REST diretto, non serve API key se le regole sono aperte
-const DB_URL = "https://icfrosinone2-default-rtdb.firebaseio.com";
-let useCloud = true;
-let lastCloudHash = "";
+// ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
+const DB_URLS = [
+  "https://icfrosinone2-default-rtdb.firebaseio.com",
+  "https://icfrosinone2-default-rtdb.europe-west1.firebasedatabase.app"
+];
+let DB_URL = DB_URLS[0];
+let lastCloudCount = 0;
+
+async function fetchWithFallback(path){
+  for(let base of DB_URLS){
+    try{
+      const r = await fetch(base + path + "?ts="+Date.now(), {cache:"no-store"});
+      if(r.ok){
+        DB_URL = base; // memorizza quello che funziona
+        return await r.json();
+      }
+    }catch(e){}
+  }
+  return null;
+}
 
 async function caricaCondivise(){
   try{
-    const r = await fetch(DB_URL + "/timbrature.json?ts="+Date.now(), {cache:"no-store"});
-    if(!r.ok) return;
-    const val = await r.json();
-    if(!val) return;
-    let arr = Array.isArray(val) ? val : Object.values(val);
-    if(arr.length===0) return;
-    const hash = JSON.stringify(arr).length + "-" + arr.length;
-    if(hash === lastCloudHash) return; // già aggiornato
-    lastCloudHash = hash;
-    // aggiorna solo se diverso da locale
-    if(JSON.stringify(arr) !== JSON.stringify(timbratureSalvate)){
-      timbratureSalvate = arr;
-      try{ localStorage.setItem('timbr_v95', JSON.stringify(arr)); }catch(e){}
-      if(typeof renderGestioneTimbrature === 'function') try{renderGestioneTimbrature();}catch(e){}
-      if(typeof aggiornaLog === 'function') try{aggiornaLog();}catch(e){}
-      console.log("☁️ Aggiornate timbrature da cloud:", arr.length);
-      // mostra avviso verde
-      const badge = document.getElementById('statusBadge');
-      if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+arr.length+" timbrature da tutti i plessi"; badge.style.background="#dcfce7"; }
+    // timbrature
+    let val = await fetchWithFallback("/timbrature.json");
+    if(val){
+      let arr = Array.isArray(val) ? val : Object.values(val);
+      arr = arr.filter(x=>x && x.data);
+      // ordina per timestamp o data
+      arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+      if(arr.length !== lastCloudCount || JSON.stringify(arr).length !== JSON.stringify(timbratureSalvate).length){
+        lastCloudCount = arr.length;
+        // se il cloud ha più dati del locale, usa cloud
+        if(arr.length >= timbratureSalvate.length){
+          timbratureSalvate = arr;
+          try{ localStorage.setItem('timbr_v95', JSON.stringify(arr)); }catch(e){}
+          if(typeof renderGestioneTimbrature === 'function') try{renderGestioneTimbrature();}catch(e){}
+          if(typeof aggiornaLog === 'function') try{aggiornaLog();}catch(e){}
+          console.log("☁️ Cloud: "+arr.length+" timbrature condivise");
+          const badge = document.getElementById('statusBadge');
+          if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+arr.length+" timbrature - Pietrobono↔Rinascita OK"; badge.style.background="#dcfce7"; }
+        }
+      }
+    }
+    // anagrafiche condivise
+    let valAnag = await fetchWithFallback("/anagrafiche.json");
+    if(valAnag){
+      let arrA = Array.isArray(valAnag) ? valAnag : Object.values(valAnag);
+      if(arrA.length>0 && arrA.length !== anagrafiche.length){
+        anagrafiche = arrA;
+        try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(arrA)); }catch(e){}
+        if(typeof renderAnagrafica === 'function') try{renderAnagrafica();}catch(e){}
+        if(typeof renderPlessiUI === 'function') try{renderPlessiUI();}catch(e){}
+      }
     }
   }catch(e){ console.log("Cloud fetch errore", e); }
 }
 
-async function salvaCondivise(){
+async function salvaNuovaTimbratura(t){
   try{
-    lastCloudHash = JSON.stringify(timbratureSalvate).length + "-" + timbratureSalvate.length;
+    // POST genera ID unico, così se Pietrobono e Rinascita timbrano insieme NON si sovrascrivono
     await fetch(DB_URL + "/timbrature.json", {
-      method: "PUT",
-      body: JSON.stringify(timbratureSalvate),
+      method: "POST",
+      body: JSON.stringify(t),
       headers: {"Content-Type":"application/json"}
     });
-    console.log("☁️ Salvato su cloud");
+    console.log("☁️ Timbratura inviata a cloud", t.nome, t.plesso);
   }catch(e){ console.log("Cloud save errore", e); }
 }
 
-// Intercetta la funzione timbra originale per salvare anche su cloud
+async function salvaAnagraficheCloud(){
+  try{
+    await fetch(DB_URL + "/anagrafiche.json", {
+      method: "PUT",
+      body: JSON.stringify(anagrafiche),
+      headers: {"Content-Type":"application/json"}
+    });
+  }catch(e){}
+}
+
+// Intercetta timbra
 (function(){
   const oldTimbra = window.timbra;
   if(typeof oldTimbra === 'function'){
     window.timbra = function(tipo){
+      // chiama originale che già aggiunge a timbratureSalvate
       const res = oldTimbra.apply(this, arguments);
-      setTimeout(()=>{ salvaCondivise(); }, 300);
-      return res;
-    }
-  }
-  // intercetta anche salvaTimbrature se esiste
-  const oldSalva = window.salvaTimbrature;
-  if(typeof oldSalva === 'function'){
-    window.salvaTimbrature = function(){
-      const res = oldSalva.apply(this, arguments);
-      salvaCondivise();
+      // prendi l'ultima timbratura aggiunta
+      const ultima = timbratureSalvate[0] || timbratureSalvate[timbratureSalvate.length-1];
+      if(ultima){
+        // aggiungi timestamp se manca
+        if(!ultima.timestamp) ultima.timestamp = Date.now();
+        salvaNuovaTimbratura(ultima);
+      }
       return res;
     }
   }
 })();
 
-// Poll ogni 3 secondi - così se Pietrobono timbra, Rinascita lo vede dopo 3 sec
-setInterval(caricaCondivise, 3000);
-// carica subito
-setTimeout(caricaCondivise, 1000);
+// Poll ogni 2 secondi
+setInterval(caricaCondivise, 2000);
+setTimeout(caricaCondivise, 800);
+
 
 
 window.addEventListener('load', ()=>{
