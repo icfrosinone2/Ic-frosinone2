@@ -54,7 +54,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
 
 /* BADGE TENUE CHIARO - NERO TOLTO + QR GRANDE + CAM ANTERIORE */
-.badge-carta{width:85.6mm; height:53.98mm; border-radius:12px; border:2.5px solid #0ea5e9; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.12); margin:16px auto; position:relative}
+.badge-carta{width:85.6mm; height:53.98mm; background:white !important; border-radius:12px; border:2.5px solid #0ea5e9; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.12); margin:16px auto; position:relative}
 .badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
@@ -62,14 +62,14 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 #qrcodeCarta{width:88px; height:88px; background:white; padding:4px; border-radius:10px; border:2.5px solid #0c4a6e; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.15); overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
-  #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img, #printArea, #printArea *, #printArea div, #printArea table, #printArea tr, #printArea td, #printArea th, #printArea h2, #printArea h3, #printArea p, #printArea button{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-  #printArea{ position:absolute !important; left:0 !important; top:0 !important; width:100% !important; margin:0 !important; display:block !important; }
-  #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
-  #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
-  #badgeCartaBox .badge-carta-left{ background:#e0f2fe !important; background-color:#e0f2fe !important}
-  #qrcodeCarta canvas, #qrcodeCarta img{ width:78px !important; height:78px !important; image-rendering:pixelated !important}
+  body.print-badge #badgeCartaBox, body.print-badge #badgeCartaBox *, body.print-badge #badgeCartaBox canvas, body.print-badge #badgeCartaBox img, body.print-badge #qrcodeCarta, body.print-badge #qrcodeCarta *, body.print-badge #qrcodeCarta canvas, body.print-badge #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  body.print-report #printArea, body.print-report #printArea *, body.print-report #printArea div, body.print-report #printArea table, body.print-report #printArea tr, body.print-report #printArea td, body.print-report #printArea th, body.print-report #printArea h2, body.print-report #printArea h3, body.print-report #printArea p{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  body.print-badge #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
+  body.print-report #printArea{ position:absolute !important; left:0 !important; top:0 !important; width:100% !important; margin:0 !important; display:block !important; }
   @page{ size:A4; margin:10mm; }
+  #printArea button{ display:none !important; }
 }
+
 </style>
 </head>
 <body>
@@ -526,7 +526,15 @@ function handleFotoAnagrafica(event){
   };
   reader.readAsDataURL(file);
 }
-function stampaBadgeCarta(){ const box=document.getElementById('badgeCartaBox'); if(!box || box.style.display==='none'){ alert('Prima clicca Badge!'); return; } document.getElementById('printArea').style.display='none'; box.style.display='flex'; setTimeout(()=>window.print(), 200); }
+function stampaBadgeCarta(){ 
+  const box=document.getElementById('badgeCartaBox'); 
+  if(!box || box.style.display==='none'){ alert('Prima clicca Badge sulla persona!'); return; } 
+  document.getElementById('printArea').style.display='none'; 
+  box.style.display='flex'; 
+  document.body.classList.remove('print-report');
+  document.body.classList.add('print-badge');
+  setTimeout(()=>{ window.print(); setTimeout(()=>{ document.body.classList.remove('print-badge'); }, 500); }, 200); 
+}
 function creaBadgeDa(nome){
 
   const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
@@ -574,7 +582,7 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
-function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
+function stampaResoconto(){ const nome=document.getElementById('dipendente').value; if(!nome){ alert('Seleziona un dipendente!'); return; } stampaResocontoNome(nome); }
 function stampaResocontoNome(nome){
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
   const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
@@ -587,7 +595,9 @@ function stampaResocontoNome(nome){
     return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
   }).join('');
   document.getElementById('badgeCartaBox').style.display='none';
-  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+  document.body.classList.remove('print-badge');
+  document.body.classList.add('print-report');
+  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'; document.body.classList.remove('print-report'); document.body.classList.remove('print-badge');" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
 
@@ -742,7 +752,7 @@ setTimeout(caricaCondivise, 800);
 
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  renderPlessiUI(); loadAnag(); setTimeout(()=>{try{aggiornaLog();}catch(e){} caricaCondivise();}, 500); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  bloccaPIN(); renderPlessiUI(); loadAnag(); setTimeout(()=>{try{aggiornaLog();}catch(e){} caricaCondivise();}, 500); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
