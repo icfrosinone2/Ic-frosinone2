@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95.6 Suono FORTE PIN Visibile GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v95.7 Suono FORTE PIN Visibile GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +69,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95.6 - Suono FORTE + PIN Visibile + Qualifiche</b>
+<b>✅ v95.7 - Suono FORTE + PIN Visibile - GPS OK + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -281,26 +281,15 @@ function aggiungiCasaManuale(){
 }
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
 
-function beep(tipo=''){
+function beep(tipo){
  try{
   const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  const gain=ctx.createGain(); gain.gain.value=0.9; gain.connect(ctx.destination);
-  const o=ctx.createOscillator();
-  if(tipo==='ENTRATA'){ o.frequency.value=1200; } else if(tipo==='USCITA'){ o.frequency.value=500; } else { o.frequency.value=880; }
-  o.connect(gain); o.start(); setTimeout(()=>{ o.stop(); try{ctx.close();}catch(e){} }, 400);
-  if(tipo==='ENTRATA'){
-    setTimeout(()=>{
-      try{
-      const ctx2=new (window.AudioContext||window.webkitAudioContext)();
-      const gain2=ctx2.createGain(); gain2.gain.value=0.9; gain2.connect(ctx2.destination);
-      const o2=ctx2.createOscillator(); o2.frequency.value=1200; o2.connect(gain2); o2.start();
-      setTimeout(()=>{ o2.stop(); try{ctx2.close();}catch(e){} }, 400);
-      }catch(e){}
-    }, 250);
-  }
+  const gain=ctx.createGain(); gain.gain.value=1; gain.connect(ctx.destination);
+  const o=ctx.createOscillator(); o.frequency.value=(tipo==='USCITA'?500:1200); o.connect(gain); o.start(); setTimeout(()=>{o.stop(); try{ctx.close();}catch(e){}}, 600);
+  if(tipo==='ENTRATA'){ setTimeout(()=>{ try{ const c=new (window.AudioContext||window.webkitAudioContext)(); const g=c.createGain(); g.gain.value=1; g.connect(c.destination); const o2=c.createOscillator(); o2.frequency.value=1200; o2.connect(g); o2.start(); setTimeout(()=>{o2.stop(); try{c.close();}catch(e){}},600);}catch(e){} },300); }
  }catch(e){}
 }
-function beepForte(t){ beep(t); if(navigator.vibrate){ navigator.vibrate([200,100,200]); } }
+function beepForte(t){ beep(t); if(navigator.vibrate) navigator.vibrate([250,100,250]); }
 function aggiornaUIBlocco(){
   const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
   const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
@@ -317,24 +306,10 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value.trim(); if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; const el=document.getElementById('pinAttualeMostra'); if(el) el.textContent='PIN attuale: '+pinSalvato; } else { alert('PIN errato! PIN attuale: '+pinSalvato); } }
+function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+pinSalvato; } else { alert('PIN errato! PIN attuale: '+pinSalvato); } }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
-function cambiaPIN(){
- let attuale=prompt('PIN attuale per sicurezza:');
- if(attuale===null) return;
- if(attuale!==pinSalvato){ alert('PIN sbagliato! PIN è: '+pinSalvato); return; }
- let nuovo=prompt('Nuovo PIN (min 3 cifre):', pinSalvato);
- if(nuovo===null) return;
- nuovo=nuovo.trim();
- if(nuovo.length<3){ alert('Troppo corto'); return; }
- pinSalvato=nuovo; localStorage.setItem('pin_v90', pinSalvato);
- alert('✅ PIN cambiato! Nuovo PIN: '+pinSalvato);
- const el=document.getElementById('pinAttualeMostra'); if(el) el.textContent='PIN attuale: '+pinSalvato;
-}
+function cambiaPIN(){ let a=prompt('PIN attuale:'); if(a===null) return; if(a!==pinSalvato){ alert('Sbagliato! PIN è '+pinSalvato); return; } let n=prompt('Nuovo PIN (min 3):', pinSalvato); if(n===null) return; n=n.trim(); if(n.length<3){ alert('Troppo corto'); return; } pinSalvato=n; localStorage.setItem('pin_v90', n); alert('✅ PIN nuovo: '+n); const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+n; }
 function mostraPIN(){ alert('PIN attuale: '+pinSalvato); }
-
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; } else alert('PIN errato'); }
-function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
