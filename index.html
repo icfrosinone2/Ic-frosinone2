@@ -59,10 +59,12 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:84px; height:84px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center}
+#qrcodeCarta{width:88px; height:88px; background:white; padding:4px; border-radius:10px; border:2.5px solid #0c4a6e; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.15); overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
-  #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img, #printArea, #printArea *, #printArea div, #printArea table, #printArea tr, #printArea td, #printArea th, #printArea h2, #printArea h3, #printArea p, #printArea button{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  #printArea{ position:absolute !important; left:0 !important; top:0 !important; width:100% !important; margin:0 !important; display:block !important; }
+  #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
   #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
   #badgeCartaBox .badge-carta-left{ background:#e0f2fe !important; background-color:#e0f2fe !important}
   #qrcodeCarta canvas, #qrcodeCarta img{ width:78px !important; height:78px !important; image-rendering:pixelated !important}
@@ -82,7 +84,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora Naddei</b></div>
 </div>
 </div>
-<div id="statusBadge" style="text-align:center;font-weight:800;font-size:13px;padding:10px;border-radius:12px;border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px">☁️ CONDIVISO - Caricamento... Pietrobono↔Rinascita</div>
+<div id="statusBadge" title="Se vedi sempre 'in attesa' controlla internet o che Firebase sia attivo" style="text-align:center;font-weight:800;font-size:13px;padding:10px;border-radius:12px;border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px">☁️ Connessione cloud in corso... Attendi 2 sec...</div>
 
 <div class="box-combinato">
 <div class="left-plessi">
@@ -230,10 +232,8 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR GRANDE</div></div>
 </div>
 </div>
-<div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR GRANDE</button><br>
-<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 84mm grande!</small>
+<div style="text-align:center; margin:8px 0; padding:4px">
+<button class="btn" style="background:#0ea5e9; color:white; padding:10px 20px; font-size:12px; font-weight:800; border-radius:10px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE</button>
 </div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
@@ -526,7 +526,7 @@ function handleFotoAnagrafica(event){
   };
   reader.readAsDataURL(file);
 }
-function stampaBadgeCarta(){ const box=document.getElementById('badgeCartaBox'); if(!box || box.style.display==='none'){ alert('Prima clicca Badge!'); return; } window.print(); }
+function stampaBadgeCarta(){ const box=document.getElementById('badgeCartaBox'); if(!box || box.style.display==='none'){ alert('Prima clicca Badge!'); return; } document.getElementById('printArea').style.display='none'; box.style.display='flex'; setTimeout(()=>window.print(), 200); }
 function creaBadgeDa(nome){
 
   const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
@@ -547,7 +547,7 @@ function creaBadgeDa(nome){
     const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
     const qrText=a.nome;
     try{ new QRCode(qrCarta, {text:qrText, width:300, height:300, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:300, height:300}); }
-    setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='78px'; c.style.height='78px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='78px'; im.style.height='78px'; im.style.display='block'; } }, 120);
+    setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='80px'; c.style.height='80px'; c.style.display='block'; c.style.margin='auto'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='80px'; im.style.height='80px'; im.style.display='block'; im.style.margin='auto'; } }, 120);
     box.scrollIntoView({behavior:'smooth'});
     try{
       document.getElementById('bNome').innerText=a.nome;
@@ -586,6 +586,7 @@ function stampaResocontoNome(nome){
     const h=Math.floor(tot/60), m=tot%60;
     return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
   }).join('');
+  document.getElementById('badgeCartaBox').style.display='none';
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
@@ -633,6 +634,14 @@ async function fetchWithFallback(path){
   return null;
 }
 
+function spiegaCloudInAttesa(){
+  const badge = document.getElementById('statusBadge');
+  const log = document.getElementById('cloudLog');
+  if(badge && badge.innerHTML.includes('Caricamento')){
+    badge.innerHTML = "☁️ Connessione in corso... Se resta così, controlla internet o premi 🔄 - Se sei a scuola, la rete potrebbe bloccare Firebase";
+    badge.style.background="#fef3c7";
+  }
+}
 async function caricaCondivise(){
   try{
     // timbrature
