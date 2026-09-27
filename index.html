@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v96.9 RIPARATA FINALE GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v97 FINALE RIPARATA GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +69,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v96.9 - RIPARATA TUTTO OK - PIN Sicuro + Timbrature Modificabili + GPS OK + Qualifiche</b>
+<b>✅ v97 - RIPARATA FINALE - PIN Sicuro + Timbrature Modificabili + GPS OK + Elenco dentro PIN + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -149,18 +149,19 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 
 <div id="anagraficaForm" style="display:none; margin-top:8px">
-<div style="background:#fef9c3; border:3px solid #eab308; border-radius:14px; padding:14px; margin-bottom:12px; text-align:center">
-<div style="font-size:16px; font-weight:900; color:#854d0e">🔑 DOVE CAMBI IL PIN - CLICCA QUI SOTTO</div>
-<div style="margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center">
-<span id="pinAttualeMostra" style="font-size:16px; font-weight:900; background:white; padding:8px 16px; border-radius:999px; border:3px solid #eab308">PIN: 1234</span>
-<button onclick="cambiaPIN()" style="background:#eab308; color:#422006; font-size:15px; font-weight:900; padding:10px 20px; border:0; border-radius:10px; cursor:pointer">🔑 CAMBIA PIN QUI</button>
+<div style="background:#fef9c3; border:3px solid #eab308; border-radius:14px; padding:12px; margin-bottom:12px; text-align:center">
+<div style="font-size:15px; font-weight:900; color:#854d0e">🔑 GESTIONE PIN - CAMBIA QUI</div>
+<div style="margin-top:8px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; align-items:center">
+<span id="pinAttualeMostra" style="font-size:15px; font-weight:900; background:white; padding:6px 12px; border-radius:999px; border:2px solid #eab308">PIN: 1234</span>
+<button onclick="cambiaPIN()" style="background:#eab308; color:#422006; font-size:14px; font-weight:900; padding:8px 16px; border:0; border-radius:10px; cursor:pointer">🔑 CAMBIA PIN QUI</button>
+<button onclick="mostraPIN()" style="background:white; border:1.5px solid #cbd5e1; border-radius:8px; padding:6px 10px">👁️ Vedi</button>
+<button onclick="bloccaPIN()" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 10px">🔒 Chiudi</button>
 </div>
-<div style="margin-top:8px"><button onclick="mostraPIN()" style="background:white; border:1.5px solid #cbd5e1; border-radius:8px; padding:6px 12px">Vedi PIN</button> <button onclick="bloccaPIN()" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 12px">Chiudi</button></div>
 </div>
-<div style="background:#e0f2fe; border:3.5px solid #0ea5e9; border-radius:14px; padding:14px; margin-bottom:16px">
-<div style="font-size:15px; font-weight:900; color:#0c4a6e; text-align:center">📋 GESTIONE TIMBRATURE - Modifica / Elimina</div>
-<div style="font-size:11px; text-align:center; color:#0369a1; margin-bottom:8px">Qui modifichi le timbrature: orario, tipo, plesso. Tutto dietro PIN!</div>
-<div id="gestioneTimbratureBox">Caricamento...</div>
+<div style="background:#e0f2fe; border:3px solid #0ea5e9; border-radius:12px; padding:12px; margin-bottom:14px">
+<div style="font-size:14px; font-weight:900; color:#0c4a6e; text-align:center">📋 GESTIONE TIMBRATURE - Modifica / Elimina</div>
+<div style="font-size:11px; text-align:center; color:#0369a1; margin-bottom:8px">Modifica orario, tipo ENTRATA/USCITA, plesso. Tutto protetto da PIN!</div>
+<div id="gestioneTimbratureBox">Nessuna timbratura - fai una timbratura e apparirà qui</div>
 </div>
 
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
@@ -296,7 +297,7 @@ function aggiungiCasaManuale(){
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
 
 function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
-function beepForte(tipo){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const g=ctx.createGain(); g.gain.value=1; g.connect(ctx.destination); const o=ctx.createOscillator(); o.frequency.value=(tipo==='USCITA'?500:1200); o.connect(g); o.start(); setTimeout(()=>{o.stop();},600); if(tipo==='ENTRATA'){ setTimeout(()=>{ const c2=new (window.AudioContext||window.webkitAudioContext)(); const o2=c2.createOscillator(); o2.frequency.value=1200; o2.connect(c2.destination); o2.start(); setTimeout(()=>o2.stop(),600); },280);} if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){ beep(); } }
+function beepForte(tipo){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const g=ctx.createGain(); g.gain.value=1; g.connect(ctx.destination); const o=ctx.createOscillator(); o.frequency.value=(tipo==='USCITA'?500:1200); o.connect(g); o.start(); setTimeout(()=>o.stop(),600); if(tipo==='ENTRATA'){ setTimeout(()=>{ const c2=new (window.AudioContext||window.webkitAudioContext)(); const o2=c2.createOscillator(); o2.frequency.value=1200; o2.connect(c2.destination); o2.start(); setTimeout(()=>o2.stop(),600); },280);} if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){ beep(); } }
 function aggiornaUIBlocco(){
   const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
   const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
@@ -312,7 +313,6 @@ function attivaGPS(){
 }
 
 // PIN
-
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
 function sbloccaPIN(){
   const v=document.getElementById('pinInput').value.trim();
@@ -321,7 +321,6 @@ function sbloccaPIN(){
     document.getElementById('anagraficaForm').style.display='block';
     const e=document.getElementById('pinAttualeMostra');
     if(e) e.textContent='PIN: '+pinSalvato;
-    try{ renderGestioneTimbrature(); }catch(err){}
   } else {
     alert('PIN errato');
   }
@@ -331,77 +330,20 @@ function bloccaPIN(){
   document.getElementById('anagraficaForm').style.display='none';
 }
 function cambiaPIN(){
-  const a=prompt('Inserisci PIN attuale:');
+  const a=prompt('PIN attuale:');
   if(a===null) return;
   if(a!==pinSalvato){ alert('PIN sbagliato'); return; }
-  const n=prompt('Nuovo PIN (min 3):', pinSalvato);
+  const n=prompt('Nuovo PIN:', pinSalvato);
   if(n===null) return;
   const nt=n.trim();
   if(nt.length<3){ alert('Troppo corto'); return; }
   pinSalvato=nt;
   localStorage.setItem('pin_v90', nt);
-  alert('Nuovo PIN: '+nt);
+  alert('Nuovo PIN salvato');
   const e=document.getElementById('pinAttualeMostra');
   if(e) e.textContent='PIN: '+nt;
 }
 function mostraPIN(){ alert('PIN: '+pinSalvato); }
-
-function renderGestioneTimbrature(){
-  const cont=document.getElementById('gestioneTimbratureBox');
-  if(!cont) return;
-  if(typeof timbratureSalvate==='undefined' || timbratureSalvate.length===0){
-    cont.innerHTML='<div style="text-align:center; padding:12px; background:white; border-radius:8px; color:#64748b">Nessuna timbratura<br><small>Fai ENTRATA/USCITA e apparirà qui per modificarla</small></div>';
-    return;
-  }
-  let rows='';
-  for(let i=0;i<timbratureSalvate.length;i++){
-    const t=timbratureSalvate[i];
-    rows+='<tr style="border-bottom:1px solid #e2e8f0"><td style="padding:6px">'+(t.data||'')+'</td><td style="padding:6px"><b>'+(t.nome||'')+'</b></td><td style="padding:6px"><span style="background:'+(t.tipo==='ENTRATA'?'#dcfce7':'#fee2e2')+'; padding:2px 6px; border-radius:999px; font-weight:800">'+(t.tipo||'')+'</span></td><td style="padding:6px">'+(t.plesso||'')+'</td><td style="padding:6px"><button onclick="modificaTimbratura('+i+')" style="background:#f59e0b; color:white; border:0; border-radius:6px; padding:5px 8px">Modifica</button> <button onclick="eliminaTimbratura('+i+')" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:5px 8px">X</button></td></tr>';
-  }
-  cont.innerHTML='<div style="max-height:380px; overflow:auto; border:2px solid #0ea5e9; border-radius:10px"><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#0f172a; color:white"><th>Data/Ora</th><th>Nome</th><th>Tipo</th><th>Plesso</th><th>Azioni</th></tr>'+rows+'</table></div><div style="text-align:center; margin-top:8px"><button onclick="esportaTimbrature()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 12px; font-weight:800">Esporta CSV</button> <button onclick="cancellaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:8px 12px">Cancella Tutto</button></div>';
-}
-function modificaTimbratura(idx){
-  const t=timbratureSalvate[idx];
-  if(!t) return;
-  const nt=prompt('Tipo ENTRATA/USCITA:', t.tipo);
-  if(nt===null) return;
-  const nd=prompt('Data/Ora:', t.data);
-  if(nd===null) return;
-  const np=prompt('Plesso:', t.plesso);
-  if(np===null) return;
-  t.tipo=nt.toUpperCase();
-  t.data=nd;
-  t.plesso=np;
-  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate));
-  renderGestioneTimbrature();
-}
-function eliminaTimbratura(idx){
-  if(!confirm('Eliminare?')) return;
-  timbratureSalvate.splice(idx,1);
-  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate));
-  renderGestioneTimbrature();
-}
-function cancellaTutteTimbrature(){
-  if(!confirm('Cancellare TUTTE le timbrature?')) return;
-  timbratureSalvate=[];
-  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate));
-  renderGestioneTimbrature();
-}
-function esportaTimbrature(){
-  let csv='Data,Tipo,Nome,Plesso
-';
-  for(let i=0;i<timbratureSalvate.length;i++){
-    const t=timbratureSalvate[i];
-    csv+='"'+t.data+'","'+t.tipo+'","'+t.nome+'","'+t.plesso+'"
-';
-  }
-  const blob=new Blob([csv], {type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='timbrature.csv';
-  a.click();
-}
 
 
 // ORARIO SETTIMANALE
@@ -683,6 +625,56 @@ function stampaResocontoNome(nome){
     return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
   }).join('');
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+}
+
+
+function renderGestioneTimbrature(){
+  const cont=document.getElementById('gestioneTimbratureBox');
+  if(!cont) return;
+  if(typeof timbratureSalvate==='undefined' || timbratureSalvate.length===0){
+    cont.innerHTML='<div style="text-align:center; padding:10px; background:white; border-radius:8px; color:#64748b">Nessuna timbratura<br>Fai ENTRATA/USCITA e torna qui per modificarla</div>';
+    return;
+  }
+  let html='<div style="max-height:350px; overflow:auto; border:1.5px solid #0ea5e9; border-radius:8px"><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#0f172a; color:white"><th>Data</th><th>Nome</th><th>Tipo</th><th>Plesso</th><th></th></tr>';
+  for(let i=0;i<timbratureSalvate.length;i++){
+    const t=timbratureSalvate[i];
+    html+='<tr><td style="padding:5px">'+(t.data||'')+'</td><td><b>'+(t.nome||'')+'</b></td><td><span style="background:'+(t.tipo==='ENTRATA'?'#dcfce7':'#fee2e2')+'; padding:2px 6px; border-radius:999px">'+(t.tipo||'')+'</span></td><td>'+(t.plesso||'')+'</td><td><button onclick="modificaTimbratura('+i+')" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 6px">✏️</button> <button onclick="eliminaTimbratura('+i+')" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 6px">🗑️</button></td></tr>';
+  }
+  html+='</table></div><div style="text-align:center; margin-top:6px"><button onclick="esportaTimbrature()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:6px 10px; font-weight:800">📥 CSV</button> <button onclick="cancellaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:6px 10px">Cancella Tutto</button></div>';
+  cont.innerHTML=html;
+}
+function modificaTimbratura(idx){
+  const t=timbratureSalvate[idx]; if(!t) return;
+  const nt=prompt('Tipo ENTRATA/USCITA:', t.tipo); if(nt===null) return;
+  const nd=prompt('Data/Ora:', t.data); if(nd===null) return;
+  const np=prompt('Plesso:', t.plesso); if(np===null) return;
+  t.tipo=nt.toUpperCase(); t.data=nd; t.plesso=np;
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate));
+  renderGestioneTimbrature();
+}
+function eliminaTimbratura(idx){
+  if(!confirm('Eliminare?')) return;
+  timbratureSalvate.splice(idx,1);
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate));
+  renderGestioneTimbrature();
+}
+function cancellaTutteTimbrature(){
+  if(!confirm('Cancellare TUTTE?')) return;
+  timbratureSalvate=[];
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate));
+  renderGestioneTimbrature();
+}
+function esportaTimbrature(){
+  let csv='Data,Tipo,Nome,Plesso\n';
+  for(let i=0;i<timbratureSalvate.length;i++){
+    const t=timbratureSalvate[i];
+    csv+='"'+t.data+'","'+t.tipo+'","'+t.nome+'","'+t.plesso+'"\n';
+  }
+  const blob=new Blob([csv], {type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='timbrature.csv';
+  a.click();
 }
 
 window.addEventListener('load', ()=>{
