@@ -3,10 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95.4 Suono Forte + Gestione PIN + Timbrature - GPS OK settimanale - Anagrafica nascosta</title>
+<title>IC Frosinone 2 - v95.5 PIN Visibile + Suono Forte - GPS OK settimanale - Anagrafica nascosta</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
 // Nascondi anagrafica all'avvio - FIX definitivo
 window.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; });
+
+// Aggiorna PIN visibile all'apertura
+document.addEventListener('DOMContentLoaded', ()=>{
+  const el=document.getElementById('pinAttualeMostra');
+  if(el) el.textContent='PIN attuale: '+(localStorage.getItem('pin_v90')||'1234');
+});
 </script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
 // Nascondi anagrafica all'avvio - FIX definitivo
@@ -75,7 +81,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95.4 - Orario + Suono Forte + PIN</b>
+<b>✅ v95.5 - Suono FORTE + PIN Visibile - GPS OK</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
