@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95.3 Orario - PIN blindato GPS OK settimanale - Anagrafica nascosta</title>
+<title>IC Frosinone 2 - v95.4 Suono Forte + Gestione PIN + Timbrature - GPS OK settimanale - Anagrafica nascosta</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
 // Nascondi anagrafica all'avvio - FIX definitivo
 window.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; });
@@ -75,7 +75,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95.3 - Orario settimanale</b>
+<b>✅ v95.4 - Orario + Suono Forte + PIN</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -120,7 +120,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-gray" id="btnContinuo" onclick="avviaContinuo()">📷 Continuo</button>
 <button class="btn btn-dark" id="btnSingolo" onclick="avviaSingolo()">📷 Singola</button>
 </div>
-<label style="font-size:11px"><input type="checkbox" id="beepCheck" checked> 🔊 BIP</label> <label style="font-size:11px; margin-left:10px"><input type="checkbox" id="continuoCheck" checked> 🔁 Continuo</label>
+<label style="font-size:11px"><input type="checkbox" id="beepCheck" checked> 🔊 BIP FORTE</label> <label style="font-size:11px; margin-left:10px"><input type="checkbox" id="continuoCheck" checked> 🔁 Continuo</label>
 <div style="display:flex; gap:6px"><button class="btn" style="background:#64748b; display:none; flex:1" id="stopBtn" onclick="fermaScanner()">⏹️ Ferma</button><button class="btn btn-small" style="background:#0ea5e9; color:white; display:none; flex:1" id="switchBtn" onclick="switchCamera()">🔄 Cambia Camera</button></div>
 <div id="reader" style="width:100%; max-width:420px; margin:8px auto; border-radius:12px; overflow:hidden; display:none; border:3px solid #7c3aed"></div>
 <div id="qrResult" style="font-size:13px; text-align:center; font-weight:800; padding:4px"></div>
@@ -159,6 +159,11 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="anagraficaForm" style="display:none; margin-top:8px">
 <div style="background:#f0f9ff; border:1.5px solid #0ea5e9; border-radius:8px; padding:8px; margin-bottom:8px; text-align:center">
 <b style="font-size:13px; color:#0c4a6e">✅ Anagrafica Dipendenti - Accesso consentito</b> <button class="btn btn-small" style="background:#f1f5f9; color:#334155; font-size:10px; border:1px solid #cbd5e1; margin-left:8px" onclick="bloccaPIN()">🔒 Chiudi / Blocca</button>
+<div style="margin-top:8px; background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center">
+<span id="pinAttualeMostra" style="font-size:11px; font-weight:800; background:white; padding:4px 8px; border-radius:999px; border:1.5px solid #f59e0b">PIN attuale: 1234</span>
+<button class="btn btn-small" style="background:#f59e0b; color:white; font-size:10px" onclick="cambiaPIN()">🔑 Cambia PIN</button>
+<button class="btn btn-small" style="background:#f1f5f9; color:#334155; font-size:10px; border:1px solid #cbd5e1" onclick="mostraPIN()">👁️ Mostra PIN</button>
+</div>
 </div>
 
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
@@ -289,7 +294,30 @@ function aggiungiCasaManuale(){
 }
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
 
-function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
+
+function beep(tipo=''){
+ try{
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const gain=ctx.createGain(); gain.gain.value=0.9; gain.connect(ctx.destination);
+  const o=ctx.createOscillator();
+  if(tipo==='ENTRATA'){ o.frequency.value=1200; }
+  else if(tipo==='USCITA'){ o.frequency.value=500; }
+  else { o.frequency.value=880; }
+  o.connect(gain); o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, 400);
+  // Double beep for ENTRATA
+  if(tipo==='ENTRATA'){
+    setTimeout(()=>{
+      const ctx2=new (window.AudioContext||window.webkitAudioContext)();
+      const gain2=ctx2.createGain(); gain2.gain.value=0.9; gain2.connect(ctx2.destination);
+      const o2=ctx2.createOscillator(); o2.frequency.value=1200; o2.connect(gain2); o2.start();
+      setTimeout(()=>{ o2.stop(); ctx2.close(); }, 400);
+    }, 250);
+  }
+ }catch(e){}
+}
+function beepForte(t){ beep(t); if(navigator.vibrate){ navigator.vibrate([200,100,200]); } }
+
 function aggiornaUIBlocco(){
   const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
   const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
@@ -304,10 +332,28 @@ function attivaGPS(){
   }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
 }
 
-// PIN
+
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value.trim(); if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; } else { alert('PIN errato! PIN attuale: '+pinSalvato); } }
-function sbloccaPIN_DUMMY_OLD(){ const pin=document.getElementById('pinInput').value.trim(); if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; } else alert('PIN errato - il PIN è: '+pinSalvato); }
+function sbloccaPIN(){ const pin=document.getElementById('pinInput').value.trim(); if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; } else { alert('PIN errato! PIN attuale: '+pinSalvato+'
+
+Se lo hai dimenticato: chiudi questa finestra, premi F12, vai su Console e scrivi: localStorage.getItem(\'pin_v90\')'); } }
+function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+function cambiaPIN(){
+ let attuale=prompt('PIN attuale (per sicurezza):');
+ if(attuale===null) return;
+ if(attuale!==pinSalvato){ alert('PIN attuale sbagliato! PIN è: '+pinSalvato); return; }
+ let nuovo=prompt('Nuovo PIN (min 3 cifre, es 2024):', pinSalvato);
+ if(nuovo===null) return;
+ nuovo=nuovo.trim();
+ if(nuovo.length<3){ alert('Troppo corto!'); return; }
+ pinSalvato=nuovo; localStorage.setItem('pin_v90', pinSalvato);
+ alert('✅ PIN cambiato! Nuovo PIN: '+pinSalvato+'
+
+Lo userai al prossimo accesso!');
+ document.getElementById('pinAttualeMostra').textContent='PIN attuale: '+pinSalvato;
+}
+function mostraPIN(){ alert('PIN attuale: '+pinSalvato); }
+ else alert('PIN errato - il PIN è: '+pinSalvato); }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
 function cambiaPIN(){ let nuovo=prompt('Nuovo PIN (4 cifre):', pinSalvato); if(nuovo && nuovo.trim().length>=3){ pinSalvato=nuovo.trim(); localStorage.setItem('pin_v90', pinSalvato); alert('PIN cambiato in: '+pinSalvato); } }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
@@ -373,7 +419,7 @@ function timbra(tipo, nomeF=null){
   timbratureSalvate.unshift(entry); localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   document.getElementById('log').innerHTML='<br>✅ '+oraStr+' - '+tipo+' - '+nome+' @ '+(vicino?vicino.n:'')+' '+d+'m'+document.getElementById('log').innerHTML;
   document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime;
-  if(document.getElementById('beepCheck').checked) beep();
+  if(document.getElementById('beepCheck').checked) beepForte(tipo);
 }
 function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(); }
 function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
@@ -394,7 +440,7 @@ function avviaScanner(facingPref){
     if(decoded===ultimoQR && (now-ultimoTempo)<2500) return; 
     ultimoQR=decoded; ultimoTempo=now;
     document.getElementById('qrResult').innerHTML='✅ Letto: '+decoded.substring(0,60);
-    if(document.getElementById('beepCheck').checked) beep();
+    if(document.getElementById('beepCheck').checked) beepForte(tipo);
     let nome=decoded.trim(); 
     if(decoded.includes('|')){ const p=decoded.split('|'); nome=(p[1]||p[0]).trim(); }
     nome=nome.replace(/IC2\|/g,'').split('|')[0].trim();
