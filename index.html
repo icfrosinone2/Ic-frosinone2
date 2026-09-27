@@ -69,7 +69,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95.8 - Suono FORTE + PIN Blindato - GPS OK + Qualifiche</b>
+<b>✅ v95.9 - PIN Blindato Totale + Suono FORTE - GPS OK + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -211,7 +211,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 
 <div style="margin-top:12px">
-<b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
+<b style="font-size:13px"></div><div id="elencoContainer" style="display:none"><div style="font-weight:800; font-size:13px; margin:10px 0">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
 </div>
@@ -233,7 +233,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
+<b style="font-size:15px; color:#0c4a6e">📸 </div><div style="background:#f0f9ff; border:2px solid #0ea5e9; border-radius:12px; padding:10px; margin-top:10px"><b style="font-size:12px">🏷️ BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
 <button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR GRANDE</button><br>
 <small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 84mm grande!</small>
 </div>
@@ -315,8 +315,9 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+pinSalvato; } else { alert('PIN errato! PIN attuale: '+pinSalvato); } }
-function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e2=document.getElementById('elencoContainer'); if(e2) e2.style.display='block'; document.getElementById('pinInput').value=''; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+pinSalvato; } else { alert('PIN errato! PIN attuale: '+pinSalvato); } }
+function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const e=document.getElementById('elencoContainer'); if(e) e.style.display='none'; }
+function aggiornaVisibilitaElenco(){ const locked=document.getElementById('pinLock').style.display!=='none'; const e=document.getElementById('elencoContainer'); if(e) e.style.display=locked?'none':'block'; }
 function cambiaPIN(){ let a=prompt('PIN attuale:'); if(a===null) return; if(a!==pinSalvato){ alert('Sbagliato! PIN è '+pinSalvato); return; } let n=prompt('Nuovo PIN (min 3):', pinSalvato); if(n===null) return; n=n.trim(); if(n.length<3){ alert('Troppo corto'); return; } pinSalvato=n; localStorage.setItem('pin_v90', n); alert('✅ PIN nuovo: '+n); const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+n; }
 function mostraPIN(){ alert('PIN attuale: '+pinSalvato); }
 
