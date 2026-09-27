@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v96.5 SICURO PIN Blindato GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v96.6 SICURO PIN + Timbrature GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +70,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v96.5 - SICURO - PIN non rivelato + Gestione Timbrature + GPS OK + Qualifiche</b>
+<b>✅ v96.6 - SICURO + Timbrature Modificabili Subito Visibili + GPS OK + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -156,7 +157,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button onclick="cambiaPIN()" style="background:#eab308; color:#422006; font-size:15px; font-weight:900; padding:10px 20px; border:0; border-radius:10px; cursor:pointer">🔑 CAMBIA PIN QUI</button>
 </div>
 <div style="margin-top:8px"><button onclick="mostraPIN()" style="background:white; border:1.5px solid #cbd5e1; border-radius:8px; padding:6px 12px">👁️ Vedi PIN</button> <button onclick="bloccaPIN()" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 12px">🔒 Chiudi Anagrafica</button></div>
-<div style="font-size:11px; color:#854d0e; margin-top:8px">Clicca CAMBIA PIN QUI → inserisci vecchio PIN → poi nuovo PIN</div>
+<div style="font-size:11px; color:#854d0e; margin-top:8px">Clicca CAMBIA PIN QUI → inserisci vecchio PIN → poi nuovo PIN</div></div><div style="background:#e0f2fe; border:3px solid #0ea5e9; border-radius:12px; padding:12px; margin:12px 0"><div style="font-size:15px; font-weight:900; color:#0c4a6e; text-align:center; margin-bottom:8px">📋 GESTIONE TIMBRATURE - Subito qui sotto - Modifica / Elimina</div><div style="font-size:11px; color:#0369a1; text-align:center; margin-bottom:8px">Puoi modificare orario, tipo ENTRATA/USCITA, plesso o cancellare errori. Tutto dietro PIN!</div><div id="gestioneTimbratureBox">Caricamento timbrature...</div></div>
 </div>
 
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
@@ -309,7 +310,7 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const ec=document.getElementById('elencoContainer'); if(ec) ec.style.display='block'; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+pinSalvato; } else { alert('⛔ PIN errato! Riprova.'); } }
+function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const ec=document.getElementById('elencoContainer'); if(ec) ec.style.display='block'; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+pinSalvato; try{renderGestioneTimbrature();}catch(err){} } else { alert('⛔ PIN errato! Riprova.'); } }
 function cambiaPIN(){ let a=prompt('Inserisci PIN attuale per confermare:'); if(a===null) return; if(a!==pinSalvato){ alert('⛔ PIN attuale sbagliato!'); return; } let n=prompt('Nuovo PIN:', pinSalvato); if(n===null) return; n=n.trim(); if(n.length<3){ alert('Troppo corto'); return; } pinSalvato=n; localStorage.setItem('pin_v90', n); alert('✅ Nuovo PIN: '+n); const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+n; }
 function mostraPIN(){ alert('PIN: '+pinSalvato); }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const ec=document.getElementById('elencoContainer'); if(ec) ec.style.display='none'; }
