@@ -250,6 +250,22 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 
 <div id="printArea" style="display:none"></div>
 
+<div id="gestioneDipendenteBox" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.6); z-index:9999; overflow:auto; padding:20px">
+<div style="background:white; border-radius:14px; max-width:800px; margin:20px auto; padding:16px; border:3px solid #0ea5e9">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+<b id="gestioneTitolo" style="font-size:16px">📋 Gestione Ore - Dipendente</b>
+<button onclick="chiudiGestioneDipendente()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">✕ Chiudi</button>
+</div>
+<div id="gestioneInfo" style="background:#f0f9ff; border:2px solid #bae6fd; border-radius:10px; padding:10px; font-size:12px; margin-bottom:10px"></div>
+<div id="gestioneTimbrature" style="max-height:400px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; padding:6px; background:#f8fafc"></div>
+<div style="margin-top:10px; display:flex; gap:8px">
+<button onclick="stampaResocontoNome(gestioneDipendenteCorrente)" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">🖨️ Stampa Resoconto Ore</button>
+<button onclick="esportaOreDipendente()" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">📥 Esporta CSV</button>
+</div>
+</div>
+</div>
+
+
 <script>
 const GEOFENCE=150;
 let PLESSI_BASE=[
@@ -474,10 +490,10 @@ function filtraElenco(){
       <div style="font-size:10px">${riepilogoGiorni}</div>
       <div style="font-size:10px; text-align:center"><b>${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">sett.</span></div>
       <div style="display:grid; gap:4px">
+        <button onclick="apriGestioneDipendente('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#16a34a; color:white; border:0; border-radius:6px; padding:6px; font-weight:800">📋 GESTIONE ORE<br><small style="font-size:8px">Mirata su ${a.nome.split(' ')[0]}</small></button>
         <button onclick="creaBadgeDa('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#7c3aed; color:white; border:0; border-radius:6px; padding:5px">🖨️ Badge<br><small>Ristampa se smarrito</small></button>
-        <button onclick="modificaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px">✏️ Modifica</button>
+        <button onclick="modificaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px">✏️ Modifica Anag</button>
         <button onclick="eliminaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#ef4444; color:white; border:0; border-radius:6px; padding:4px">🗑️ Elimina</button>
-        <button onclick="stampaResocontoNome('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:4px">📊 Ore</button>
       </div>
     `;
     cont.appendChild(div);
