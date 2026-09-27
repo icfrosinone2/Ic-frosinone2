@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v103 ULTRA GPS ROBUSTO - RIMANE + TENUE + QR GRANDE</title>
+<title>IC Frosinone 2 - v105 GPS + WiFi + IP ULTRA - RIMANE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -85,8 +85,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v103 ULTRA - GPS AUTO ROBUSTO + RIMANE + Tenue + QR Grande</b>
-<small>GPS ULTRA ROBUSTO che si aggancia anche al chiuso • RIMANE salvato • Tenue + QR 90px + Cam anteriore</small>
+<b>✅ v105 ULTRA - GPS + WiFi + IP - RIMANE</b>
+<small>GPS + WiFi + IP - Se GPS non va usa WiFi/IP - RIMANE salvato • Tenue + QR 90px</small>
 </div>
 <div class="top-right">
 <div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div>
@@ -284,7 +284,7 @@ function renderPlessiUI(){
   const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
 }
 function aggiungiCasaDaGPS(){
-  if(!last){ alert('GPS non ancora attivo - Attendi 2 secondi o clicca 🔄 Aggiorna GPS'); attivaGPS(); return; }
+  if(!last){ document.getElementById('coordBox').innerHTML='⏳ GPS non ancora attivo - Attendi...<br><button onclick="attivaGPS()" style="background:#16a34a; color:white; border:0; padding:6px 12px; border-radius:8px; font-weight:800">📍 Aggiorna GPS</button>'; attivaGPS(); return; }
   customPlesso={n:'Casa Test - Viale Portogallo 4', lat:last.coords.latitude, lon:last.coords.longitude, cls:'casa', maps:`https://maps.google.com/?q=${last.coords.latitude},${last.coords.longitude}`, icon:'🏠', isCasa:true};
   localStorage.setItem('plesso_casa_v101', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI();
   document.getElementById('casaStatus').innerHTML='✅ Casa creata!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
@@ -307,7 +307,9 @@ function aggiornaUIBlocco(){
 
 
 
-function aggiornaDaPosizione(p){
+
+
+function aggiornaDaPosizione(p, fonte){
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
     let min=1e9,best=null, chips=''; 
     PLESSI.forEach(pl=>{
@@ -318,50 +320,68 @@ function aggiornaDaPosizione(p){
     });
     vicino=best; dentro=min<=GEOFENCE; 
     document.getElementById('precTop').textContent=acc; 
-    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; 
+    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} <small>(${fonte||'GPS'})</small>`; 
     document.getElementById('listaDistanze').innerHTML=chips; 
-    try{ localStorage.setItem('gps_permesso_concesso_v101','1'); }catch(e){}
-    document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | 🟢 GPS ATTIVO - RIMANE SALVATO<br><small style='font-size:9px'>${new Date().toLocaleTimeString()} - Auto agganciato</small>`; 
+    try{ localStorage.setItem('gps_permesso_concesso_v105','1'); }catch(e){}
+    let iconFonte = fonte==='WiFi'?'📶':(fonte==='IP'?'🌐':'🛰️');
+    document.getElementById('coordBox').innerHTML=`${iconFonte} ${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | 🟢 GPS ATTIVO via ${fonte||'GPS'}<br><small>${new Date().toLocaleTimeString()} - RIMANE salvato</small><br><button onclick="attivaGPS()" style="margin-top:4px; background:#0ea5e9; color:white; border:0; padding:4px 8px; border-radius:6px; font-size:9px">🔄 Aggiorna</button>`; 
     aggiornaUIBlocco();
 }
 
 let watchId=null;
 function attivaGPS(){
   if(!navigator.geolocation){
-    document.getElementById('coordBox').innerHTML='❌ Geolocalizzazione non supportata - Usa Chrome';
+    document.getElementById('coordBox').innerHTML='❌ Geolocalizzazione non supportata - Usa Chrome. Provo con IP...';
+    provaPosizioneIP();
     return;
   }
-  // Pulisci vecchio watch
   if(watchId!==null){ try{navigator.geolocation.clearWatch(watchId);}catch(e){} }
   
-  document.getElementById('coordBox').innerHTML='⏳ Cerco GPS... <b>Consenti posizione se chiesto!</b><br><small>Se non appare, clicca 🔒 > Posizione > Consenti</small>';
-  document.getElementById('badgeStato').textContent='GPS CERCO...';
+  document.getElementById('coordBox').innerHTML='⏳ Cerco GPS... poi WiFi... <b>Consenti posizione se chiesto!</b><br><small>1° tentativo: GPS satellitare • 2° tentativo: WiFi • 3° tentativo: IP</small><br><button onclick="attivaGPS()" style="margin-top:8px; background:#16a34a; color:white; border:0; padding:8px 14px; border-radius:8px; font-weight:800; width:100%">📍 ATTIVA GPS / WiFi - CLICCA QUI</button>';
+  document.getElementById('badgeStato').textContent='GPS/WiFi CERCO...';
   document.getElementById('badgeStato').style.background='#f59e0b';
 
-  // 1 - Tentativo immediato
+  // 1° Tentativo: GPS alta precisione (satellitare)
   navigator.geolocation.getCurrentPosition(p=>{
-    aggiornaDaPosizione(p);
-    // Avvia watch continuo
-    watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2), errGPS2, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
+    aggiornaDaPosizione(p, 'GPS Satellite');
+    watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2, 'GPS'), errGPS2, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
   }, e=>{
-    // Se fallisce, avvia watch diretto
-    document.getElementById('coordBox').innerHTML='⏳ Primo tentativo fallito, avvio GPS continuo...';
-    watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2), errGPS2, {enableHighAccuracy:true, maximumAge:0, timeout:20000});
-    // Riprova dopo 4 sec
-    setTimeout(()=>{
-      navigator.geolocation.getCurrentPosition(p=>aggiornaDaPosizione(p), errGPS2, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
-    }, 4000);
-  }, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+    // 2° Tentativo: WiFi bassa precisione (enableHighAccuracy:false usa WiFi/celle)
+    document.getElementById('coordBox').innerHTML='⏳ GPS non trovato, provo con WiFi... (precisione minore ma funziona al chiuso)';
+    navigator.geolocation.getCurrentPosition(p=>{
+      aggiornaDaPosizione(p, 'WiFi');
+      watchId = navigator.geolocation.watchPosition(p2=>aggiornaDaPosizione(p2, 'WiFi'), errGPS2, {enableHighAccuracy:false, maximumAge:10000, timeout:20000});
+    }, e2=>{
+      // 3° Tentativo: IP Geolocation
+      document.getElementById('coordBox').innerHTML='⏳ WiFi non trovato, provo con rete IP...';
+      provaPosizioneIP();
+    }, {enableHighAccuracy:false, timeout:15000, maximumAge:10000});
+  }, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+}
+
+function provaPosizioneIP(){
+  // IP fallback usando ipapi
+  fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+    if(d.latitude && d.longitude){
+      let p={coords:{latitude:d.latitude, longitude:d.longitude, accuracy:5000}};
+      aggiornaDaPosizione(p, 'IP WiFi');
+      document.getElementById('coordBox').innerHTML+=`<br><small>Posizione via IP ${d.city} - precisione ~5km - Va bene per test</small>`;
+    } else {
+      throw 'no lat';
+    }
+  }).catch(e=>{
+    errGPS2({code:2});
+  });
 }
 
 function errGPS2(e){
   let msg='';
-  if(e.code===1) msg='❌ PERMESSO NEGATO<br>Hai cliccato "Non consentire mai"? Clicca 🔒 in alto > Posizione > Consenti > Ricarica F5';
-  else if(e.code===2) msg='❌ Posizione non disponibile<br>Attiva WiFi e GPS del PC/telefono';
-  else if(e.code===3) msg='⏳ Timeout - Sei al chiuso? Avvicinati a finestra';
-  else msg='Errore GPS code '+e.code;
-  document.getElementById('coordBox').innerHTML=msg+'<br><br><button onclick="attivaGPS()" style="margin-top:6px; background:#16a34a; color:white; border:0; padding:10px 16px; border-radius:10px; font-weight:800; font-size:13px; width:100%">📍 CLICCA QUI PER RIPROVARE GPS</button><br><br><button onclick="testSenzaGPS()" style="background:#f59e0b; color:white; border:0; padding:8px 14px; border-radius:8px; font-weight:700">🧪 MODALITA TEST - Entra senza GPS</button>';
-  document.getElementById('badgeStato').textContent='GPS ERRORE';
+  if(e.code===1) msg='❌ PERMESSO NEGATO<br>Clicca 🔒 o 📍 in alto > Posizione > Consenti > F5';
+  else if(e.code===2) msg='❌ Nessuna posizione<br>PC fisso senza WiFi? Attiva WiFi del PC o usa TEST MODE';
+  else if(e.code===3) msg='⏳ Timeout - Sei al chiuso? Provo WiFi...';
+  else msg='Errore '+e.code;
+  document.getElementById('coordBox').innerHTML=msg+'<br><br><button onclick="attivaGPS()" style="background:#16a34a; color:white; border:0; padding:10px 16px; border-radius:10px; font-weight:800; width:100%; margin-bottom:8px">📶 RIPROVA con WiFi / GPS</button><button onclick="provaPosizioneIP()" style="background:#0ea5e9; color:white; border:0; padding:8px 14px; border-radius:8px; font-weight:700; width:100%; margin-bottom:8px">🌐 PROVA POSIZIONE WiFi/IP</button><button onclick="testSenzaGPS()" style="background:#f59e0b; color:white; border:0; padding:8px 14px; border-radius:8px; font-weight:700; width:100%">🧪 ENTRA IN TEST MODE SENZA GPS</button>';
+  document.getElementById('badgeStato').textContent='GPS/WiFi ERRORE';
   document.getElementById('badgeStato').style.background='#ef4444';
 }
 function errGPS(e){ errGPS2(e); }
@@ -369,12 +389,14 @@ function testSenzaGPS(){
   dentro=true;
   vicino=PLESSI.find(p=>p.n==='Rinascita')||PLESSI[1];
   last={coords:{latitude:vicino.lat, longitude:vicino.lon, accuracy:5}};
-  document.getElementById('coordBox').innerHTML='🧪 TEST MODE ATTIVO - GPS simulato dentro '+vicino.n+'<br><small>Puoi timbrare per prova</small><br><button onclick="attivaGPS()" style="margin-top:6px; background:#16a34a; color:white; border:0; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800">🔄 Torna a GPS reale</button>';
-  document.getElementById('vicinoBox').innerHTML='Vicino: <b>'+vicino.n+'</b> TEST MODE ✅ DENTRO';
+  document.getElementById('coordBox').innerHTML='🧪 TEST MODE ATTIVO - dentro '+vicino.n+'<br><button onclick="attivaGPS()" style="margin-top:6px; background:#16a34a; color:white; border:0; padding:6px 12px; border-radius:8px">🔄 Torna GPS/WiFi reale</button>';
+  document.getElementById('vicinoBox').innerHTML='Vicino: <b>'+vicino.n+'</b> TEST ✅ DENTRO';
   document.getElementById('precTop').textContent='5';
-  document.getElementById('listaDistanze').innerHTML='<span class="chip-dist" style="background:#d1fae5; border-color:#16a34a">TEST MODE ✅ DENTRO - 0m</span>';
+  document.getElementById('listaDistanze').innerHTML='<span class="chip-dist" style="background:#d1fae5; border-color:#16a34a">TEST MODE 0m ✅</span>';
   aggiornaUIBlocco();
 }
+
+
 
 
 
