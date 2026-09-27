@@ -3,9 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95.1 Orario settimanale - Anagrafica nascosta</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<title>IC Frosinone 2 - v95.2 Orario settimanale - Anagrafica nascosta</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
+// Nascondi anagrafica all'avvio - FIX definitivo
+window.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; });
+</script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+// Nascondi anagrafica all'avvio - FIX definitivo
+window.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; });
+</script>
 <style>
 body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .top-verde{border:3px solid #16a34a; background:white; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center}
@@ -69,7 +75,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95 - Orario settimanale</b>
+<b>✅ v95.2 - Orario settimanale</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -302,7 +308,8 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value.trim(); if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; } else alert('PIN errato - il PIN è: '+pinSalvato+' (puoi cambiarlo)'); }
+function sbloccaPIN(){ const pin=document.getElementById('pinInput').value.trim(); if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; document.getElementById('pinInput').value=''; } else alert('PIN errato - il PIN è: '+pinSalvato); }
+function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
 function cambiaPIN(){ let nuovo=prompt('Nuovo PIN (4 cifre):', pinSalvato); if(nuovo && nuovo.trim().length>=3){ pinSalvato=nuovo.trim(); localStorage.setItem('pin_v90', pinSalvato); alert('PIN cambiato in: '+pinSalvato); } }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
 
@@ -591,6 +598,9 @@ window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
   renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
+
+// Nascondi anagrafica all'avvio - FIX definitivo
+window.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; });
 </script>
 
 </body>
