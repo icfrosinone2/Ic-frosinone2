@@ -2,6 +2,9 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IC Frosinone 2 - v95 TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -587,6 +590,28 @@ function stampaResocontoNome(nome){
 }
 
 
+
+// FIX per visualizzazione timbrature condivise
+function aggiornaLog(){
+  try{
+    const logDiv = document.getElementById('log');
+    if(!logDiv) return;
+    let html = '';
+    // mostra ultime 30 timbrature condivise
+    timbratureSalvate.slice(0,30).forEach(t=>{
+      const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      html += `<div style="border-left:3px solid ${colore}; padding:2px 4px; margin:2px 0; background:white"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</div>`;
+    });
+    if(html==='') html = 'Nessuna timbratura condivisa ancora';
+    else html = '<div style="font-size:9px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE DA TUTTI I PLESSI (ultime 30):</div>' + html;
+    logDiv.innerHTML = html;
+    // salva sempre nello stesso storage della timbra originale
+    try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
+  }catch(e){ console.log("aggiornaLog errore", e); }
+}
+function renderGestioneTimbrature(){ aggiornaLog(); }
+
+
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
 const DB_URLS = [
   "https://icfrosinone2-default-rtdb.firebaseio.com",
@@ -617,18 +642,32 @@ async function caricaCondivise(){
       arr = arr.filter(x=>x && x.data);
       // ordina per timestamp o data
       arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-      if(arr.length !== lastCloudCount || JSON.stringify(arr).length !== JSON.stringify(timbratureSalvate).length){
+      if(true){
         lastCloudCount = arr.length;
-        // se il cloud ha più dati del locale, usa cloud
-        if(arr.length >= timbratureSalvate.length){
-          timbratureSalvate = arr;
-          try{ localStorage.setItem('timbr_v95', JSON.stringify(arr)); }catch(e){}
-          if(typeof renderGestioneTimbrature === 'function') try{renderGestioneTimbrature();}catch(e){}
-          if(typeof aggiornaLog === 'function') try{aggiornaLog();}catch(e){}
-          console.log("☁️ Cloud: "+arr.length+" timbrature condivise");
-          const badge = document.getElementById('statusBadge');
-          if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+arr.length+" timbrature - Pietrobono↔Rinascita OK"; badge.style.background="#dcfce7"; }
+        // MERGE: unisci locale + cloud, elimina duplicati per data+nome+tipo+plesso
+        let merged = [...timbratureSalvate, ...arr];
+        let seen = new Set();
+        let uniq = [];
+        merged.forEach(t=>{
+          let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+          if(!seen.has(key)){
+            seen.add(key);
+            uniq.push(t);
+          }
+        });
+        // ordina per data più recente prima (timestamp o data string)
+        uniq.sort((a,b)=>{
+          if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+          return 0;
+        });
+        if(uniq.length !== timbratureSalvate.length || JSON.stringify(uniq).length !== JSON.stringify(timbratureSalvate).length){
+          timbratureSalvate = uniq.slice(0,500);
+          try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+          aggiornaLog();
+          console.log("☁️ Cloud merge: "+uniq.length+" timbrature condivise (erano "+timbratureSalvate.length+")");
         }
+        const badge = document.getElementById('statusBadge');
+        if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
       }
     }
     // anagrafiche condivise
