@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v96.4 RIPARATA PIN + Timbrature GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v96.5 SICURO PIN Blindato GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +69,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v96.4 - RIPARATA - PIN + Timbrature Modificabili + Suono FORTE - GPS OK + Qualifiche</b>
+<b>✅ v96.5 - SICURO - PIN non rivelato + Gestione Timbrature + GPS OK + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -309,8 +309,8 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const ec=document.getElementById('elencoContainer'); if(ec) ec.style.display='block'; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+pinSalvato; } else { alert('PIN errato! PIN è: '+pinSalvato); } }
-function cambiaPIN(){ let a=prompt('PIN attuale:'); if(a===null) return; if(a!==pinSalvato){ alert('PIN sbagliato! E\' '+pinSalvato); return; } let n=prompt('Nuovo PIN:', pinSalvato); if(n===null) return; n=n.trim(); if(n.length<3){ alert('Troppo corto'); return; } pinSalvato=n; localStorage.setItem('pin_v90', n); alert('✅ Nuovo PIN: '+n); const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+n; }
+function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const ec=document.getElementById('elencoContainer'); if(ec) ec.style.display='block'; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+pinSalvato; } else { alert('⛔ PIN errato! Riprova.'); } }
+function cambiaPIN(){ let a=prompt('Inserisci PIN attuale per confermare:'); if(a===null) return; if(a!==pinSalvato){ alert('⛔ PIN attuale sbagliato!'); return; } let n=prompt('Nuovo PIN:', pinSalvato); if(n===null) return; n=n.trim(); if(n.length<3){ alert('Troppo corto'); return; } pinSalvato=n; localStorage.setItem('pin_v90', n); alert('✅ Nuovo PIN: '+n); const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN: '+n; }
 function mostraPIN(){ alert('PIN: '+pinSalvato); }
 function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const ec=document.getElementById('elencoContainer'); if(ec) ec.style.display='none'; }
 
