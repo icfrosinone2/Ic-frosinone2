@@ -208,9 +208,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <b>💡 Badge smarrito? Come ridarlo:</b><br>
 I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b>🖨️ Ristampa</b> sul nome. Si ristampa identico con stesso QR. Non serve rifare anagrafica!
 </div>
-</div>
 
-<div style="margin-top:12px">
+<div id="elencoProtetto" style="margin-top:12px">
 <b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
@@ -235,6 +234,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div style="text-align:center; margin:8px 0; padding:4px">
 <button class="btn" style="background:#0ea5e9; color:white; padding:10px 20px; font-size:12px; font-weight:800; border-radius:10px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE</button>
 </div>
+</div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
 <div id="bNome" style="font-size:16px; font-weight:900">Nome</div>
@@ -246,7 +246,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div style="font-size:8px; color:#64748b; margin-top:4px">Se smarrito: ristampa da Elenco → Badge</div>
 </div>
 </div>
-</div>
+</div></div>
 
 <div id="printArea" style="display:none"></div>
 
@@ -304,9 +304,24 @@ function attivaGPS(){
 }
 
 // PIN
-let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const pin=document.getElementById('pinInput').value; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; } else alert('PIN errato'); }
-function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+let pinSalvato=localStorage.getItem('pin_v90')||'211285';
+function sbloccaPIN(){ 
+  const pin=document.getElementById('pinInput').value; 
+  if(pin===pinSalvato){ 
+    document.getElementById('pinLock').style.display='none'; 
+    document.getElementById('anagraficaForm').style.display='block'; 
+    const el=document.getElementById('elencoProtetto'); if(el) el.style.display='block';
+    const el2=document.getElementById('badgeCartaBox'); // lascia nascosto fino a creaBadge
+  } else alert('PIN errato - usa 211285'); 
+}
+function bloccaPIN(){ 
+  document.getElementById('pinLock').style.display='flex'; 
+  document.getElementById('anagraficaForm').style.display='none'; 
+  const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none';
+  const box=document.getElementById('badgeCartaBox'); if(box) box.style.display='none';
+  document.getElementById('pinInput').value='';
+}
+
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
@@ -602,25 +617,59 @@ function stampaResocontoNome(nome){
 
 
 
-// FIX per visualizzazione timbrature condivise
 function aggiornaLog(){
   try{
     const logDiv = document.getElementById('log');
     if(!logDiv) return;
     let html = '';
-    // mostra ultime 30 timbrature condivise
-    timbratureSalvate.slice(0,30).forEach(t=>{
+    timbratureSalvate.slice(0,50).forEach((t,i)=>{
       const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      html += `<div style="border-left:3px solid ${colore}; padding:2px 4px; margin:2px 0; background:white"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</div>`;
+      const isProtetta = document.getElementById('pinLock').style.display==='none';
+      const btns = isProtetta ? `<button onclick="modificaTimbratura(${i})" style="font-size:9px; background:#f59e0b; color:white; border:0; border-radius:4px; padding:2px 6px; margin-left:4px">✏️</button><button onclick="eliminaTimbratura(${i})" style="font-size:9px; background:#ef4444; color:white; border:0; border-radius:4px; padding:2px 6px; margin-left:2px">🗑️</button>` : '';
+      html += `<div style="border-left:3px solid ${colore}; padding:3px 4px; margin:2px 0; background:white; display:flex; justify-content:space-between; align-items:center"><div><b style="font-size:10px">${t.data||''}</b> - <span style="color:${colore};font-weight:800; font-size:10px">${t.tipo||''}</span> - <span style="font-size:10px">${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</span></div><div>${btns}</div></div>`;
     });
     if(html==='') html = 'Nessuna timbratura condivisa ancora';
-    else html = '<div style="font-size:9px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE DA TUTTI I PLESSI (ultime 30):</div>' + html;
+    else {
+      const pinMsg = document.getElementById('pinLock').style.display==='none' ? '<span style="color:#16a34a">Sbloccato: puoi modificare ✏️/eliminare 🗑️ (solo locale, cloud rimane)</span>' : '<span style="color:#f59e0b">🔒 Sblocca PIN per modificare timbrature</span>';
+      html = `<div style="font-size:9px; color:#334155; font-weight:800; margin-bottom:4px; display:flex; justify-content:space-between"><span>📋 TIMBRATURE CONDIVISE (ultime 50): ${timbratureSalvate.length} tot</span><span>${pinMsg}</span></div>` + html;
+    }
     logDiv.innerHTML = html;
-    // salva sempre nello stesso storage della timbra originale
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
+
+function eliminaTimbratura(idx){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN per eliminare!'); return; }
+  const t = timbratureSalvate[idx];
+  if(!t) return;
+  if(!confirm('Eliminare timbratura:\n'+t.data+' - '+t.nome+' - '+t.tipo+' @ '+t.plesso+' ?\nVerrà eliminata solo da questo dispositivo, non dal cloud condiviso.')) return;
+  timbratureSalvate.splice(idx,1);
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+}
+
+function modificaTimbratura(idx){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN per modificare!'); return; }
+  const t = timbratureSalvate[idx];
+  if(!t) return;
+  const nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo);
+  if(!nuovoTipo) return;
+  const nuovoPlesso = prompt('Modifica plesso:', t.plesso);
+  if(nuovoPlesso===null) return;
+  const nuovaData = prompt('Modifica data/ora (es. 27/09/2026, 23:10:02):', t.data);
+  if(nuovaData===null) return;
+  t.tipo = nuovoTipo.toUpperCase();
+  t.plesso = nuovoPlesso;
+  t.data = nuovaData;
+  t.modificata = true;
+  t.modificataDa = 'Eleonora Naddei';
+  t.modificataIl = new Date().toLocaleString('it-IT');
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+  alert('✅ Timbratura modificata localmente!');
+}
+
 
 
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
