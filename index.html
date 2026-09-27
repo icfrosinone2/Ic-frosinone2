@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v97.2 FINALE TUTTO DENTRO PIN TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v97.3 FINALE GPS OK TUTTO DENTRO PIN TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +69,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v97.2 - FINALE - Anagrafica + Elenco + Timbrature TUTTO DENTRO PIN + GPS OK + Qualifiche</b>
+<b>✅ v97.3 - RIPARATA - GPS OK + Elenco + Anagrafica TUTTO DENTRO PIN + Timbrature Modificabili + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -214,17 +214,13 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <b>💡 Badge smarrito? Come ridarlo:</b><br>
 I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b>🖨️ Ristampa</b> sul nome. Si ristampa identico con stesso QR. Non serve rifare anagrafica!
 </div>
+</div>
 
-<div style="margin-top:14px; background:white; border:2.5px solid #0ea5e9; border-radius:12px; padding:10px">
-<b style="font-size:13px; color:#0c4a6e">📋 Elenco Dipendenti - Modifica / Elimina / Ristampa Badge</b>
-<p style="font-size:10px; color:#64748b; margin:4px 0">Solo dopo PIN! Qui trovi tutti i dipendenti.</p>
+<div id="elencoWrapper" style="display:none; margin-top:12px">
+<b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
-<div id="tabellaOrari" style="max-height:350px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
+<div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
 </div>
-</div>
-
-
-<!-- ELENCO RIMOSSO DA QUI - SPOSTATO DENTRO PIN -->
 
 <div id="badgeCartaBox" class="badge-carta">
 <div class="badge-carta-left">
@@ -323,6 +319,8 @@ function sbloccaPIN(){
   if(v===pinSalvato){
     document.getElementById('pinLock').style.display='none';
     document.getElementById('anagraficaForm').style.display='block';
+    const ew=document.getElementById('elencoWrapper');
+    if(ew) ew.style.display='block';
     const e=document.getElementById('pinAttualeMostra');
     if(e) e.textContent='PIN: '+pinSalvato;
   } else {
@@ -332,6 +330,8 @@ function sbloccaPIN(){
 function bloccaPIN(){
   document.getElementById('pinLock').style.display='flex';
   document.getElementById('anagraficaForm').style.display='none';
+  const ew=document.getElementById('elencoWrapper');
+  if(ew) ew.style.display='none';
 }
 function cambiaPIN(){
   const a=prompt('PIN attuale:');
@@ -358,7 +358,7 @@ function renderGestioneTimbrature(){
   let h='<div style="max-height:300px; overflow:auto; border:1.5px solid #0ea5e9; border-radius:8px"><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#0f172a; color:white"><th>Data</th><th>Nome</th><th>Tipo</th><th>Plesso</th><th></th></tr>';
   for(let i=0;i<timbratureSalvate.length;i++){
     const t=timbratureSalvate[i];
-    h+='<tr><td style="padding:5px">'+(t.data||'')+'</td><td><b>'+(t.nome||'')+'</b></td><td>'+(t.tipo||'')+'</td><td>'+(t.plesso||'')+'</td><td><button onclick="modificaTimbratura('+i+')" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:3px 6px">✏️</button> <button onclick="eliminaTimbratura('+i+')" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:3px 6px">X</button></td></tr>';
+    h+='<tr><td style="padding:5px">'+(t.data||'')+'</td><td><b>'+(t.nome||'')+'</b></td><td>'+(t.tipo||'')+'</td><td>'+(t.plesso||'')+'</td><td><button onclick="modificaTimbratura('+i+')" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:3px 6px">Mod</button> <button onclick="eliminaTimbratura('+i+')" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:3px 6px">X</button></td></tr>';
   }
   h+='</table></div><div style="text-align:center; margin-top:6px"><button onclick="esportaTimbrature()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:6px 10px">CSV</button> <button onclick="cancellaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:6px 10px">Cancella Tutto</button></div>';
   cont.innerHTML=h;
@@ -683,7 +683,7 @@ function stampaResocontoNome(nome){
 
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); try{renderGestioneTimbrature();}catch(e){} setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  renderPlessiUI(); loadAnag(); resetOrariSettimana(); try{renderGestioneTimbrature();}catch(e){} const ew=document.getElementById('elencoWrapper'); if(ew) ew.style.display='none'; setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
