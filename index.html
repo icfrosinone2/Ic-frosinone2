@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95.7 Suono FORTE PIN Visibile GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v95.8 PIN Blindato + Suono FORTE GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +69,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95.7 - Suono FORTE + PIN Visibile - GPS OK + Qualifiche</b>
+<b>✅ v95.8 - Suono FORTE + PIN Blindato - GPS OK + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -142,13 +142,22 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <span style="font-size:10px; background:#fffbeb; padding:3px 8px; border-radius:999px; border:1.5px solid #f59e0b">🔒 PIN</span>
 </div>
 
-<div id="pinLock" class="pin-box" style="margin-top:8px">
+<div id="pinLock" class="pin-box" style="margin-top:8px; display:flex">
 <div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
 <input id="pinInput" type="password" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
 
 <div id="anagraficaForm" style="display:none; margin-top:8px">
+<div style="background:#f0f9ff; border:1.5px solid #0ea5e9; border-radius:8px; padding:8px; margin-bottom:8px; text-align:center">
+<b style="font-size:13px; color:#0c4a6e">✅ Anagrafica Dipendenti - Accesso consentito</b> <button class="btn btn-small" style="background:#f1f5f9; color:#334155; font-size:10px; border:1px solid #cbd5e1; margin-left:8px" onclick="bloccaPIN()">🔒 Chiudi / Blocca</button>
+<div style="margin-top:8px; background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center">
+<span id="pinAttualeMostra" style="font-size:11px; font-weight:800; background:white; padding:4px 8px; border-radius:999px; border:1.5px solid #f59e0b">PIN attuale: 1234</span>
+<button class="btn btn-small" style="background:#f59e0b; color:white; font-size:10px" onclick="cambiaPIN()">🔑 Cambia PIN</button>
+<button class="btn btn-small" style="background:#f1f5f9; color:#334155; font-size:10px; border:1px solid #cbd5e1" onclick="mostraPIN()">👁️ Mostra PIN</button>
+</div>
+</div>
+
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
 <!-- QUALIFICHE COME CHIESTO -->
