@@ -1,9 +1,13 @@
+
+
+Chiedi a Meta AI...
+Index
 <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95.8 PIN Blindato + Suono FORTE GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v96.0 PIN Blindato Totale GPS OK TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -69,7 +73,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95.9 - PIN Blindato Totale + Suono FORTE - GPS OK + Qualifiche</b>
+<b>✅ v96.0 - PIN Blindato Totale + Suono FORTE - GPS OK + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -149,15 +153,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 
 <div id="anagraficaForm" style="display:none; margin-top:8px">
-<div style="background:#f0f9ff; border:1.5px solid #0ea5e9; border-radius:8px; padding:8px; margin-bottom:8px; text-align:center">
-<b style="font-size:13px; color:#0c4a6e">✅ Anagrafica Dipendenti - Accesso consentito</b> <button class="btn btn-small" style="background:#f1f5f9; color:#334155; font-size:10px; border:1px solid #cbd5e1; margin-left:8px" onclick="bloccaPIN()">🔒 Chiudi / Blocca</button>
-<div style="margin-top:8px; background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center">
-<span id="pinAttualeMostra" style="font-size:11px; font-weight:800; background:white; padding:4px 8px; border-radius:999px; border:1.5px solid #f59e0b">PIN attuale: 1234</span>
-<button class="btn btn-small" style="background:#f59e0b; color:white; font-size:10px" onclick="cambiaPIN()">🔑 Cambia PIN</button>
-<button class="btn btn-small" style="background:#f1f5f9; color:#334155; font-size:10px; border:1px solid #cbd5e1" onclick="mostraPIN()">👁️ Mostra PIN</button>
-</div>
-</div>
-
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
 <!-- QUALIFICHE COME CHIESTO -->
@@ -211,7 +206,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 
 <div style="margin-top:12px">
-<b style="font-size:13px"></div><div id="elencoContainer" style="display:none"><div style="font-weight:800; font-size:13px; margin:10px 0">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
+<b style="font-size:13px"><div id="elencoContainer" style="display:none">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
 </div>
@@ -233,7 +228,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 </div><div style="background:#f0f9ff; border:2px solid #0ea5e9; border-radius:12px; padding:10px; margin-top:10px"><b style="font-size:12px">🏷️ BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
+<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
 <button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR GRANDE</button><br>
 <small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 84mm grande!</small>
 </div>
@@ -250,7 +245,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
-<div id="printArea" style="display:none"></div>
+</div><div id="printArea" style="display:none"></div>
 
 <script>
 const GEOFENCE=150;
@@ -290,15 +285,8 @@ function aggiungiCasaManuale(){
 }
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
 
-function beep(tipo){
- try{
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  const gain=ctx.createGain(); gain.gain.value=1; gain.connect(ctx.destination);
-  const o=ctx.createOscillator(); o.frequency.value=(tipo==='USCITA'?500:1200); o.connect(gain); o.start(); setTimeout(()=>{o.stop(); try{ctx.close();}catch(e){}}, 600);
-  if(tipo==='ENTRATA'){ setTimeout(()=>{ try{ const c=new (window.AudioContext||window.webkitAudioContext)(); const g=c.createGain(); g.gain.value=1; g.connect(c.destination); const o2=c.createOscillator(); o2.frequency.value=1200; o2.connect(g); o2.start(); setTimeout(()=>{o2.stop(); try{c.close();}catch(e){}},600);}catch(e){} },300); }
- }catch(e){}
-}
-function beepForte(t){ beep(t); if(navigator.vibrate) navigator.vibrate([250,100,250]); }
+function beep(t){try{const c=new(window.AudioContext||window.webkitAudioContext)();const g=c.createGain();g.gain.value=1;g.connect(c.destination);const o=c.createOscillator();o.frequency.value=(t==='USCITA'?500:1200);o.connect(g);o.start();setTimeout(()=>{o.stop();try{c.close()}catch(e){}},600);if(t==='ENTRATA'){setTimeout(()=>{try{const c2=new(window.AudioContext||window.webkitAudioContext)();const g2=c2.createGain();g2.gain.value=1;g2.connect(c2.destination);const o2=c2.createOscillator();o2.frequency.value=1200;o2.connect(g2);o2.start();setTimeout(()=>{o2.stop();try{c2.close()}catch(e){}},600)}catch(e){}},300)}}catch(e){}}
+function beepForte(t){beep(t);if(navigator.vibrate) navigator.vibrate([250,100,250]);}
 function aggiornaUIBlocco(){
   const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
   const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
@@ -315,11 +303,10 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato=localStorage.getItem('pin_v90')||'1234';
-function sbloccaPIN(){ const v=document.getElementById('pinInput').value.trim(); if(v===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e2=document.getElementById('elencoContainer'); if(e2) e2.style.display='block'; document.getElementById('pinInput').value=''; const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+pinSalvato; } else { alert('PIN errato! PIN attuale: '+pinSalvato); } }
-function bloccaPIN(){ document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const e=document.getElementById('elencoContainer'); if(e) e.style.display='none'; }
-function aggiornaVisibilitaElenco(){ const locked=document.getElementById('pinLock').style.display!=='none'; const e=document.getElementById('elencoContainer'); if(e) e.style.display=locked?'none':'block'; }
-function cambiaPIN(){ let a=prompt('PIN attuale:'); if(a===null) return; if(a!==pinSalvato){ alert('Sbagliato! PIN è '+pinSalvato); return; } let n=prompt('Nuovo PIN (min 3):', pinSalvato); if(n===null) return; n=n.trim(); if(n.length<3){ alert('Troppo corto'); return; } pinSalvato=n; localStorage.setItem('pin_v90', n); alert('✅ PIN nuovo: '+n); const e=document.getElementById('pinAttualeMostra'); if(e) e.textContent='PIN attuale: '+n; }
-function mostraPIN(){ alert('PIN attuale: '+pinSalvato); }
+function sbloccaPIN(){const v=document.getElementById('pinInput').value.trim();if(v===pinSalvato){document.getElementById('pinLock').style.display='none';document.getElementById('anagraficaForm').style.display='block';const el=document.getElementById('elencoContainer');if(el) el.style.display='block';const e=document.getElementById('pinAttualeMostra');if(e) e.textContent='PIN attuale: '+pinSalvato;}else{alert('PIN errato! PIN attuale: '+pinSalvato);}}
+function bloccaPIN(){document.getElementById('pinLock').style.display='flex';document.getElementById('anagraficaForm').style.display='none';const el=document.getElementById('elencoContainer');if(el) el.style.display='none';}
+function cambiaPIN(){let a=prompt('PIN attuale:');if(a===null) return;if(a!==pinSalvato){alert('Sbagliato! PIN è '+pinSalvato);return;}let n=prompt('Nuovo PIN (min 3):',pinSalvato);if(n===null) return;n=n.trim();if(n.length<3){alert('Troppo corto');return;}pinSalvato=n;localStorage.setItem('pin_v90',n);alert('✅ PIN nuovo: '+n);const e=document.getElementById('pinAttualeMostra');if(e) e.textContent='PIN attuale: '+n;}
+function mostraPIN(){alert('PIN attuale: '+pinSalvato);}
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
