@@ -59,7 +59,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:84px; height:84px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center}
+#qrcodeCarta{width:78px; height:78px; background:white; padding:4px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -573,7 +573,7 @@ function creaBadgeDa(nome){
       document.getElementById('bPlesso').innerText=a.plesso;
       document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
       document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso;
-      const qr=document.getElementById('qrcode'); if(qr){ qr.innerHTML=''; new QRCode(qr, {text:a.nome, width:200, height:200}); }
+      const qr=document.getElementById('qrcode'); if(qr){ qr.innerHTML=''; try{ new QRCode(qr, {text:a.nome.toUpperCase(), width:200, height:200}); }catch(e){} } }
     }catch(e){}
     return;
   }
@@ -592,8 +592,8 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
-function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
-function stampaResocontoNome(nome){
+function stampaResoconto(){ if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette! Sblocca con PIN prima!'); return; } const nome=document.getElementById('dipendente').value; if(!nome){ alert('Seleziona dipendente!'); return; } stampaResocontoNome(nome); }
+function stampaResocontoNome(nome){ if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette! Sblocca con PIN prima!'); return; }
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
   const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
@@ -641,8 +641,7 @@ function eliminaSelezionate(){
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
   aggiornaLog();
 }
-function eliminaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca con PIN prima!'); return; }
+function eliminaTimbratura(idx){ if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
   const t=timbratureSalvate[idx]; if(!t) return;
   if(!confirm('Eliminare?\n'+t.data+' - '+t.nome+' - '+t.tipo+' @ '+t.plesso)) return;
   timbratureSalvate.splice(idx,1);
@@ -650,8 +649,7 @@ function eliminaTimbratura(idx){
   aggiornaLog();
   if(typeof gestioneDipendenteCorrente!=='undefined' && gestioneDipendenteCorrente) try{apriGestioneDipendente(gestioneDipendenteCorrente);}catch(e){}
 }
-function modificaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca con PIN prima!'); return; }
+function modificaTimbratura(idx){ if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
   const t=timbratureSalvate[idx]; if(!t) return;
   const nuovoTipo=prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo); if(!nuovoTipo) return;
   const nuovoPlesso=prompt('Modifica plesso:', t.plesso); if(nuovoPlesso===null) return;
@@ -661,7 +659,7 @@ function modificaTimbratura(idx){
   aggiornaLog();
 }
 async function eliminaTutteTimbratureProva(){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca con PIN prima!'); return; }
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
   const conf=prompt('⚠️ Eliminare TUTTE le timbrature di prova? Scrivi ELIMINA per confermare:');
   if(conf!=='ELIMINA') return;
   if(!confirm('Sicura? Verranno eliminate '+timbratureSalvate.length+' timbrature!')) return;
@@ -676,7 +674,7 @@ async function eliminaTutteTimbratureProva(){
 
 let gestioneDipendenteCorrente = null;
 function apriGestioneDipendente(nome){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca con PIN prima!'); return; }
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
   gestioneDipendenteCorrente = nome;
   const a = anagrafiche.find(x=>x.nome===nome);
   const box = document.getElementById('gestioneDipendenteBox');
@@ -833,7 +831,7 @@ setTimeout(caricaCondivise, 800);
 
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  bloccaPIN(); renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
