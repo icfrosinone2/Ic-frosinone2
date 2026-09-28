@@ -142,7 +142,10 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
-<div style="text-align:center; margin:4px 0"><button onclick="caricaCondivise(); aggiornaLog();" style="background:#16a34a;color:white;border:0;border-radius:8px;padding:8px 16px;font-weight:800">🔄 Aggiorna timbrature condivise</button> <small style="font-size:10px">Premi qui se non vedi le timbrature</small></div><div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+<div style="text-align:center; margin:4px 0; display:flex; gap:6px; justify-content:center; flex-wrap:wrap">
+<button onclick="caricaCondivise(); aggiornaLog();" style="background:#16a34a;color:white;border:0;border-radius:8px;padding:8px 16px;font-weight:800">🔄 Aggiorna timbrature</button>
+<button onclick="eliminaTutteTimbratureProva()" style="background:#dc2626;color:white;border:2px dashed yellow;border-radius:8px;padding:8px 16px;font-weight:800; font-size:11px">🗑️ ELIMINA TUTTE LE PROVE (ADMIN)</button>
+<small style="font-size:10px">PIN 211285 richiesto</small></div><div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
 
 <div class="card-white">
@@ -261,6 +264,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div style="margin-top:10px; display:flex; gap:8px">
 <button onclick="stampaResocontoNome(gestioneDipendenteCorrente)" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">🖨️ Stampa Resoconto Ore</button>
 <button onclick="esportaOreDipendente()" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">📥 Esporta CSV</button>
+<button onclick="eliminaTimbratureDipendenteProva()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; border:2px dashed yellow">🗑️ Elimina prove di questo dipendente</button>
 </div>
 </div>
 </div>
@@ -688,6 +692,50 @@ function aggiornaLog(){
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
+
+
+// ===== ADMIN - ELIMINA TIMBRATURE DI PROVA =====
+async function eliminaTutteTimbratureProva(){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca con PIN 211285 prima!'); return; }
+  const conf = prompt('⚠️ ATTENZIONE! Stai per eliminare TUTTE le timbrature di prova!\nQuesto cancella tutto dal tablet E dal cloud condiviso Pietrobono↔Rinascita!\n\nScrivi ELIMINA per confermare:');
+  if(conf!=='ELIMINA'){ alert('Annullato'); return; }
+  const conf2 = confirm('Sei SICURA?\nVerranno eliminate '+timbratureSalvate.length+' timbrature!\nQuesta azione NON si può annullare!');
+  if(!conf2) return;
+  
+  // 1. Pulisci locale
+  timbratureSalvate = [];
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify([])); }catch(e){}
+  try{ localStorage.removeItem('timbrature_v93'); }catch(e){}
+  aggiornaLog();
+  
+  // 2. Pulisci cloud Firebase - DELETE /timbrature.json
+  try{
+    for(let base of DB_URLS){
+      await fetch(base + '/timbrature.json', {method:'DELETE'});
+    }
+    console.log('☁️ Cloud timbrature eliminate');
+  }catch(e){ console.log('Errore delete cloud', e); }
+  
+  alert('✅ Tutte le timbrature di prova eliminate!\nLocale e cloud puliti!\nOra puoi iniziare con timbrature vere.');
+  location.reload();
+}
+
+function eliminaTimbratureDipendenteProva(){
+  if(!gestioneDipendenteCorrente){ alert('Apri prima gestione mirata di un dipendente!'); return; }
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca PIN!'); return; }
+  const nome = gestioneDipendenteCorrente;
+  const timbriDip = timbratureSalvate.filter(t=>t.nome===nome);
+  if(timbriDip.length===0){ alert('Nessuna timbratura per '+nome); return; }
+  const conf = prompt('Eliminare '+timbriDip.length+' timbrature di prova di '+nome+'? Scrivi ELIMINA per confermare:');
+  if(conf!=='ELIMINA') return;
+  
+  timbratureSalvate = timbratureSalvate.filter(t=>t.nome!==nome);
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+  if(typeof apriGestioneDipendente==='function') apriGestioneDipendente(nome);
+  alert('✅ Eliminate '+timbriDip.length+' timbrature di prova di '+nome+' (solo locale).\nPer eliminare anche dal cloud usa ELIMINA TUTTE.');
+}
+
 
 function eliminaTimbratura(idx){
   alert('🔒 Le timbrature sono protette e NON si possono eliminare, come da te richiesto!');
