@@ -648,7 +648,9 @@ function stampaResoconto(){
   const nome=document.getElementById('dipendente').value; if(!nome){ alert('Seleziona un dipendente!'); return; } stampaResocontoNome(nome); 
 }
 function stampaResocontoNome(nome){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Stampa ore protetta! Sblocca con PIN 211285!'); return; }
+  if(!nome){ alert('Seleziona dipendente!'); return; }
+  if(document.getElementById('pinLock') && document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Stampa ore protetta! Sblocca con PIN 211285!'); return; }
+
 
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
   const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
