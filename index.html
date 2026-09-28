@@ -151,7 +151,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div id="pinLock" class="pin-box" style="margin-top:8px">
 <div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
-<input type="password" id="pinInput" type="password" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
+<input type="password" id="pinInput" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
 
@@ -460,6 +460,7 @@ function filtraElenco(){
       <div style="font-size:10px">${riepilogoGiorni}</div>
       <div style="font-size:10px; text-align:center"><b>${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">sett.</span></div>
       <div style="display:grid; gap:4px">
+        <button onclick="apriGestioneDipendente('${a.nome.replace(/'/g,'')}')" style="font-size:10px; background:#16a34a; color:white; border:0; border-radius:6px; padding:6px; font-weight:800">📋 GESTIONE ORE</button>
         <button onclick="creaBadgeDa('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#7c3aed; color:white; border:0; border-radius:6px; padding:5px">🖨️ Badge<br><small>Ristampa se smarrito</small></button>
         <button onclick="modificaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px">✏️ Modifica</button>
         <button onclick="eliminaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#ef4444; color:white; border:0; border-radius:6px; padding:4px">🗑️ Elimina</button>
@@ -592,25 +593,61 @@ function stampaResocontoNome(nome){ if(document.getElementById('pinLock').style.
 
 
 
-// FIX per visualizzazione timbrature condivise
 function aggiornaLog(){
   try{
     const logDiv = document.getElementById('log');
     if(!logDiv) return;
+    const pinSbloccato = document.getElementById('pinLock') && document.getElementById('pinLock').style.display==='none';
     let html = '';
-    // mostra ultime 30 timbrature condivise
-    timbratureSalvate.slice(0,30).forEach(t=>{
+    timbratureSalvate.slice(0,80).forEach((t,idx)=>{
       const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      html += `<div style="border-left:3px solid ${colore}; padding:2px 4px; margin:2px 0; background:white"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</div>`;
+      const check = pinSbloccato ? `<input type="checkbox" class="chkTimbro" data-idx="${idx}" style="margin-right:4px; width:16px; height:16px">` : '';
+      const btns = pinSbloccato ? `<span style="float:right; display:flex; gap:3px"><button onclick="modificaTimbratura(${idx})" style="font-size:8px; background:#f59e0b; color:white; border:0; border-radius:4px; padding:3px 7px">✏️</button><button onclick="eliminaTimbratura(${idx})" style="font-size:8px; background:#ef4444; color:white; border:0; border-radius:4px; padding:3px 7px">🗑️</button></span>` : '';
+      html += `<div style="border-left:3px solid ${colore}; padding:4px; margin:3px 0; background:white; border-radius:4px"><div style="display:flex; justify-content:space-between; align-items:center"><div>${check}<b style="font-size:10px">${t.data||''}</b> - <span style="color:${colore};font-weight:800; font-size:10px">${t.tipo||''}</span> - <span style="font-size:10px">${t.nome||''} @ ${t.plesso||''}</span></div>${btns}</div></div>`;
     });
     if(html==='') html = 'Nessuna timbratura condivisa ancora';
-    else html = '<div style="font-size:9px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE DA TUTTI I PLESSI (ultime 30):</div>' + html;
+    else {
+      const tools = pinSbloccato ? `<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:8px; padding:6px; margin-bottom:6px"><b style="font-size:10px">Seleziona quali timbrature di prova levare:</b><br><button onclick="selezionaTutteTimbrature()" style="font-size:9px; background:#64748b; color:white; border:0; border-radius:6px; padding:5px 10px; margin:2px">☑️ Seleziona tutte</button> <button onclick="deselezionaTutte()" style="font-size:9px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:5px 10px; margin:2px">⬜ Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:10px; background:#dc2626; color:white; border:0; border-radius:6px; padding:6px 12px; font-weight:800; margin:2px">🗑️ Elimina selezionate</button> <span style="font-size:8px; color:#64748b"> (non tutte insieme, scegli con ☑️)</span></div>` : '<div style="font-size:9px; color:#64748b; background:#f1f5f9; padding:4px; border-radius:6px">🔒 Sblocca con PIN per scegliere quali timbrature di prova eliminare - Se provi senza PIN: 🔒 Le timbrature sono protette!</div>';
+      html = `<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE (${timbratureSalvate.length}) da tutti i tablet - ${tools}</div>` + html;
+    }
     logDiv.innerHTML = html;
-    // salva sempre nello stesso storage della timbra originale
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
+function selezionaTutteTimbrature(){ document.querySelectorAll('.chkTimbro').forEach(c=>c.checked=true); }
+function deselezionaTutte(){ document.querySelectorAll('.chkTimbro').forEach(c=>c.checked=false); }
+function eliminaSelezionate(){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
+  const checks = document.querySelectorAll('.chkTimbro:checked');
+  if(checks.length===0){ alert('Spunta con ☑️ le timbrature di prova che vuoi levare!'); return; }
+  if(!confirm('Eliminare '+checks.length+' timbrature selezionate? Non verranno eliminate tutte insieme, solo quelle che hai scelto!')) return;
+  let idxs = Array.from(checks).map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
+  idxs.forEach(i=>{ timbratureSalvate.splice(i,1); });
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+  if(gestioneDipendenteCorrente) try{ apriGestioneDipendente(gestioneDipendenteCorrente); }catch(e){}
+}
+function eliminaTimbratura(idx){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
+  const t=timbratureSalvate[idx]; if(!t) return;
+  if(!confirm('Eliminare questa timbratura?
+'+t.data+' - '+t.nome+' - '+t.tipo)) return;
+  timbratureSalvate.splice(idx,1);
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+}
+function modificaTimbratura(idx){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
+  const t=timbratureSalvate[idx]; if(!t) return;
+  const nt=prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo); if(!nt) return;
+  const np=prompt('Modifica plesso:', t.plesso); if(np===null) return;
+  const nd=prompt('Modifica data/ora:', t.data); if(nd===null) return;
+  t.tipo=nt.toUpperCase(); t.plesso=np; t.data=nd; t.modificata=true;
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+}
+
 
 
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
@@ -732,6 +769,7 @@ setTimeout(caricaCondivise, 800);
 
 
 
+window.addEventListener('beforeunload', ()=>{ const i=document.getElementById('pinInput'); if(i) i.value=''; });
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
   bloccaPIN(); renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
