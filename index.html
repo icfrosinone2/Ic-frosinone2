@@ -144,7 +144,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <div style="text-align:center; margin:4px 0; display:flex; gap:6px; justify-content:center; flex-wrap:wrap">
 <button onclick="caricaCondivise(); aggiornaLog();" style="background:#16a34a;color:white;border:0;border-radius:8px;padding:8px 16px;font-weight:800">🔄 Aggiorna timbrature</button>
-<button onclick="eliminaTutteTimbratureProva()" style="background:#dc2626;color:white;border:2px dashed yellow;border-radius:8px;padding:8px 16px;font-weight:800; font-size:11px">🗑️ ELIMINA TUTTE LE PROVE (ADMIN)</button>
+<button onclick="eliminaTutteTimbratureProva()" style="background:#dc2626;color:white;border:2px dashed yellow;border-radius:8px;padding:8px 16px;font-weight:800; font-size:11px">🗑️ elimina timbrature di prova</button>
 <small style="font-size:10px">PIN richiesto</small></div><div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
 
@@ -315,13 +315,55 @@ function aggiornaUIBlocco(){
   if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
+let watchId = null;
 function attivaGPS(){
-  navigator.geolocation.getCurrentPosition(p=>{
-    last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
-    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
-  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+  const coordBox = document.getElementById('coordBox');
+  if(!navigator.geolocation){
+    if(coordBox) coordBox.innerHTML='❌ GPS non supportato';
+    return;
+  }
+  if(coordBox) coordBox.innerHTML='📡 Cerco GPS... consenti posizione se chiesto';
+
+  function processPos(p){
+    last=p; 
+    const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
+    let min=1e9,best=null, chips=''; 
+    PLESSI.forEach(pl=>{
+      const d=dist(lat,lon,pl.lat,pl.lon); 
+      const ok=d<=GEOFENCE; 
+      chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; 
+      if(d<min){min=d; best=pl;}
+    });
+    vicino=best; 
+    dentro=min<=GEOFENCE; 
+    const precEl=document.getElementById('precTop'); if(precEl) precEl.textContent=acc;
+    const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`;
+    const listaEl=document.getElementById('listaDistanze'); if(listaEl) listaEl.innerHTML=chips;
+    if(coordBox) coordBox.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`;
+    aggiornaUIBlocco();
+  }
+
+  function handleError(e){
+    let msg='GPS errore ';
+    if(e.code===1) msg+='Permesso negato - clicca sul lucchetto in alto e consenti posizione, poi clicca ATTIVA GPS';
+    else if(e.code===2) msg+='Posizione non disponibile - attiva GPS dispositivo';
+    else if(e.code===3) msg+='Timeout - riprovo con bassa precisione...';
+    else msg+=e.message;
+    if(coordBox) coordBox.innerHTML=msg;
+    last=null; dentro=false; aggiornaUIBlocco();
+    // Fallback bassa precisione per tablet/phone
+    setTimeout(()=>{
+      navigator.geolocation.getCurrentPosition(processPos, (e2)=>{
+        if(coordBox) coordBox.innerHTML='GPS non disponibile - verifica che il GPS del tablet sia acceso e che il browser abbia permesso posizione<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:8px 12px; font-weight:800">📍 Riprova GPS</button>';
+      }, {enableHighAccuracy:false, timeout:30000, maximumAge:10000});
+    }, 1000);
+  }
+
+  // Prova alta precisione (PC) - versione che funzionava prima
+  navigator.geolocation.getCurrentPosition(processPos, handleError, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
 }
+
+
 
 // PIN
 let pinSalvato='211285'; // PIN fisso non salvato in chiaro nel browser
@@ -726,7 +768,7 @@ function eliminaTimbratura(idx){
   if(!confirm('Eliminare questa timbratura?
 '+t.data+' - '+t.nome+' - '+t.tipo+' @ '+t.plesso+'
 
-Verrà eliminata solo da questo dispositivo (per eliminare anche dal cloud usa ELIMINA TUTTE LE PROVE)')) return;
+Verrà eliminata solo da questo dispositivo (per eliminare anche dal cloud usa elimina timbrature di prova)')) return;
   timbratureSalvate.splice(idx,1);
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
   aggiornaLog();
