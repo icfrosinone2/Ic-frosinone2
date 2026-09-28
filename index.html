@@ -54,12 +54,12 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
 
 /* BADGE TENUE CHIARO - NERO TOLTO + QR PICCOLO + CAM ANTERIORE */
-.badge-carta{width:85.6mm; height:53.98mm; border-radius:12px; border:2.5px solid #0ea5e9; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.12); margin:16px auto; position:relative}
+.badge-carta{width:85.6mm; height:53.98mm; border-radius:10px; border:1.5px solid #0ea5e9; background:#fffffe; display:none; flex-direction:row; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:12px auto; position:relative; opacity:0.95}
 .badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:52px; height:52px; background:white; padding:3px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
+#qrcodeCarta{width:42px; height:42px; background:white; padding:2px; border-radius:5px; border:1.5px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -143,9 +143,9 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
 
-<div class="card-white">
+<div class="card-white" id="anagraficaWrapper">
 <div style="display:flex; justify-content:space-between; align-items:center">
-<b style="font-size:15px">👤 Anagrafica</b>
+<b style="font-size:15px">👤 Anagrafica (protetta PIN)</b>
 <span style="font-size:10px; background:#fffbeb; padding:3px 8px; border-radius:999px; border:1.5px solid #f59e0b">🔒 PIN</span>
 </div>
 
@@ -307,7 +307,7 @@ function attivaGPS(){
 // PIN
 let pinSalvato='211285';
 function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); inp.value=''; inp.type='password'; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; try{ filtraElenco(); }catch(e){} } else { alert('🔒 PIN errato!'); } }
-function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp){ inp.value=''; inp.type='password'; inp.setAttribute('autocomplete','new-password'); } document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; const b1=document.getElementById('badgeCartaBox'); if(b1) b1.style.display='none'; const b2=document.getElementById('badgeBox'); if(b2) b2.style.display='none'; const g=document.getElementById('gestioneDipendenteBox'); if(g) g.style.display='none'; }
+function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp){ inp.value=''; inp.type='password'; inp.setAttribute('autocomplete','new-password'); } document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; const b1=document.getElementById('badgeCartaBox'); if(b1) b1.style.display='none'; const b2=document.getElementById('badgeBox'); if(b2) b2.style.display='none'; const g=document.getElementById('gestioneDipendenteBox'); if(g) g.style.display='none'; const w=document.getElementById('anagraficaWrapper'); if(w){ w.style.border='3px dashed #f59e0b'; } }
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
