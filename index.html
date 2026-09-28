@@ -59,7 +59,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:90px; height:90px; background:white; padding:5px; border-radius:10px; border:2.5px solid #000000; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.15); overflow:hidden; image-rendering:pixelated}
+#qrcodeCarta{width:90px; height:90px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000000; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,.2); overflow:hidden; background-clip:padding-box}
 @media print{
   body *{ visibility:hidden !important; }
   body.print-badge #badgeCartaBox, body.print-badge #badgeCartaBox *, body.print-badge #badgeCartaBox canvas, body.print-badge #badgeCartaBox img, body.print-badge #qrcodeCarta, body.print-badge #qrcodeCarta *, body.print-badge #qrcodeCarta canvas, body.print-badge #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -604,13 +604,19 @@ function creaBadgeDa(nome){
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
     const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
     const qrText='IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||'');
-    // QR LEGGIBILE: generato a 160px alta qualità H, visualizzato a 80px nitido
+    // QR NITIDO E LEGGIBILE - generato direttamente a 84px senza scaling, alta qualità
     try{ 
-      new QRCode(qrCarta, {text:qrText, width:160, height:160, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); 
+      new QRCode(qrCarta, {text:qrText, width:84, height:84, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); 
     }catch(e){ 
-      new QRCode(qrCarta, {text:qrText, width:160, height:160}); 
+      try{ new QRCode(qrCarta, {text:qrText, width:84, height:84}); }catch(e2){ console.log('QR errore', e2); }
     }
-    setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='80px'; c.style.height='80px'; c.style.display='block'; c.style.margin='auto'; c.style.imageRendering='pixelated'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='80px'; im.style.height='80px'; im.style.display='block'; im.style.margin='auto'; im.style.imageRendering='pixelated'; } }, 150);
+    // nessun ridimensionamento - il canvas resta 84px nativo e nitido
+    setTimeout(()=>{ 
+      const c=qrCarta.querySelector('canvas'); 
+      if(c){ c.style.width='84px'; c.style.height='84px'; c.style.display='block'; c.style.margin='auto'; c.style.imageRendering='auto'; c.style.border='none'; } 
+      const im=qrCarta.querySelector('img'); 
+      if(im){ im.style.width='84px'; im.style.height='84px'; im.style.display='block'; im.style.margin='auto'; } 
+    }, 100);
     box.scrollIntoView({behavior:'smooth'});
     try{
       document.getElementById('bNome').innerText=a.nome;
@@ -693,6 +699,73 @@ function modificaTimbratura(idx){
 
 
 
+
+
+
+let gestioneDipendenteCorrente = null;
+
+function apriGestioneDipendente(nome){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Gestione ore protetta! Sblocca con PIN 211285!'); return; }
+  gestioneDipendenteCorrente = nome;
+  const a = anagrafiche.find(x=>x.nome===nome);
+  const box = document.getElementById('gestioneDipendenteBox');
+  if(!box){
+    alert('Errore: box gestione non trovato! Ricarica pagina con ?v=13');
+    return;
+  }
+  const titolo = document.getElementById('gestioneTitolo');
+  const info = document.getElementById('gestioneInfo');
+  const cont = document.getElementById('gestioneTimbrature');
+  
+  titolo.textContent = '📋 Gestione Ore MIRATA - ' + nome;
+  
+  let totOre = 0;
+  if(a && a.orariSettimana){
+    Object.values(a.orariSettimana).forEach(arr=>{ arr.forEach(s=>{ try{ const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; totOre+=d; }catch(e){} }); });
+  }
+  const hTot = Math.floor(totOre/60), mTot = totOre%60;
+  
+  info.innerHTML = `<b>${a?a.nome:nome}</b> | Qualifica: ${a?a.qualifica:''} | Plesso: ${a?a.plesso:''} | Tot sett: ${a?a.totale:hTot+'h'+String(mTot).padStart(2,'0')+'m'} | Timbrature: <span style="font-weight:800">${timbratureSalvate.filter(t=>t.nome===nome).length}</span><br><small style="color:#16a34a">🔒 Protetto - solo visualizzazione, non modificabile</small>`;
+  
+  const timbriDip = timbratureSalvate.filter(t=>t.nome===nome);
+  
+  let html = '<div style="background:#fef3c7; border:1.5px solid #f59e0b; border-radius:8px; padding:6px; font-size:10px; margin-bottom:8px; text-align:center">🔒 Timbrature protette - non modificabili né eliminabili - solo visualizzazione e stampa protetta da PIN</div>';
+  if(timbriDip.length===0){
+    html += '<div style="text-align:center; padding:20px; color:#64748b">Nessuna timbratura per questo dipendente</div>';
+  } else {
+    timbriDip.slice(0,100).forEach((t)=>{
+      const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      html += `<div style="border-left:3px solid ${colore}; padding:6px 8px; margin:4px 0; background:white; border-radius:6px">
+          <b style="font-size:11px">${t.data||''}</b><br>
+          <span style="color:${colore};font-weight:800; font-size:11px">${t.tipo||''}</span> <span style="font-size:11px">@ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</span>
+      </div>`;
+    });
+  }
+  
+  cont.innerHTML = html;
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+function chiudiGestioneDipendente(){
+  const b=document.getElementById('gestioneDipendenteBox');
+  if(b) b.style.display='none';
+  gestioneDipendenteCorrente = null;
+}
+
+function modificaTimbraturaMirata(idx){ alert('🔒 Protetto - non modificabile!'); }
+function eliminaTimbraturaMirata(idx){ alert('🔒 Protetto - non eliminabile!'); }
+
+function esportaOreDipendente(){
+  if(!gestioneDipendenteCorrente){ alert('Seleziona dipendente'); return; }
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Sblocca PIN per esportare!'); return; }
+  const timbriDip = timbratureSalvate.filter(t=>t.nome===gestioneDipendenteCorrente);
+  let csv = 'Data/Ora,Tipo,Nome,Plesso,Distanza\n';
+  timbriDip.forEach(t=>{ csv += `"${t.data||''}","${t.tipo||''}","${t.nome||''}","${t.plesso||''}","${t.distanza||''}"\n`; });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='timbrature_'+gestioneDipendenteCorrente.replace(/ /g,'_')+'.csv'; a.click();
+}
 
 
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
