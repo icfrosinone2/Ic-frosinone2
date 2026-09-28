@@ -59,7 +59,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:84px; height:84px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center}
+#qrcodeCarta{width:78px; height:78px; background:white; padding:4px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -208,7 +208,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
-<div style="margin-top:12px">
+<div id="elencoProtetto" style="margin-top:12px; display:none">
 <b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
@@ -248,6 +248,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
+<div id="gestioneDipendenteBox" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.6); z-index:9999; overflow:auto; padding:20px"><div style="background:white; border-radius:14px; max-width:800px; margin:20px auto; padding:16px; border:3px solid #0ea5e9"><div style="display:flex; justify-content:space-between; align-items:center"><b id="gestioneTitolo" style="font-size:16px">GESTIONE ORE MIRATA</b><button onclick="chiudiGestioneDipendente()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">✕ Chiudi</button></div><div id="gestioneInfo" style="background:#f0f9ff; border:2px solid #bae6fd; border-radius:10px; padding:10px; font-size:12px; margin:10px 0"></div><div id="gestioneTimbrature" style="max-height:400px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; padding:6px; background:#f8fafc"></div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap"><button onclick="stampaResocontoNome(gestioneDipendenteCorrente)" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:10px 14px; font-weight:800">🖨️ Stampa Resoconto (protetto)</button><button onclick="eliminaTimbratureDipendenteProva()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:10px 14px; font-weight:800; border:2px dashed yellow">🗑️ elimina timbrature di prova di questo dip</button></div></div></div>
 <div id="printArea" style="display:none"></div>
 
 <script>
@@ -305,8 +306,8 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato='211285';
-function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; } else { alert('PIN errato'); } }
-function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp) inp.value=''; document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; }
+function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); inp.value=''; inp.type='password'; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; try{ filtraElenco(); }catch(e){} } else { alert('🔒 PIN errato!'); } }
+function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp){ inp.value=''; inp.type='password'; } document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; const b1=document.getElementById('badgeCartaBox'); if(b1) b1.style.display='none'; const b2=document.getElementById('badgeBox'); if(b2) b2.style.display='none'; }
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
@@ -570,12 +571,12 @@ function creaBadgeDa(nome){
   }).filter(x=>x).join(' ');
   document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
   document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||'');
-  const qr=document.getElementById('qrcode'); qr.innerHTML=''; new QRCode(qr, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:78, height:78});
+  const qr=document.getElementById('qrcode'); if(qr){ qr.innerHTML=''; try{ new QRCode(qr, {text:a.nome.toUpperCase(), width:180, height:180}); }catch(e){} }
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
-function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
-function stampaResocontoNome(nome){
+function stampaResoconto(){ if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; } const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
+function stampaResocontoNome(nome){ if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
   const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
@@ -733,7 +734,7 @@ setTimeout(caricaCondivise, 800);
 
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  bloccaPIN(); renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
