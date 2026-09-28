@@ -632,8 +632,13 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
-function stampaResoconto(){ const nome=document.getElementById('dipendente').value; if(!nome){ alert('Seleziona un dipendente!'); return; } stampaResocontoNome(nome); }
+function stampaResoconto(){ 
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Stampa ore protetta! Sblocca con PIN 211285 per stampare il resoconto!'); return; }
+  const nome=document.getElementById('dipendente').value; if(!nome){ alert('Seleziona un dipendente!'); return; } stampaResocontoNome(nome); 
+}
 function stampaResocontoNome(nome){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Stampa ore protetta! Sblocca con PIN 211285!'); return; }
+
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
   const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
@@ -659,14 +664,11 @@ function aggiornaLog(){
     let html = '';
     timbratureSalvate.slice(0,50).forEach((t,i)=>{
       const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      const isProtetta = document.getElementById('pinLock').style.display==='none';
-      const btns = isProtetta ? `<button onclick="modificaTimbratura(${i})" style="font-size:9px; background:#f59e0b; color:white; border:0; border-radius:4px; padding:2px 6px; margin-left:4px">✏️</button><button onclick="eliminaTimbratura(${i})" style="font-size:9px; background:#ef4444; color:white; border:0; border-radius:4px; padding:2px 6px; margin-left:2px">🗑️</button>` : '';
-      html += `<div style="border-left:3px solid ${colore}; padding:3px 4px; margin:2px 0; background:white; display:flex; justify-content:space-between; align-items:center"><div><b style="font-size:10px">${t.data||''}</b> - <span style="color:${colore};font-weight:800; font-size:10px">${t.tipo||''}</span> - <span style="font-size:10px">${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</span></div><div>${btns}</div></div>`;
+      html += `<div style="border-left:3px solid ${colore}; padding:3px 4px; margin:2px 0; background:white"><b style="font-size:10px">${t.data||''}</b> - <span style="color:${colore};font-weight:800; font-size:10px">${t.tipo||''}</span> - <span style="font-size:10px">${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</span></div>`;
     });
-    if(html==='') html = 'Nessuna timbratura condivisa ancora';
+    if(html==='') html = 'Nessuna timbratura - le timbrature sono protette e non modificabili';
     else {
-      const pinMsg = document.getElementById('pinLock').style.display==='none' ? '<span style="color:#16a34a">Sbloccato: puoi modificare ✏️/eliminare 🗑️ (solo locale, cloud rimane)</span>' : '<span style="color:#f59e0b">🔒 Sblocca PIN per modificare timbrature</span>';
-      html = `<div style="font-size:9px; color:#334155; font-weight:800; margin-bottom:4px; display:flex; justify-content:space-between"><span>📋 TIMBRATURE CONDIVISE (ultime 50): ${timbratureSalvate.length} tot</span><span>${pinMsg}</span></div>` + html;
+      html = `<div style="font-size:9px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE (ultime 50 - protette, non modificabili): ${timbratureSalvate.length} tot 🔒</div>` + html;
     }
     logDiv.innerHTML = html;
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
@@ -675,35 +677,16 @@ function aggiornaLog(){
 function renderGestioneTimbrature(){ aggiornaLog(); }
 
 function eliminaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN per eliminare!'); return; }
-  const t = timbratureSalvate[idx];
-  if(!t) return;
-  if(!confirm('Eliminare timbratura:\n'+t.data+' - '+t.nome+' - '+t.tipo+' @ '+t.plesso+' ?\nVerrà eliminata solo da questo dispositivo, non dal cloud condiviso.')) return;
-  timbratureSalvate.splice(idx,1);
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-  aggiornaLog();
+  alert('🔒 Le timbrature sono protette e NON si possono eliminare, come da te richiesto!');
+  return;
 }
 
 function modificaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN per modificare!'); return; }
-  const t = timbratureSalvate[idx];
-  if(!t) return;
-  const nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo);
-  if(!nuovoTipo) return;
-  const nuovoPlesso = prompt('Modifica plesso:', t.plesso);
-  if(nuovoPlesso===null) return;
-  const nuovaData = prompt('Modifica data/ora (es. 27/09/2026, 23:10:02):', t.data);
-  if(nuovaData===null) return;
-  t.tipo = nuovoTipo.toUpperCase();
-  t.plesso = nuovoPlesso;
-  t.data = nuovaData;
-  t.modificata = true;
-  t.modificataDa = 'Eleonora Naddei';
-  t.modificataIl = new Date().toLocaleString('it-IT');
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-  aggiornaLog();
-  alert('✅ Timbratura modificata localmente!');
+  alert('🔒 Le timbrature sono protette e NON si possono modificare, come da te richiesto!');
+  return;
 }
+
+
 
 
 
