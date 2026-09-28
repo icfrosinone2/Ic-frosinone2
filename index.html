@@ -149,13 +149,13 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <span style="font-size:10px; background:#fffbeb; padding:3px 8px; border-radius:999px; border:1.5px solid #f59e0b">🔒 PIN</span>
 </div>
 
-<div id="pinLock" class="pin-box" style="margin-top:8px">
+<form autocomplete="off" onsubmit="return false;"><div id="pinLock" class="pin-box" style="margin-top:8px">
 <div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
 <input type="password" id="pinInput" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
-<button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
-</div>
+<button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()" type="button">🔓</button>
+</div></form>
 
-<div id="anagraficaForm" style="display:none; margin-top:8px">
+<div id="anagraficaForm" style="display:none; autocomplete="off" margin-top:8px">
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
 <!-- QUALIFICHE COME CHIESTO -->
@@ -769,11 +769,25 @@ setTimeout(caricaCondivise, 800);
 
 
 
-window.addEventListener('beforeunload', ()=>{ const i=document.getElementById('pinInput'); if(i) i.value=''; });
+window.addEventListener('beforeunload', ()=>{ try{ const i=document.getElementById('pinInput'); if(i) i.value=''; }catch(e){} });
 window.addEventListener('load', ()=>{
-  if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  bloccaPIN(); renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  try{ if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; const cs=document.getElementById('casaStatus'); if(cs) cs.innerHTML='🏠 Casa Test attivo'; const br=document.getElementById('btnRimuoviCasa'); if(br) br.style.display='block'; } }catch(e){ console.log('casa err', e); }
+  try{ bloccaPIN(); }catch(e){ console.log('pin err', e); }
+  try{ renderPlessiUI(); }catch(e){ console.log('plessi err', e); }
+  try{ loadAnag(); }catch(e){ console.log('anag err', e); }
+  try{ resetOrariSettimana(); }catch(e){ console.log('orari err', e); }
+  try{ // GPS SEMPRE - anche se altro si rompe!
+    setTimeout(()=>{ try{ attivaGPS(); }catch(e){ console.log('gps err', e); } }, 800);
+    setInterval(()=>{ try{ if(navigator.geolocation) attivaGPS(); }catch(e){} }, 10000);
+  }catch(e){}
+  // Pulisci PIN memorizzato
+  try{
+    const pinInput=document.getElementById('pinInput');
+    if(pinInput){ pinInput.value=''; pinInput.setAttribute('autocomplete','new-password'); pinInput.setAttribute('autocorrect','off'); pinInput.setAttribute('autocapitalize','off'); pinInput.setAttribute('spellcheck','false'); }
+    if(window.localStorage){ localStorage.removeItem('pin_v90'); }
+  }catch(e){}
 });
+
 </script>
 
 </body>
