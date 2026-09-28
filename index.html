@@ -315,53 +315,15 @@ function aggiornaUIBlocco(){
   if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
-let watchId = null;
 function attivaGPS(){
-  const coordBox = document.getElementById('coordBox');
-  if(!navigator.geolocation){
-    if(coordBox) coordBox.innerHTML='❌ GPS non supportato';
-    return;
-  }
-  if(coordBox) coordBox.innerHTML='📡 Cerco GPS... consenti posizione se chiesto';
-
-  function processPos(p){
-    last=p; 
-    const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; 
-    PLESSI.forEach(pl=>{
-      const d=dist(lat,lon,pl.lat,pl.lon); 
-      const ok=d<=GEOFENCE; 
-      chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; 
-      if(d<min){min=d; best=pl;}
-    });
-    vicino=best; 
-    dentro=min<=GEOFENCE; 
-    const precEl=document.getElementById('precTop'); if(precEl) precEl.textContent=acc;
-    const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`;
-    const listaEl=document.getElementById('listaDistanze'); if(listaEl) listaEl.innerHTML=chips;
-    if(coordBox) coordBox.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`;
-    aggiornaUIBlocco();
-  }
-
-  function handleError(e){
-    let msg='GPS errore ';
-    if(e.code===1) msg+='Permesso negato - clicca sul lucchetto in alto e consenti posizione, poi clicca ATTIVA GPS';
-    else if(e.code===2) msg+='Posizione non disponibile - attiva GPS dispositivo';
-    else if(e.code===3) msg+='Timeout - riprovo con bassa precisione...';
-    else msg+=e.message;
-    if(coordBox) coordBox.innerHTML=msg;
-    last=null; dentro=false; aggiornaUIBlocco();
-    // Fallback bassa precisione per tablet/phone
-    setTimeout(()=>{
-      navigator.geolocation.getCurrentPosition(processPos, (e2)=>{
-        if(coordBox) coordBox.innerHTML='GPS non disponibile - verifica che il GPS del tablet sia acceso e che il browser abbia permesso posizione<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:8px 12px; font-weight:800">📍 Riprova GPS</button>';
-      }, {enableHighAccuracy:false, timeout:30000, maximumAge:10000});
-    }, 1000);
-  }
-
-  // Prova alta precisione (PC) - versione che funzionava prima
-  navigator.geolocation.getCurrentPosition(processPos, handleError, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
+  navigator.geolocation.getCurrentPosition(p=>{
+    last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
+    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
+    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
+  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato - clicca ATTIVA GPS e consenti posizione'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
 }
+
+
 
 
 
@@ -1007,7 +969,7 @@ setTimeout(caricaCondivise, 800);
 document.addEventListener('DOMContentLoaded', ()=>{ const pi=document.getElementById('pinInput'); if(pi){ pi.addEventListener('focus', ()=>{ pi.value=''; }); pi.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sbloccaPIN(); }); } });
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  bloccaPIN(); renderPlessiUI(); loadAnag(); setTimeout(()=>{try{aggiornaLog();}catch(e){} caricaCondivise();}, 500); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  bloccaPIN(); renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{try{aggiornaLog();}catch(e){} caricaCondivise();}, 500); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
 });
 </script>
 
