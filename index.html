@@ -54,12 +54,12 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
 
 /* BADGE TENUE CHIARO - NERO TOLTO + QR GRANDE + CAM ANTERIORE */
-.badge-carta{width:85.6mm; height:53.98mm; border-radius:12px; border:2.5px solid #0ea5e9; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.12); margin:16px auto; position:relative}
+.badge-carta{width:85.6mm; height:53.98mm; border-radius:10px; border:1.5px solid #0ea5e9; background:#fffffe; display:none; flex-direction:row; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:12px auto; position:relative; opacity:0.95}
 .badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:84px; height:84px; background:white; padding:3px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center}
+#qrcodeCarta{width:42px; height:42px; background:white; padding:2px; border-radius:5px; border:1.5px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -248,6 +248,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
+<div id="gestioneDipendenteBox" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.65); z-index:9999; overflow:auto; padding:15px"><div style="background:white; border-radius:12px; max-width:750px; margin:20px auto; padding:14px; border:3px solid #0ea5e9"><div style="display:flex; justify-content:space-between; align-items:center"><b id="gestioneTitolo" style="font-size:15px">GESTIONE ORE MIRATA</b><button onclick="chiudiGestioneDipendente()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">✕ Chiudi</button></div><div id="gestioneInfo" style="background:#f0f9ff; border:2px solid #bae6fd; border-radius:10px; padding:10px; font-size:12px; margin:10px 0"></div><div id="gestioneTimbrature" style="max-height:400px; overflow:auto; border:2px solid #e2e8f0; border-radius:10px; padding:8px; background:#f8fafc"></div><div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap"><button onclick="stampaResocontoNome(gestioneDipendenteCorrente)" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:10px 14px; font-weight:800">🖨️ Stampa Resoconto</button><button onclick="eliminaTimbratureDipendenteProva()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:10px 14px; font-weight:800; border:2px dashed yellow">🗑️ elimina timbrature di prova di questo dip</button></div></div></div>
 <div id="printArea" style="display:none"></div>
 
 <script>
@@ -591,25 +592,47 @@ function stampaResocontoNome(nome){
 
 
 
-// FIX per visualizzazione timbrature condivise
 function aggiornaLog(){
   try{
     const logDiv = document.getElementById('log');
     if(!logDiv) return;
+    const pinOk = document.getElementById('pinLock').style.display==='none';
     let html = '';
-    // mostra ultime 30 timbrature condivise
-    timbratureSalvate.slice(0,30).forEach(t=>{
-      const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      html += `<div style="border-left:3px solid ${colore}; padding:2px 4px; margin:2px 0; background:white"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</div>`;
+    timbratureSalvate.slice(0,60).forEach((t,idx)=>{
+      const col = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      const chk = pinOk ? `<input type="checkbox" class="chkTimbro" data-idx="${idx}" style="width:16px; height:16px; margin-right:5px; vertical-align:middle">` : '';
+      const btn = pinOk ? `<button onclick="eliminaTimbratura(${idx})" style="font-size:8px; background:#ef4444; color:white; border:0; border-radius:4px; padding:3px 7px; float:right">🗑️</button>` : '';
+      html += `<div style="border-left:3px solid ${col}; padding:4px; margin:3px 0; background:white; border-radius:4px">${chk}<b style="font-size:10px">${t.data||''}</b> - <span style="color:${col}; font-weight:800; font-size:10px">${t.tipo||''}</span> - <span style="font-size:10px">${t.nome||''} @ ${t.plesso||''}</span> ${btn}</div>`;
     });
-    if(html==='') html = 'Nessuna timbratura condivisa ancora';
-    else html = '<div style="font-size:9px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE DA TUTTI I PLESSI (ultime 30):</div>' + html;
+    if(html==='') html = 'Nessuna timbratura ancora';
+    else {
+      const tools = pinOk ? `<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:8px; padding:6px; margin-bottom:6px"><b style="font-size:10px">Scegli con ☑️ quali di prova levare (non tutte insieme):</b><br><button onclick="document.querySelectorAll('.chkTimbro').forEach(c=>c.checked=true)" style="font-size:9px; background:#64748b; color:white; border:0; border-radius:6px; padding:5px 10px; margin:2px">☑️ Seleziona tutte</button> <button onclick="document.querySelectorAll('.chkTimbro').forEach(c=>c.checked=false)" style="font-size:9px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:5px 10px; margin:2px">⬜ Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:10px; background:#dc2626; color:white; border:0; border-radius:6px; padding:6px 12px; font-weight:800; margin:2px">🗑️ Elimina selezionate</button></div>` : '<div style="font-size:9px; color:#64748b; background:#f1f5f9; padding:4px; border-radius:6px">🔒 Sblocca PIN 211285 per scegliere quali eliminare</div>';
+      html = `<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE (${timbratureSalvate.length}) - Pietrobono↔Rinascita ${tools}</div>` + html;
+    }
     logDiv.innerHTML = html;
-    // salva sempre nello stesso storage della timbra originale
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
-  }catch(e){ console.log("aggiornaLog errore", e); }
+  }catch(e){ console.log("log err", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
+function eliminaSelezionate(){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette! Sblocca con PIN'); return; }
+  const checks = document.querySelectorAll('.chkTimbro:checked');
+  if(checks.length===0){ alert('Spunta con ☑️ le timbrature di prova che vuoi levare!'); return; }
+  if(!confirm('Eliminare '+checks.length+' timbrature selezionate? Solo quelle che hai scelto con ☑️, non tutte insieme!')) return;
+  let idxs = Array.from(checks).map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
+  idxs.forEach(i=>{ timbratureSalvate.splice(i,1); });
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+}
+function eliminaTimbratura(idx){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
+  const t=timbratureSalvate[idx]; if(!t) return;
+  if(!confirm('Eliminare? '+t.data+' - '+t.nome+' - '+t.tipo)) return;
+  timbratureSalvate.splice(idx,1);
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+}
+
 
 
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
