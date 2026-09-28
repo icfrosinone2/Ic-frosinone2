@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 TENUE + FOTO + QR GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 42 PICCOLO + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -57,8 +57,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta{width:85.6mm; height:53.98mm; border-radius:10px; border:1.5px solid #0ea5e9; background:#fffffe; display:none; flex-direction:row; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:12px auto; position:relative; opacity:0.95}
 .badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
-.badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
-.badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
+.badge-foto{width:68px; height:84px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
+.badge-foto-placeholder{width:68px; height:84px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 #qrcodeCarta{width:42px; height:42px; background:white; padding:2px; border-radius:5px; border:1.5px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
 @media print{
   body *{ visibility:hidden !important; }
@@ -223,17 +223,17 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 <div class="badge-carta-right">
 <div style="display:flex; justify-content:space-between; align-items:flex-start">
-<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR GRANDE 84x84 - TENUE</span></div>
+<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 42x42 - TENUE PICCOLO</span></div>
 <div id="qrcodeCarta"></div>
 </div>
 <div><div id="bPlessoCarta" style="font-size:12px; font-weight:800; color:#0c4a6e">Plesso</div><div id="bOrarioCarta" style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569"></div></div>
-<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR GRANDE</div></div>
+<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR 42 PICCOLO</div></div>
 </div>
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR GRANDE</button><br>
-<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 84mm grande!</small>
+<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR 42 PICCOLO LEGGIBILE</b><br>
+<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR 42 PICCOLO</button><br>
+<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 42mm piccolo leggibile!</small>
 </div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
@@ -545,10 +545,7 @@ function creaBadgeDa(nome){
     let foto=fotos[a.nome];
     const imgEl=document.getElementById('badgeFoto'); const phEl=document.getElementById('badgeFotoPlaceholder');
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
-    const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
-    const qrText=a.nome;
-    try{ new QRCode(qrCarta, {text:qrText, width:300, height:300, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:300, height:300}); }
-    setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='78px'; c.style.height='78px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='78px'; im.style.height='78px'; im.style.display='block'; } }, 120);
+    const qrCarta=document.getElementById('qrcodeCarta'); if(qrCarta){ qrCarta.innerHTML=''; const qrText=(a.nome||'').toUpperCase().trim(); try{ new QRCode(qrCarta, {text:qrText, width:80, height:80, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:80, height:80}); } setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='42px'; c.style.height='42px'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='42px'; im.style.height='42px'; } }, 100); }
     box.scrollIntoView({behavior:'smooth'});
     try{
       document.getElementById('bNome').innerText=a.nome;
