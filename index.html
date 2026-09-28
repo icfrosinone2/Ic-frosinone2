@@ -153,7 +153,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div id="pinLock" class="pin-box" style="margin-top:8px">
 <div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
-<input type="password" id="pinInput" type="password" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
+<input type="password" id="pinInput" placeholder="PIN" autocomplete="new-password" autocapitalize="off" spellcheck="false" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
 
@@ -320,23 +320,42 @@ function attivaGPS(){
 }
 
 // PIN
-let pinSalvato=localStorage.getItem('pin_v90')||'211285';
+let pinSalvato='211285'; // PIN fisso non salvato in chiaro nel browser
+let autoLockTimer = null;
+
 function sbloccaPIN(){ 
-  const pin=document.getElementById('pinInput').value; 
+  const input = document.getElementById('pinInput');
+  const pin = input.value.trim(); 
+  input.value=''; // pulisci subito per non lasciare salvato
+  input.setAttribute('type','password');
   if(pin===pinSalvato){ 
     document.getElementById('pinLock').style.display='none'; 
     document.getElementById('anagraficaForm').style.display='block'; 
     const el=document.getElementById('elencoProtetto'); if(el) el.style.display='block';
-    const el2=document.getElementById('badgeCartaBox'); // lascia nascosto fino a creaBadge
-  } else alert('PIN errato - usa 211285'); 
+    // auto-blocca dopo 5 minuti di inattività
+    if(autoLockTimer) clearTimeout(autoLockTimer);
+    autoLockTimer = setTimeout(()=>{ bloccaPIN(); alert('🔒 Bloccato automaticamente per sicurezza dopo 5 minuti'); }, 5*60*1000);
+  } else { 
+    alert('PIN errato'); 
+    bloccaPIN();
+  } 
 }
+
 function bloccaPIN(){ 
+  if(autoLockTimer){ clearTimeout(autoLockTimer); autoLockTimer=null; }
+  const inp = document.getElementById('pinInput');
+  if(inp){ inp.value=''; inp.type='password'; inp.setAttribute('autocomplete','new-password'); }
   document.getElementById('pinLock').style.display='flex'; 
   document.getElementById('anagraficaForm').style.display='none'; 
   const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none';
   const box=document.getElementById('badgeCartaBox'); if(box) box.style.display='none';
-  document.getElementById('pinInput').value='';
+  const box2=document.getElementById('badgeBox'); if(box2) box2.style.display='none';
+  const gest=document.getElementById('gestioneDipendenteBox'); if(gest) gest.style.display='none';
 }
+
+// pulisci PIN quando si chiude pagina o si ricarica
+window.addEventListener('beforeunload', ()=>{ const i=document.getElementById('pinInput'); if(i) i.value=''; });
+
 
 
 // ORARIO SETTIMANALE
@@ -815,6 +834,7 @@ setTimeout(caricaCondivise, 800);
 
 
 
+document.addEventListener('DOMContentLoaded', ()=>{ const pi=document.getElementById('pinInput'); if(pi){ pi.addEventListener('focus', ()=>{ pi.value=''; }); pi.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sbloccaPIN(); }); } });
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
   bloccaPIN(); renderPlessiUI(); loadAnag(); setTimeout(()=>{try{aggiornaLog();}catch(e){} caricaCondivise();}, 500); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
