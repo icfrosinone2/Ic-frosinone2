@@ -140,7 +140,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
-<div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+<div id="log" style="font-size:11px; background:#f8fafc; padding:8px; margin-top:8px; max-height:400px; overflow:auto; border:2px solid #0ea5e9; border-radius:10px">⏳ Caricamento timbrature condivise...</div>
 </div>
 
 <div class="card-white">
@@ -564,7 +564,7 @@ function creaBadgeDa(nome){
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
     const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
     const qrText=a.nome;
-    try{ new QRCode(qrCarta, {text:qrText, width:300, height:300, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:300, height:300}); }
+    try{ new QRCode(qrCarta, {text:qrText, width:128, height:128, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ try{ new QRCode(qrCarta, {text:qrText, width:128, height:128}); }catch(e2){} }
     setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='78px'; c.style.height='78px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='78px'; im.style.height='78px'; im.style.display='block'; } }, 120);
     box.scrollIntoView({behavior:'smooth'});
     try{
@@ -766,6 +766,8 @@ async function caricaCondivise(){
         }
         const badge = document.getElementById('statusBadge');
         if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
+        const cloudLog2 = document.getElementById('cloudLog');
+        if(cloudLog2){ cloudLog2.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature da tutti i tablet - OK ✅ - Aggiornato: "+new Date().toLocaleTimeString('it-IT'); cloudLog2.style.background="#dcfce7"; cloudLog2.style.borderColor="#16a34a"; }
       }
     }
     // anagrafiche condivise
