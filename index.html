@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 75 MEDIO-GRANDE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 65 MEDIO + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -54,12 +54,12 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
 
 /* BADGE TENUE CHIARO - NERO TOLTO + QR GRANDE + CAM ANTERIORE */
-.badge-carta{width:95mm; height:60mm; border-radius:12px; border:2px solid #0ea5e9; background:#fffffe; display:none; flex-direction:row; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.12); margin:14px auto; position:relative; opacity:1}
+.badge-carta{width:88mm; height:56mm; border-radius:10px; border:1.5px solid #0ea5e9; background:#fffffe; display:none; flex-direction:row; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.10); margin:12px auto; position:relative; opacity:0.98}
 .badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
 .badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:75px; height:75px; background:white; padding:4px; border-radius:8px; border:2.5px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,.25)}
+#qrcodeCarta{width:65px; height:65px; background:white; padding:3px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.20)}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -92,7 +92,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <div class="grid-plessi" id="gridPlessi"></div>
 <div style="background:#f0fdf4; border:2px dashed #16a34a; border-radius:10px; padding:8px; margin-top:8px; text-align:center">
-<b style="font-size:11px">🏠 Plesso Casa Test - Viale Portogallo 4</b><br>
+<b style="font-size:11px">🏫 Pietrobono - FIX POSIZIONE <button onclick="correggiPietrobonoConGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:6px 12px; font-size:10px; font-weight:800; margin-left:8px">📍 Correggi Pietrobono con mia pos attuale (sei dentro Pietrobono?)</button><br>🏠 Plesso Casa Test - Viale Portogallo 4</b><br>
 <button class="btn btn-green btn-small" onclick="aggiungiCasaDaGPS()" style="font-size:10px; margin-top:4px">📍 Usa mia posizione come Casa</button>
 <button class="btn btn-orange btn-small" onclick="aggiungiCasaManuale()" style="font-size:10px">➕ Aggiungi</button>
 <button id="btnRimuoviCasa" class="btn btn-small" style="background:#ef4444; color:white; display:none; margin-top:4px; font-size:10px" onclick="rimuoviCasa()">🗑️ Rimuovi Casa Test</button>
@@ -223,17 +223,17 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 <div class="badge-carta-right">
 <div style="display:flex; justify-content:space-between; align-items:flex-start">
-<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 75x75 - MEDIO-GRANDE</span></div>
+<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 65x65 - MEDIO PICCOLO</span></div>
 <div id="qrcodeCarta"></div>
 </div>
 <div><div id="bPlessoCarta" style="font-size:12px; font-weight:800; color:#0c4a6e">Plesso</div><div id="bOrarioCarta" style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569"></div></div>
-<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR 75 MEDIO-GRANDE</div></div>
+<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR 65 MEDIO</div></div>
 </div>
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR 75 MEDIO-GRANDE LEGGIBILE</b><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR 75 MEDIO-GRANDE</button><br>
-<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 75mm medio-grande - più grande del normale, si inquadra benissimo!</small>
+<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR 65 MEDIO LEGGIBILE</b><br>
+<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR 65 MEDIO</button><br>
+<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 65mm medio - un po più piccolo, si inquadra bene!</small>
 </div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
@@ -253,7 +253,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <script>
 const GEOFENCE=150;
 let PLESSI_BASE=[
- {n:'Pietrobono', lat:41.626603, lon:13.331938, cls:'pietrobono', maps:'https://maps.google.com/?q=41.626603,13.331938', icon:'🏫'},
+ {n:'Pietrobono', lat:41.627850, lon:13.332800, cls:'pietrobono', maps:'https://maps.google.com/?q=41.627850,13.332800', icon:'🏫'},
  {n:'Rinascita', lat:41.639722, lon:13.3425, cls:'rinascita', maps:'https://maps.app.goo.gl/x26Tji7C34tJxsu77', icon:'🌱'},
  {n:'XXIII', lat:41.623487, lon:13.323672, cls:'xxiii', maps:'https://maps.google.com/?q=41.623487,13.323672', icon:'📚'},
  {n:'Verdi', lat:41.622454, lon:13.334451, cls:'verdi', maps:'https://maps.google.com/?q=41.622454,13.334451', icon:'🎵'},
@@ -287,6 +287,36 @@ function aggiungiCasaManuale(){
   document.getElementById('casaStatus').innerHTML='✅ Casa Test aggiunto!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
 }
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
+
+
+function correggiPietrobonoConGPS(){
+  if(!last){ alert('Aspetta GPS ATTIVO - devi essere DENTRO Pietrobono fisicamente!'); return; }
+  if(!confirm('Correggere posizione Pietrobono con la tua posizione attuale?\nLat: '+last.coords.latitude.toFixed(6)+' Lon: '+last.coords.longitude.toFixed(6)+'\nSei dentro la scuola Pietrobono ora?')) return;
+  // Trova Pietrobono in PLESSI_BASE e aggiorna
+  const idx = PLESSI_BASE.findIndex(p=>p.n==='Pietrobono');
+  if(idx>=0){
+    PLESSI_BASE[idx].lat = last.coords.latitude;
+    PLESSI_BASE[idx].lon = last.coords.longitude;
+    PLESSI_BASE[idx].maps = 'https://maps.google.com/?q='+last.coords.latitude+','+last.coords.longitude;
+    localStorage.setItem('pietrobono_fix_v39', JSON.stringify({lat:last.coords.latitude, lon:last.coords.longitude}));
+    // Aggiorna anche PLESSI
+    const idx2 = PLESSI.findIndex(p=>p.n==='Pietrobono');
+    if(idx2>=0){ PLESSI[idx2].lat = last.coords.latitude; PLESSI[idx2].lon = last.coords.longitude; PLESSI[idx2].maps = PLESSI_BASE[idx].maps; }
+    renderPlessiUI();
+    attivaGPS();
+    alert('✅ Pietrobono corretto! Nuova posizione salvata: '+last.coords.latitude.toFixed(6)+','+last.coords.longitude.toFixed(6)+'\nOra sei DENTRO Pietrobono correttamente!');
+  }
+}
+// Carica fix salvato all'avvio
+(function(){
+  try{
+    const fix = JSON.parse(localStorage.getItem('pietrobono_fix_v39')||'null');
+    if(fix && fix.lat && fix.lon){
+      const idx = PLESSI_BASE.findIndex(p=>p.n==='Pietrobono');
+      if(idx>=0){ PLESSI_BASE[idx].lat=fix.lat; PLESSI_BASE[idx].lon=fix.lon; PLESSI_BASE[idx].maps='https://maps.google.com/?q='+fix.lat+','+fix.lon; }
+    }
+  }catch(e){}
+})();
 
 function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
 function aggiornaUIBlocco(){
@@ -544,7 +574,7 @@ function creaBadgeDa(nome){
     let foto=fotos[a.nome];
     const imgEl=document.getElementById('badgeFoto'); const phEl=document.getElementById('badgeFotoPlaceholder');
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
-    const qrCarta=document.getElementById('qrcodeCarta'); if(qrCarta){ qrCarta.innerHTML=''; const qrText=(a.nome||'').toUpperCase().trim(); try{ new QRCode(qrCarta, {text:qrText, width:180, height:180, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:180, height:180}); } setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='75px'; c.style.height='75px'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='75px'; im.style.height='75px'; } }, 100); }
+    const qrCarta=document.getElementById('qrcodeCarta'); if(qrCarta){ qrCarta.innerHTML=''; const qrText=(a.nome||'').trim(); if(!qrText){ qrCarta.innerHTML='<span style=\'font-size:8px\'>NO QR</span>'; } else { try{ new QRCode(qrCarta, {text:qrText, width:200, height:200, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); }catch(e){ try{ new QRCode(qrCarta, qrText); }catch(e2){ qrCarta.innerHTML='<span style=\'font-size:8px\'>'+qrText+'</span>'; } } setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='65px'; c.style.height='65px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='65px'; im.style.height='65px'; im.style.display='block'; } }, 150); } }
     box.scrollIntoView({behavior:'smooth'});
     try{
       document.getElementById('bNome').innerText=a.nome;
