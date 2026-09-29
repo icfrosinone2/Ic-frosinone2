@@ -654,17 +654,28 @@ function modificaTimbratura(idx){
 function eliminaSelezionate(){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette! Sblocca con PIN'); return; }
   const checks = document.querySelectorAll('.chkTimbro:checked');
-  if(checks.length===0){ alert('Spunta con checkbox le timbrature di prova che vuoi levare!'); return; }
-  if(!confirm('Eliminare '+checks.length+' timbrature selezionate? Solo quelle che hai scelto, non tutte insieme!')) return;
+  if(checks.length===0){ alert('Spunta con ☑️ le timbrature di prova che vuoi levare! (puoi sceglierne 1, 2, 3... non tutte insieme!)'); return; }
+  if(!confirm('Eliminare '+checks.length+' timbrature selezionate a SCELTA?\nSolo quelle con ☑️, NON tutte!\nConfermi?')) return;
   let idxs = Array.from(checks).map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
+  // salva chiavi cancellate così non tornano dal cloud
+  const cancellate = getCancellate();
+  idxs.forEach(i=>{
+    const t = timbratureSalvate[i];
+    if(t){ const k=getKeyTimbratura(t); if(!cancellate.includes(k)) cancellate.push(k); }
+  });
+  try{ localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(0,500))); }catch(e){}
   idxs.forEach(i=>{ timbratureSalvate.splice(i,1); });
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
   aggiornaLog();
+  alert('✅ Eliminate '+checks.length+' timbrature a scelta! Non torneranno dal cloud.');
 }
 function eliminaTimbratura(idx){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette!'); return; }
   const t=timbratureSalvate[idx]; if(!t) return;
-  if(!confirm('Eliminare questa timbratura? '+t.data+' - '+t.nome+' - '+t.tipo)) return;
+  if(!confirm('Eliminare questa singola timbratura a SCELTA?\n'+t.data+' - '+t.nome+' - '+t.tipo+'\nSolo questa, non tutte!')) return;
+  const cancellate = getCancellate();
+  const k=getKeyTimbratura(t); if(!cancellate.includes(k)) cancellate.push(k);
+  try{ localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(0,500))); }catch(e){}
   timbratureSalvate.splice(idx,1);
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
   aggiornaLog();
@@ -693,6 +704,9 @@ async function fetchWithFallback(path){
   return null;
 }
 
+function getKeyTimbratura(t){ return (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||''); }
+function getCancellate(){ try{ return JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){ return []; } }
+
 async function caricaCondivise(){
   try{
     // timbrature
@@ -700,6 +714,10 @@ async function caricaCondivise(){
     if(val){
       let arr = Array.isArray(val) ? val : Object.values(val);
       arr = arr.filter(x=>x && x.data);
+      // filtra quelle che hai cancellato di proposito (a scelta)
+      const cancellate = getCancellate();
+      const cancellateSet = new Set(cancellate);
+      if(cancellateSet.size>0){ arr = arr.filter(t=>!cancellateSet.has(getKeyTimbratura(t))); }
       // ordina per timestamp o data
       arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
       if(true){
@@ -709,7 +727,8 @@ async function caricaCondivise(){
         let seen = new Set();
         let uniq = [];
         merged.forEach(t=>{
-          let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+          let key = getKeyTimbratura(t);
+          if(cancellateSet.has(key)) return; // non reimportare quelle cancellate a scelta
           if(!seen.has(key)){
             seen.add(key);
             uniq.push(t);
