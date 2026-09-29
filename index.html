@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 60 MEDIO + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 75 LEGGIBILE + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -54,12 +54,12 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
 
 /* BADGE TENUE CHIARO - NERO TOLTO + QR GRANDE + CAM ANTERIORE */
-.badge-carta{width:85.6mm; height:53.98mm; border-radius:10px; border:1.5px solid #0ea5e9; background:white; display:none; flex-direction:row; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:10px auto; position:relative; opacity:1}
-.badge-carta-left{width:36%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center; border-right:2px solid #bae6fd}
-.badge-carta-right{width:64%; padding:10px; display:flex; flex-direction:column; justify-content:space-between; background:white}
+.badge-carta{width:60mm; height:90mm; border-radius:10px; border:1.5px solid #0ea5e9; background:white; display:none; flex-direction:column; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:10px auto; position:relative; opacity:1}
+.badge-carta-left{width:100%; height:58%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border-bottom:2px solid #bae6fd}
+.badge-carta-right{width:100%; height:42%; padding:8px; display:flex; flex-direction:column; justify-content:space-between; background:white; box-sizing:border-box}
 .badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
 .badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
-#qrcodeCarta{width:60px; height:60px; background:white; padding:3px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden}
+#qrcodeCarta{width:75px; height:75px; background:white; padding:4px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15)}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
@@ -223,17 +223,17 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 <div class="badge-carta-right">
 <div style="display:flex; justify-content:space-between; align-items:flex-start">
-<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 60x60 - MEDIO</span></div>
+<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 75x75 - LEGGIBILE</span></div>
 <div id="qrcodeCarta"></div>
 </div>
 <div><div id="bPlessoCarta" style="font-size:12px; font-weight:800; color:#0c4a6e">Plesso</div><div id="bOrarioCarta" style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569"></div></div>
-<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR 60 MEDIO</div></div>
+<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR 75 LEGGIBILE</div></div>
 </div>
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR 60 MEDIO LEGGIBILE</b><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR 60 MEDIO</button><br>
-<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 60mm medio - si inquadra bene!</small>
+<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO 6x9cm + QR 75 LEGGIBILE</b><br>
+<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE 6x9cm CON FOTO + QR 75 LEGGIBILE</button><br>
+<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 75mm - si inquadra benissimo!</small>
 </div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
@@ -335,7 +335,7 @@ function attivaGPS(){
 
 // PIN
 let pinSalvato='211285';
-function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; } else { alert('PIN errato'); } }
+function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; inp.value=''; } else { alert('PIN errato'); if(inp) inp.value=''; } }
 function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp) inp.value=''; document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; }
 
 // ORARIO SETTIMANALE
@@ -632,7 +632,7 @@ function aggiornaLog(){
     });
     if(html==='') html = 'Nessuna timbratura ancora';
     else {
-      const tools = pinOk ? '<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; margin-bottom:8px"><b style="font-size:11px">MODIFICA / ELIMINA - scegli con checkbox quali di prova levare (non tutte insieme):</b><br><div style="margin-top:6px"><button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=true)" style="font-size:10px; background:#64748b; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Seleziona tutte</button> <button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=false)" style="font-size:10px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:11px; background:#dc2626; color:white; border:0; border-radius:6px; padding:7px 14px; font-weight:800; margin:2px">Elimina selezionate</button></div></div>' : '<div style="font-size:10px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:6px">Sblocca con PIN 211285 per modificare/eliminare timbrature di prova</div>';
+      const tools = pinOk ? '<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; margin-bottom:8px"><b style="font-size:11px">MODIFICA / ELIMINA - scegli con checkbox quali di prova levare (non tutte insieme):</b><br><div style="margin-top:6px"><button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=true)" style="font-size:10px; background:#64748b; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Seleziona tutte</button> <button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=false)" style="font-size:10px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:11px; background:#dc2626; color:white; border:0; border-radius:6px; padding:7px 14px; font-weight:800; margin:2px">Elimina selezionate</button></div></div>' : '<div style="font-size:10px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:6px">🔒 Sblocca con PIN per modificare/eliminare timbrature di prova</div>';
       html = '<div style="font-size:11px; color:#16a34a; font-weight:800; margin-bottom:6px">TIMBRATURE CONDIVISE ('+timbratureSalvate.length+') - Pietrobono-Rinascita - MODIFICA/ELIMINA A SCELTA '+tools+'</div>' + html;
     }
     logDiv.innerHTML = html;
@@ -641,7 +641,7 @@ function aggiornaLog(){
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
 function modificaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette! Sblocca con PIN 211285'); return; }
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette! Sblocca con PIN'); return; }
   const t=timbratureSalvate[idx]; if(!t) return;
   const nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo); if(nuovoTipo===null) return;
   const nuovoPlesso = prompt('Modifica plesso:', t.plesso); if(nuovoPlesso===null) return;
