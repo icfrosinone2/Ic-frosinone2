@@ -621,11 +621,21 @@ function eliminaSelezionate(){
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
   aggiornaLog();
 }
+function modificaTimbratura(idx){
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette! Sblocca con PIN 211285'); return; }
+  const t=timbratureSalvate[idx]; if(!t) return;
+  const nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo); if(nuovoTipo===null) return;
+  const nuovoPlesso = prompt('Modifica plesso:', t.plesso); if(nuovoPlesso===null) return;
+  const nuovaData = prompt('Modifica data/ora (es. 28/09/2026, 08:30:00):', t.data); if(nuovaData===null) return;
+  t.tipo = nuovoTipo.toUpperCase(); t.plesso = nuovoPlesso; t.data = nuovaData; t.modificata = true;
+  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+  aggiornaLog();
+  alert('✅ Timbratura modificata!');
+}
 function eliminaTimbratura(idx){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('🔒 Le timbrature sono protette!'); return; }
   const t=timbratureSalvate[idx]; if(!t) return;
-  if(!confirm('Eliminare questa timbratura?
-'+t.data+' - '+t.nome+' - '+t.tipo)) return;
+  if(!confirm('Eliminare questa timbratura?\n'+t.data+' - '+t.nome+' - '+t.tipo)) return;
   timbratureSalvate.splice(idx,1);
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
   aggiornaLog();
