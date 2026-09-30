@@ -140,7 +140,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
-<div id="log" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+<div id="log" style="max-height:600px; overflow:auto; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
 
 <div class="card-white">
@@ -203,7 +203,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-green" style="margin-top:10px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue Foto QR Grande</button>
 <button class="btn" style="background:#f1f5f9; color:#334155; font-size:11px; border:1px solid #cbd5e1; margin-top:4px" onclick="bloccaPIN()">🔒 Blocca</button>
 <div style="margin-top:8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px; font-size:10px">
-<b>💡 Badge smarrito? Come ridarlo:</b><br>
+<div style="margin:6px 0"><button onclick="localStorage.removeItem('pin_v90'); sessionStorage.clear(); document.getElementById('pinInput').value=''; alert('PIN pulito! Ricarica pagina.')" style="font-size:9px; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; padding:4px 8px">🧹 Pulisci PIN salvato dal browser</button></div><b>💡 Badge smarrito? Come ridarlo:</b><br>
 I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b>🖨️ Ristampa</b> sul nome. Si ristampa identico con stesso QR. Non serve rifare anagrafica!
 </div>
 </div>
@@ -211,7 +211,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div id="elencoProtetto" style="margin-top:12px; display:none">
 <b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
-<div id="tabellaOrari" style="max-height:280px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
+<div id="tabellaOrari" style="max-height:600px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
 </div>
 
 <div id="badgeCartaBox" class="badge-carta">
@@ -252,6 +252,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 
 <script>
 const GEOFENCE=150;
+const GEOFENCE_PIETROBONO=400; // più largo per Pietrobono che ha GPS ballerino
 let PLESSI_BASE=[
  {n:'Pietrobono', lat:41.626603, lon:13.331938, cls:'pietrobono', maps:'https://maps.google.com/?q=41.626603,13.331938', icon:'🏫'},
  {n:'Rinascita', lat:41.639722, lon:13.3425, cls:'rinascita', maps:'https://maps.app.goo.gl/x26Tji7C34tJxsu77', icon:'🌱'},
@@ -328,8 +329,8 @@ function aggiornaUIBlocco(){
 function attivaGPS(){
   navigator.geolocation.getCurrentPosition(p=>{
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
-    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
+    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite = (pl.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono' ? '(400m)' : ''}</span>`; if(d<min){min=d; best=pl;}});
+    vicino=best; const limiteBest = (best && best.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); dentro=min<=limiteBest; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best.n==='Pietrobono' ? '🏫 PIETROBONO 400m' : ''}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
   }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
 }
 
@@ -624,7 +625,7 @@ function aggiornaLog(){
     if(!logDiv) return;
     const pinOk = document.getElementById('pinLock').style.display==='none';
     let html = '';
-    timbratureSalvate.slice(0,80).forEach((t,idx)=>{
+    timbratureSalvate.slice(0,200).forEach((t,idx)=>{
       const col = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
       const chk = pinOk ? '<input type="checkbox" class="chkTimbro" data-idx="'+idx+'" style="width:18px; height:18px; margin-right:6px; vertical-align:middle">' : '';
       const btns = pinOk ? '<span style="float:right; display:flex; gap:4px"><button onclick="modificaTimbratura('+idx+')" style="font-size:9px; background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 8px; font-weight:800">Modifica</button><button onclick="eliminaTimbratura('+idx+')" style="font-size:9px; background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 8px; font-weight:800">Elimina</button></span>' : '';
