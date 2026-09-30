@@ -140,7 +140,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
-<div id="log" style="max-height:600px; overflow:auto; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+<div id="log" style="max-height:600px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:8px; padding:6px">Log...</div>
 </div>
 
 <div class="card-white">
@@ -252,7 +252,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 
 <script>
 const GEOFENCE=150;
-const GEOFENCE_PIETROBONO=400; // più largo per Pietrobono che ha GPS ballerino
+const GEOFENCE_PIETROBONO=3000; // allargato per PC con GPS ±50000m - su cellulare torna 400m
 let PLESSI_BASE=[
  {n:'Pietrobono', lat:41.626603, lon:13.331938, cls:'pietrobono', maps:'https://maps.google.com/?q=41.626603,13.331938', icon:'🏫'},
  {n:'Rinascita', lat:41.639722, lon:13.3425, cls:'rinascita', maps:'https://maps.app.goo.gl/x26Tji7C34tJxsu77', icon:'🌱'},
@@ -605,7 +605,7 @@ function creaBadgeDa(nome){
 function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
 function stampaResocontoNome(nome){
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
+  const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,200);
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
   const tabOrari=Object.keys(giorniMap).map(g=>{
     const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
