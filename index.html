@@ -2,15 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 75 LEGGIBILE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v50 GPS AUTO + CASA TEST + 6 PLESSI + TEST</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .top-verde{border:3px solid #16a34a; background:white; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center}
@@ -57,15 +52,19 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-carta{width:60mm; height:90mm; border-radius:10px; border:1.5px solid #0ea5e9; background:white; display:none; flex-direction:column; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:10px auto; position:relative; opacity:1}
 .badge-carta-left{width:100%; height:58%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border-bottom:2px solid #bae6fd}
 .badge-carta-right{width:100%; height:42%; padding:8px; display:flex; flex-direction:column; justify-content:space-between; background:white; box-sizing:border-box}
-.badge-foto{width:74px; height:90px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
-.badge-foto-placeholder{width:74px; height:90px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
+.badge-foto{width:60px; height:74px; border-radius:10px; border:2.5px solid white; box-shadow:0 2px 8px rgba(0,0,0,.12); object-fit:cover; background:#f1f5f9; display:block}
+.badge-foto-placeholder{width:60px; height:74px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 #qrcodeCarta{width:75px; height:75px; background:white; padding:4px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15)}
 @media print{
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-  #badgeCartaBox{ position:absolute !important; left:10mm !important; top:10mm !important; width:85.6mm !important; height:53.98mm !important; margin:0 !important; display:flex !important; border:2.5px solid #0ea5e9 !important; background:white !important}
-  #badgeCartaBox .badge-carta-left{ background:#e0f2fe !important; background-color:#e0f2fe !important}
-  #qrcodeCarta canvas, #qrcodeCarta img{ width:78px !important; height:78px !important; image-rendering:pixelated !important}
+  #badgeCartaBox{ position:absolute !important; left:15mm !important; top:15mm !important; width:60mm !important; height:90mm !important; margin:0 !important; display:flex !important; flex-direction:column !important; border:2px solid #0ea5e9 !important; background:white !important; border-radius:10px !important; overflow:hidden !important; box-shadow:none !important; }
+  #badgeCartaBox .badge-carta-left{ width:100% !important; height:58% !important; background:#f0f9ff !important; background-color:#f0f9ff !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:8px !important; border-bottom:2px solid #bae6fd !important; }
+  #badgeCartaBox .badge-carta-right{ width:100% !important; height:42% !important; padding:8px !important; display:flex !important; flex-direction:column !important; justify-content:space-between !important; background:white !important; }
+  #badgeCartaBox .badge-foto{ width:60px !important; height:74px !important; display:block !important; }
+  #badgeCartaBox .badge-foto-placeholder{ width:60px !important; height:74px !important; display:flex !important; }
+  #qrcodeCarta{ width:70px !important; height:70px !important; display:flex !important; }
+  #qrcodeCarta canvas, #qrcodeCarta img{ width:70px !important; height:70px !important; image-rendering:pixelated !important; display:block !important; }
   @page{ size:A4; margin:10mm; }
 }
 </style>
@@ -74,7 +73,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v95 - Orario settimanale + Qualifiche</b>
+<b>✅ v50 - GPS AUTO + Casa Test + Orario settimanale + Qualifiche</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -82,7 +81,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora Naddei</b></div>
 </div>
 </div>
-<div id="statusBadge" style="text-align:center;font-weight:800;font-size:13px;padding:10px;border-radius:12px;border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px">☁️ CONDIVISO - Caricamento... Pietrobono↔Rinascita</div>
 
 <div class="box-combinato">
 <div class="left-plessi">
@@ -93,27 +91,26 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div class="grid-plessi" id="gridPlessi"></div>
 <div style="background:#f0fdf4; border:2px dashed #16a34a; border-radius:10px; padding:8px; margin-top:8px; text-align:center">
 <b style="font-size:11px">🏠 Plesso Casa Test - Viale Portogallo 4</b><br>
-<button class="btn btn-green btn-small" onclick="aggiungiCasaDaGPS()" style="font-size:10px; margin-top:4px">📍 Usa mia posizione come Casa</button>
-<button class="btn btn-orange btn-small" onclick="aggiungiCasaManuale()" style="font-size:10px">➕ Aggiungi</button>
-<button id="btnRimuoviCasa" class="btn btn-small" style="background:#ef4444; color:white; display:none; margin-top:4px; font-size:10px" onclick="rimuoviCasa()">🗑️ Rimuovi Casa Test</button>
+<button onclick="aggiungiCasaDaGPS()" style="font-size:10px; margin-top:4px; background:#16a34a; color:white; border:0; border-radius:6px; padding:6px 10px; font-weight:800">📍 Usa mia posizione come Casa</button>
+<button onclick="aggiungiCasaManuale()" style="font-size:10px; background:#f97316; color:white; border:0; border-radius:6px; padding:6px 10px; font-weight:800">➕ Aggiungi</button>
+<button id="btnRimuoviCasa" style="background:#ef4444; color:white; display:none; margin-top:4px; font-size:10px; border:0; border-radius:6px; padding:6px 10px; font-weight:800" onclick="rimuoviCasa()">🗑️ Rimuovi Casa Test</button>
 <div id="casaStatus" style="font-size:9px; margin-top:4px; color:#166534"></div>
-</div>
 </div>
 <div class="right-gps">
 <div style="display:flex; justify-content:space-between; align-items:center">
 <div style="font-size:14px; font-weight:800">📡 GPS ±<span id="precTop">--</span>m</div>
 <div id="badgeStato" class="badge-rosso" style="background:#f59e0b">AUTO...</div>
 </div>
-<div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto...</div>
+<div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto in corso... clicca Aggiorna se non parte</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
-<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico</div>
+<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - su PC clicca Aggiorna GPS e consenti posizione</div>
+<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <span style="font-size:9px; color:#64748b; margin-left:6px">Se non va, attiva posizione su smartphone</span></div>
 </div>
 </div>
 
 <div id="bloccoBox" class="red-banner">Avvicinati a un plesso per timbrare.</div>
 <div id="okBox" class="red-banner" style="display:none; background:#16a34a">✅ Sei dentro il plesso - Puoi timbrare anche se fai servizio in un altro plesso</div>
 
-<div id="cloudLog" style="background:#f0fdf4;border:2px solid #16a34a;border-radius:10px;padding:8px;margin-bottom:8px;font-size:11px;font-weight:700;text-align:center">☁️ Cloud: in attesa...</div>
 <div class="bottom-grid">
 <div class="card-timbra">
 <b style="font-size:15px">📷 Scanner + Timbratura</b>
@@ -140,7 +137,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
-<div id="log" style="max-height:600px; overflow:auto; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+<div id="log" style="max-height:600px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:8px; padding:6px" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
 
 <div class="card-white">
@@ -151,7 +148,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div id="pinLock" class="pin-box" style="margin-top:8px">
 <div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
-<input type="password" id="pinInput" type="password" placeholder="PIN" style="flex:1; padding:8px; border:2px solid #0ea5e9; border-radius:8px; text-align:center; letter-spacing:4px">
+<input id="pinInput" type="password" name="pin_no_save" autocomplete="new-password" autocorrect="off" spellcheck="false" placeholder="PIN" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box">
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
 
@@ -203,12 +200,12 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-green" style="margin-top:10px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue Foto QR Grande</button>
 <button class="btn" style="background:#f1f5f9; color:#334155; font-size:11px; border:1px solid #cbd5e1; margin-top:4px" onclick="bloccaPIN()">🔒 Blocca</button>
 <div style="margin-top:8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px; font-size:10px">
-<div style="margin:6px 0"><button onclick="localStorage.removeItem('pin_v90'); sessionStorage.clear(); document.getElementById('pinInput').value=''; alert('PIN pulito! Ricarica pagina.')" style="font-size:9px; background:#fee2e2; border:1px solid #fca5a5; border-radius:6px; padding:4px 8px">🧹 Pulisci PIN salvato dal browser</button></div><b>💡 Badge smarrito? Come ridarlo:</b><br>
+<b>💡 Badge smarrito? Come ridarlo:</b><br>
 I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b>🖨️ Ristampa</b> sul nome. Si ristampa identico con stesso QR. Non serve rifare anagrafica!
 </div>
 </div>
 
-<div id="elencoProtetto" style="margin-top:12px; display:none">
+<div style="margin-top:12px">
 <b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:600px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
@@ -223,17 +220,17 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 <div class="badge-carta-right">
 <div style="display:flex; justify-content:space-between; align-items:flex-start">
-<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 75x75 - LEGGIBILE</span></div>
+<div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR GRANDE 84x84 - TENUE</span></div>
 <div id="qrcodeCarta"></div>
 </div>
 <div><div id="bPlessoCarta" style="font-size:12px; font-weight:800; color:#0c4a6e">Plesso</div><div id="bOrarioCarta" style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569"></div></div>
-<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR 75 LEGGIBILE</div></div>
+<div style="display:flex; justify-content:space-between; align-items:flex-end"><div id="bIdCarta" style="font-size:6px; color:#94a3b8"></div><div style="font-size:7px; color:#0369a1; font-weight:700">TENUE + FOTO + QR GRANDE</div></div>
 </div>
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
-<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO 6x9cm + QR 75 LEGGIBILE</b><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE 6x9cm CON FOTO + QR 75 LEGGIBILE</button><br>
-<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 75mm - si inquadra benissimo!</small>
+<b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO + QR GRANDE LEGGIBILE</b><br>
+<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE CON FOTO + QR GRANDE</button><br>
+<small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 84mm grande!</small>
 </div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
 <div style="font-size:10px; color:#7c3aed; font-weight:800">IC FROSINONE 2</div>
@@ -252,7 +249,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 
 <script>
 const GEOFENCE=150;
-const GEOFENCE_PIETROBONO=400; // più largo per Pietrobono che ha GPS ballerino
+const GEOFENCE_PIETROBONO=400; // solo Pietrobono 400m per GPS ballerino, altre 150m
 let PLESSI_BASE=[
  {n:'Pietrobono', lat:41.626603, lon:13.331938, cls:'pietrobono', maps:'https://maps.google.com/?q=41.626603,13.331938', icon:'🏫'},
  {n:'Rinascita', lat:41.639722, lon:13.3425, cls:'rinascita', maps:'https://maps.app.goo.gl/x26Tji7C34tJxsu77', icon:'🌱'},
@@ -263,6 +260,10 @@ let PLESSI_BASE=[
 ];
 let PLESSI=[...PLESSI_BASE];
 let customPlesso=JSON.parse(localStorage.getItem('plesso_casa_v94')||'null');
+if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; }
+function aggiungiCasaDaGPS(){ if(!last){ alert('Aspetta GPS ATTIVO - clicca Aggiorna GPS'); return; } customPlesso={n:'Casa Test - Viale Portogallo 4', lat:last.coords.latitude, lon:last.coords.longitude, cls:'casa', maps:`https://maps.google.com/?q=${last.coords.latitude},${last.coords.longitude}`, icon:'🏠', isCasa:true}; localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI(); attivaGPS(); }
+function aggiungiCasaManuale(){ let lat=41.6345, lon=13.3350; if(last){lat=last.coords.latitude; lon=last.coords.longitude;} customPlesso={n:'Casa Test - Viale Portogallo 4', lat, lon, cls:'casa', maps:`https://maps.google.com/?q=${lat},${lon}`, icon:'🏠', isCasa:true}; localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI(); attivaGPS(); }
+function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); attivaGPS(); }
 function dist(a,b,c,d){const R=6371e3,toRad=x=>x*Math.PI/180,dLat=toRad(c-a),dLon=toRad(d-b),aa=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));}
 let last=null, vicino=null, html5Qr=null, ultimoQR='', ultimoTempo=0, dentro=false;
 
@@ -274,50 +275,9 @@ function renderPlessiUI(){
     grid.appendChild(div);
   });
   const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
+  const btnR=document.getElementById('btnRimuoviCasa'); const statusC=document.getElementById('casaStatus'); if(customPlesso){ if(btnR) btnR.style.display='inline-block'; if(statusC) statusC.innerHTML='✅ Casa Test attiva: '+customPlesso.n; } else { if(btnR) btnR.style.display='none'; if(statusC) statusC.innerHTML=''; }
 }
-function aggiungiCasaDaGPS(){
-  if(!last){ alert('Aspetta GPS ATTIVO'); return; }
-  customPlesso={n:'Casa Test - Viale Portogallo 4', lat:last.coords.latitude, lon:last.coords.longitude, cls:'casa', maps:`https://maps.google.com/?q=${last.coords.latitude},${last.coords.longitude}`, icon:'🏠', isCasa:true};
-  localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI();
-  document.getElementById('casaStatus').innerHTML='✅ Casa creata!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
-}
-function aggiungiCasaManuale(){
-  let lat=41.6345, lon=13.3350; if(last){lat=last.coords.latitude; lon=last.coords.longitude;}
-  customPlesso={n:'Casa Test - Viale Portogallo 4', lat, lon, cls:'casa', maps:`https://maps.google.com/?q=${lat},${lon}`, icon:'🏠', isCasa:true};
-  localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI();
-  document.getElementById('casaStatus').innerHTML='✅ Casa Test aggiunto!'; document.getElementById('btnRimuoviCasa').style.display='block'; attivaGPS();
-}
-function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); document.getElementById('btnRimuoviCasa').style.display='none'; document.getElementById('casaStatus').innerHTML='🗑️ Rimosso'; attivaGPS(); }
 
-
-function correggiPietrobonoConGPS(){
-  if(!last){ alert('Aspetta GPS ATTIVO - devi essere DENTRO Pietrobono fisicamente!'); return; }
-  if(!confirm('Correggere posizione Pietrobono con la tua posizione attuale?\nLat: '+last.coords.latitude.toFixed(6)+' Lon: '+last.coords.longitude.toFixed(6)+'\nSei dentro la scuola Pietrobono ora?')) return;
-  // Trova Pietrobono in PLESSI_BASE e aggiorna
-  const idx = PLESSI_BASE.findIndex(p=>p.n==='Pietrobono');
-  if(idx>=0){
-    PLESSI_BASE[idx].lat = last.coords.latitude;
-    PLESSI_BASE[idx].lon = last.coords.longitude;
-    PLESSI_BASE[idx].maps = 'https://maps.google.com/?q='+last.coords.latitude+','+last.coords.longitude;
-    localStorage.setItem('pietrobono_fix_v39', JSON.stringify({lat:last.coords.latitude, lon:last.coords.longitude}));
-    // Aggiorna anche PLESSI
-    const idx2 = PLESSI.findIndex(p=>p.n==='Pietrobono');
-    if(idx2>=0){ PLESSI[idx2].lat = last.coords.latitude; PLESSI[idx2].lon = last.coords.longitude; PLESSI[idx2].maps = PLESSI_BASE[idx].maps; }
-    renderPlessiUI();
-    attivaGPS();
-    alert('✅ Pietrobono corretto! Nuova posizione salvata: '+last.coords.latitude.toFixed(6)+','+last.coords.longitude.toFixed(6)+'\nOra sei DENTRO Pietrobono correttamente!');
-  }
-}
-// Carica fix salvato all'avvio
-(function(){
-  try{
-    const fix = JSON.parse(localStorage.getItem('pietrobono_fix_UNUSED')||'null');
-    if(fix && fix.lat && fix.lon){
-      const idx = PLESSI_BASE.findIndex(p=>p.n==='Pietrobono');
-      if(idx>=0){ PLESSI_BASE[idx].lat=fix.lat; PLESSI_BASE[idx].lon=fix.lon; PLESSI_BASE[idx].maps='https://maps.google.com/?q='+fix.lat+','+fix.lon; }
-    }
-  }catch(e){}
-})();
 
 function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
 function aggiornaUIBlocco(){
@@ -326,18 +286,19 @@ function aggiornaUIBlocco(){
   if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
+let watchId=null;
+function avviaWatchGPS(){ if(!navigator.geolocation) return; if(watchId) navigator.geolocation.clearWatch(watchId); watchId=navigator.geolocation.watchPosition(p=>{ last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy); let min=1e9,best=null,chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; if(d<min){min=d; best=pl;}}); vicino=best; const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); dentro=min<=limiteBest; const precEl=document.getElementById('precTop'); if(precEl) precEl.textContent=acc; const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best && best.n==='Pietrobono'?'🏫 PIETROBONO 400m':''}`; document.getElementById('listaDistanze').innerHTML=chips; const statusEl=document.getElementById('coordBox'); if(statusEl) statusEl.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS AUTO`; aggiornaUIBlocco(); }, e=>{ console.log('watch errore', e); }, {enableHighAccuracy:true, timeout:25000, maximumAge:0}); }
 function attivaGPS(){
   navigator.geolocation.getCurrentPosition(p=>{
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite = (pl.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono' ? '(400m)' : ''}</span>`; if(d<min){min=d; best=pl;}});
-    vicino=best; const limiteBest = (best && best.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); dentro=min<=limiteBest; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best.n==='Pietrobono' ? '🏫 PIETROBONO 400m' : ''}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
+    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
+    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
   }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
 }
 
-// PIN
 let pinSalvato='211285';
-function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; document.getElementById('anagraficaForm').style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; inp.value=''; } else { alert('PIN errato'); if(inp) inp.value=''; } }
-function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp) inp.value=''; document.getElementById('pinLock').style.display='flex'; document.getElementById('anagraficaForm').style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; }
+function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; if(inp) inp.value=''; } else { alert('PIN errato'); if(inp) inp.value=''; } }
+function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp) inp.value=''; document.getElementById('pinLock').style.display='flex'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; }
 
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
@@ -575,7 +536,10 @@ function creaBadgeDa(nome){
     let foto=fotos[a.nome];
     const imgEl=document.getElementById('badgeFoto'); const phEl=document.getElementById('badgeFotoPlaceholder');
     if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
-    const qrCarta=document.getElementById('qrcodeCarta'); if(qrCarta){ qrCarta.innerHTML=''; const qrText=(a.nome||'').trim(); if(!qrText){ qrCarta.innerHTML='<span style=\'font-size:8px\'>NO QR</span>'; } else { try{ new QRCode(qrCarta, {text:qrText, width:200, height:200, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); }catch(e){ try{ new QRCode(qrCarta, qrText); }catch(e2){ qrCarta.innerHTML='<span style=\'font-size:8px\'>'+qrText+'</span>'; } } setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='65px'; c.style.height='65px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='65px'; im.style.height='65px'; im.style.display='block'; } }, 150); } }
+    const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
+    const qrText=a.nome;
+    try{ new QRCode(qrCarta, {text:qrText, width:300, height:300, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.L}); }catch(e){ new QRCode(qrCarta, {text:qrText, width:300, height:300}); }
+    setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='78px'; c.style.height='78px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='78px'; im.style.height='78px'; im.style.display='block'; } }, 120);
     box.scrollIntoView({behavior:'smooth'});
     try{
       document.getElementById('bNome').innerText=a.nome;
@@ -617,204 +581,20 @@ function stampaResocontoNome(nome){
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
-
-
-function aggiornaLog(){
-  try{
-    const logDiv = document.getElementById('log');
-    if(!logDiv) return;
-    const pinOk = document.getElementById('pinLock').style.display==='none';
-    let html = '';
-    timbratureSalvate.slice(0,200).forEach((t,idx)=>{
-      const col = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      const chk = pinOk ? '<input type="checkbox" class="chkTimbro" data-idx="'+idx+'" style="width:18px; height:18px; margin-right:6px; vertical-align:middle">' : '';
-      const btns = pinOk ? '<span style="float:right; display:flex; gap:4px"><button onclick="modificaTimbratura('+idx+')" style="font-size:9px; background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 8px; font-weight:800">Modifica</button><button onclick="eliminaTimbratura('+idx+')" style="font-size:9px; background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 8px; font-weight:800">Elimina</button></span>' : '';
-      html += '<div style="border-left:4px solid '+col+'; padding:6px 8px; margin:4px 0; background:white; border-radius:6px"><div>'+chk+'<b style="font-size:11px">'+(t.data||'')+'</b> - <span style="color:'+col+'; font-weight:800; font-size:11px">'+(t.tipo||'')+'</span> - <span style="font-size:11px">'+(t.nome||'')+' @ '+(t.plesso||'')+'</span> '+btns+'</div></div>';
-    });
-    if(html==='') html = 'Nessuna timbratura ancora';
-    else {
-      const tools = pinOk ? '<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; margin-bottom:8px"><b style="font-size:11px">MODIFICA / ELIMINA - scegli con checkbox quali di prova levare (non tutte insieme):</b><br><div style="margin-top:6px"><button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=true)" style="font-size:10px; background:#64748b; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Seleziona tutte</button> <button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=false)" style="font-size:10px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:11px; background:#dc2626; color:white; border:0; border-radius:6px; padding:7px 14px; font-weight:800; margin:2px">Elimina selezionate</button></div></div>' : '<div style="font-size:10px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:6px">🔒 Sblocca con PIN per modificare/eliminare timbrature di prova</div>';
-      html = '<div style="font-size:11px; color:#16a34a; font-weight:800; margin-bottom:6px">TIMBRATURE CONDIVISE ('+timbratureSalvate.length+') - Pietrobono-Rinascita - MODIFICA/ELIMINA A SCELTA '+tools+'</div>' + html;
-    }
-    logDiv.innerHTML = html;
-    try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
-  }catch(e){ console.log("log err", e); }
-}
-function renderGestioneTimbrature(){ aggiornaLog(); }
-function modificaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette! Sblocca con PIN'); return; }
-  const t=timbratureSalvate[idx]; if(!t) return;
-  const nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo); if(nuovoTipo===null) return;
-  const nuovoPlesso = prompt('Modifica plesso:', t.plesso); if(nuovoPlesso===null) return;
-  const nuovaData = prompt('Modifica data/ora:', t.data); if(nuovaData===null) return;
-  t.tipo = nuovoTipo.toUpperCase(); t.plesso = nuovoPlesso; t.data = nuovaData; t.modificata = true;
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-  aggiornaLog();
-  alert('Timbratura modificata!');
-}
-function eliminaSelezionate(){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette! Sblocca con PIN'); return; }
-  const checks = document.querySelectorAll('.chkTimbro:checked');
-  if(checks.length===0){ alert('Spunta con ☑️ le timbrature di prova che vuoi levare! (puoi sceglierne 1, 2, 3... non tutte insieme!)'); return; }
-  if(!confirm('Eliminare '+checks.length+' timbrature selezionate a SCELTA?\nSolo quelle con ☑️, NON tutte!\nConfermi?')) return;
-  let idxs = Array.from(checks).map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
-  // salva chiavi cancellate così non tornano dal cloud
-  const cancellate = getCancellate();
-  idxs.forEach(i=>{
-    const t = timbratureSalvate[i];
-    if(t){ const k=getKeyTimbratura(t); if(!cancellate.includes(k)) cancellate.push(k); }
-  });
-  try{ localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(0,500))); }catch(e){}
-  idxs.forEach(i=>{ timbratureSalvate.splice(i,1); });
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-  aggiornaLog();
-  alert('✅ Eliminate '+checks.length+' timbrature a scelta! Non torneranno dal cloud.');
-}
-function eliminaTimbratura(idx){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Le timbrature sono protette!'); return; }
-  const t=timbratureSalvate[idx]; if(!t) return;
-  if(!confirm('Eliminare questa singola timbratura a SCELTA?\n'+t.data+' - '+t.nome+' - '+t.tipo+'\nSolo questa, non tutte!')) return;
-  const cancellate = getCancellate();
-  const k=getKeyTimbratura(t); if(!cancellate.includes(k)) cancellate.push(k);
-  try{ localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(0,500))); }catch(e){}
-  timbratureSalvate.splice(idx,1);
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-  aggiornaLog();
-}
-
-
-
-// ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
-const DB_URLS = [
-  "https://icfrosinone2-default-rtdb.firebaseio.com",
-  "https://icfrosinone2-default-rtdb.europe-west1.firebasedatabase.app"
-];
-let DB_URL = DB_URLS[0];
-let lastCloudCount = 0;
-
-async function fetchWithFallback(path){
-  for(let base of DB_URLS){
-    try{
-      const r = await fetch(base + path + "?ts="+Date.now(), {cache:"no-store"});
-      if(r.ok){
-        DB_URL = base; // memorizza quello che funziona
-        return await r.json();
-      }
-    }catch(e){}
-  }
-  return null;
-}
-
-function getKeyTimbratura(t){ return (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||''); }
-function getCancellate(){ try{ return JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){ return []; } }
-
-async function caricaCondivise(){
-  try{
-    // timbrature
-    let val = await fetchWithFallback("/timbrature.json");
-    if(val){
-      let arr = Array.isArray(val) ? val : Object.values(val);
-      arr = arr.filter(x=>x && x.data);
-      // filtra quelle che hai cancellato di proposito (a scelta)
-      const cancellate = getCancellate();
-      const cancellateSet = new Set(cancellate);
-      if(cancellateSet.size>0){ arr = arr.filter(t=>!cancellateSet.has(getKeyTimbratura(t))); }
-      // ordina per timestamp o data
-      arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-      if(true){
-        lastCloudCount = arr.length;
-        // MERGE: unisci locale + cloud, elimina duplicati per data+nome+tipo+plesso
-        let merged = [...timbratureSalvate, ...arr];
-        let seen = new Set();
-        let uniq = [];
-        merged.forEach(t=>{
-          let key = getKeyTimbratura(t);
-          if(cancellateSet.has(key)) return; // non reimportare quelle cancellate a scelta
-          if(!seen.has(key)){
-            seen.add(key);
-            uniq.push(t);
-          }
-        });
-        // ordina per data più recente prima (timestamp o data string)
-        uniq.sort((a,b)=>{
-          if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
-          return 0;
-        });
-        if(uniq.length !== timbratureSalvate.length || JSON.stringify(uniq).length !== JSON.stringify(timbratureSalvate).length){
-          timbratureSalvate = uniq.slice(0,500);
-          try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-          aggiornaLog();
-          console.log("☁️ Cloud merge: "+uniq.length+" timbrature condivise (erano "+timbratureSalvate.length+")");
-        }
-        const badge = document.getElementById('statusBadge');
-        if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
-      }
-    }
-    // anagrafiche condivise
-    let valAnag = await fetchWithFallback("/anagrafiche.json");
-    if(valAnag){
-      let arrA = Array.isArray(valAnag) ? valAnag : Object.values(valAnag);
-      if(arrA.length>0 && arrA.length !== anagrafiche.length){
-        anagrafiche = arrA;
-        try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(arrA)); }catch(e){}
-        if(typeof renderAnagrafica === 'function') try{renderAnagrafica();}catch(e){}
-        if(typeof renderPlessiUI === 'function') try{renderPlessiUI();}catch(e){}
-      }
-    }
-  }catch(e){ console.log("Cloud fetch errore", e); }
-}
-
-async function salvaNuovaTimbratura(t){
-  try{
-    // POST genera ID unico, così se Pietrobono e Rinascita timbrano insieme NON si sovrascrivono
-    await fetch(DB_URL + "/timbrature.json", {
-      method: "POST",
-      body: JSON.stringify(t),
-      headers: {"Content-Type":"application/json"}
-    });
-    console.log("☁️ Timbratura inviata a cloud", t.nome, t.plesso);
-  }catch(e){ console.log("Cloud save errore", e); }
-}
-
-async function salvaAnagraficheCloud(){
-  try{
-    await fetch(DB_URL + "/anagrafiche.json", {
-      method: "PUT",
-      body: JSON.stringify(anagrafiche),
-      headers: {"Content-Type":"application/json"}
-    });
-  }catch(e){}
-}
-
-// Intercetta timbra
-(function(){
-  const oldTimbra = window.timbra;
-  if(typeof oldTimbra === 'function'){
-    window.timbra = function(tipo){
-      // chiama originale che già aggiunge a timbratureSalvate
-      const res = oldTimbra.apply(this, arguments);
-      // prendi l'ultima timbratura aggiunta
-      const ultima = timbratureSalvate[0] || timbratureSalvate[timbratureSalvate.length-1];
-      if(ultima){
-        // aggiungi timestamp se manca
-        if(!ultima.timestamp) ultima.timestamp = Date.now();
-        salvaNuovaTimbratura(ultima);
-      }
-      return res;
-    }
-  }
-})();
-
-// Poll ogni 2 secondi
-setInterval(caricaCondivise, 2000);
-setTimeout(caricaCondivise, 800);
-
-
-
 window.addEventListener('load', ()=>{
-  if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo'; document.getElementById('btnRimuoviCasa').style.display='block'; }
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  renderPlessiUI();
+  if(typeof loadAnag==='function') try{loadAnag();}catch(e){}
+  if(typeof resetOrariSettimana==='function') try{resetOrariSettimana();}catch(e){}
+  // GPS AUTO subito + dopo 1 sec + watch + ogni 15 sec
+  try{ attivaGPS(); }catch(e){}
+  setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 1000);
+  setTimeout(()=>{ try{ attivaGPS(); }catch(e){} }, 3000);
+  setInterval(()=>{ if(navigator.geolocation) try{ attivaGPS(); }catch(e){} }, 15000);
 });
+document.addEventListener('DOMContentLoaded', ()=>{
+  setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 500);
+});
+window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('badgeCartaBox'); if(b){ b.style.display='flex'; } });
 </script>
 
 </body>
