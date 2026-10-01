@@ -61,18 +61,86 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-foto-placeholder{width:60px; height:74px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 #qrcodeCarta{width:75px; height:75px; background:white; padding:4px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15)}
 @media print{
-  html, body{ height:auto !important; overflow:visible !important; margin:0 !important; padding:0 !important; background:white !important; }
-  body *{ visibility:hidden !important; }
-  #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-  #badgeCartaBox{ position:absolute !important; left:50% !important; top:20mm !important; transform:translateX(-50%) !important; width:60mm !important; height:90mm !important; margin:0 !important; display:flex !important; flex-direction:column !important; border:2px solid #0ea5e9 !important; background:white !important; box-shadow:none !important; border-radius:10px !important; overflow:hidden !important; }
-  #badgeCartaBox .badge-carta-left{ width:100% !important; height:58% !important; background:#f0f9ff !important; background-color:#f0f9ff !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:6px !important; border-bottom:2px solid #bae6fd !important; border-right:0 !important; }
-  #badgeCartaBox .badge-carta-right{ width:100% !important; height:42% !important; padding:6px !important; display:flex !important; flex-direction:column !important; justify-content:space-between !important; }
-  #badgeCartaBox .badge-foto, #badgeCartaBox .badge-foto-placeholder{ width:58px !important; height:72px !important; }
-  #qrcodeCarta{ width:70px !important; height:70px !important; }
-  #qrcodeCarta canvas, #qrcodeCarta img{ width:70px !important; height:70px !important; image-rendering:pixelated !important; display:block !important; }
-  @page{ size:A4; margin:0; }
-  #printArea, .top-verde, .box-combinato, .bottom-grid, #cloudLog, #bloccoBox, #okBox{ display:none !important; }
+  /* Reset */
+  html, body{ background:white !important; margin:0 !important; padding:0 !important; }
+  /* Nascondi tutto tranne badge */
+  body > div:not(#badgeCartaBox){ display:none !important; }
+  body > #printArea{ display:none !important; }
+  #badgeCartaBox{
+    display:flex !important;
+    position:fixed !important;
+    left:50% !important;
+    top:50% !important;
+    transform:translate(-50%,-50%) !important;
+    width:60mm !important;
+    height:90mm !important;
+    margin:0 !important;
+    flex-direction:column !important;
+    border:2px solid #0ea5e9 !important;
+    background:white !important;
+    border-radius:10px !important;
+    overflow:hidden !important;
+    box-shadow:none !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  #badgeCartaBox .badge-carta-left{
+    width:100% !important;
+    height:58% !important;
+    background:#f0f9ff !important;
+    background-color:#f0f9ff !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:8px !important;
+    border-bottom:2px solid #bae6fd !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  #badgeCartaBox .badge-carta-right{
+    width:100% !important;
+    height:42% !important;
+    padding:8px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:space-between !important;
+    background:white !important;
+  }
+  #badgeCartaBox .badge-foto{
+    width:60px !important;
+    height:74px !important;
+    display:block !important;
+    border:2px solid white !important;
+  }
+  #badgeCartaBox .badge-foto-placeholder{
+    width:60px !important;
+    height:74px !important;
+    display:flex !important;
+    background:#e0f2fe !important;
+  }
+  #qrcodeCarta{
+    width:70px !important;
+    height:70px !important;
+    display:flex !important;
+    background:white !important;
+    border:2px solid #000 !important;
+    padding:3px !important;
+  }
+  #qrcodeCarta canvas, #qrcodeCarta img{
+    width:70px !important;
+    height:70px !important;
+    display:block !important;
+    image-rendering:pixelated !important;
+  }
+  @page{
+    size:A4;
+    margin:0;
+  }
 }
+
+}
+
 
 </style>
 </head>
@@ -230,7 +298,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 <div style="text-align:center; margin:12px 0; background:#f0f9ff; border:2.5px solid #7dd3fc; border-radius:14px; padding:14px">
 <b style="font-size:15px; color:#0c4a6e">📸 BADGE TENUE CHIARISSIMO 6x9cm + QR 75 LEGGIBILE</b><br>
-<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCarta()">🖨️ STAMPA BADGE TENUE 6x9cm CON FOTO + QR 75 LEGGIBILE</button><br>
+<button class="btn" style="background:#0ea5e9; color:white; padding:12px 24px; font-size:13px; font-weight:800; margin-top:8px; border-radius:12px" onclick="stampaBadgeCartaFix()">🖨️ STAMPA BADGE TENUE 6x9cm CON FOTO + QR 75 LEGGIBILE</button><br>
 <small style="font-size:11px; color:#0369a1; font-weight:600">Margini: Nessuno - Grafica: Sì - QR 75mm - si inquadra benissimo!</small>
 </div>
 <div id="badgeBox" class="badge-ris" style="display:none !important">
@@ -585,6 +653,15 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
+
+function stampaBadgeCartaFix(){
+  const b = document.getElementById('badgeCartaBox');
+  if(!b || b.style.display==='none'){ alert('Prima genera il badge! Clicca su Badge nella lista.'); return; }
+  // Forza visibilità per stampa
+  b.style.display='flex';
+  window.print();
+}
+
 function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
 function stampaResocontoNome(nome){
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
@@ -788,6 +865,7 @@ async function salvaAnagraficheCloud(){
 setInterval(caricaCondivise, 2000);
 setTimeout(caricaCondivise, 800);
 
+window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('badgeCartaBox'); if(b){ b.style.display='flex'; } });
 window.addEventListener('load', ()=>{
   if(customPlesso){ PLESSI=[...PLESSI_BASE]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo';  }
   renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
