@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v53 - LOG CONDIVISO DEBUG + TEST CLOUD SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
+<title>IC Frosinone 2 - v54 - LOG CONDIVISO AUTO-SYNC TEMPO REALE 1.5s SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -683,6 +683,8 @@ async function caricaCondivise(){
 async function salvaNuovaTimbratura(t){
   try{
     if(!t.timestamp) t.timestamp = Date.now();
+    const badge2 = document.getElementById('statusBadge');
+    if(badge2) badge2.innerHTML = "📤 Invio timbratura "+t.nome+" @ "+t.plesso+" al cloud...";
     console.log("☁️ Invio timbratura a cloud:", t);
     const res = await fetch(DB_URL + "/timbrature.json", {
       method: "POST",
@@ -715,18 +717,54 @@ async function salvaAnagraficheCloud(){
   }catch(e){}
 }
 
+
 async function testCloud(){
   const badge = document.getElementById('statusBadge');
   if(badge) badge.innerHTML = "🧪 Test cloud in corso...";
   await caricaCondivise();
-  // prova invio test
   const testEntry = {data: new Date().toLocaleString('it-IT'), ora: new Date().toTimeString().slice(0,5), tipo: 'TEST', nome: 'Test Cloud', plesso: 'Test', distanza: 0, timestamp: Date.now()};
   await salvaNuovaTimbratura(testEntry);
   setTimeout(caricaCondivise, 1000);
 }
 
-setInterval(caricaCondivise, 3000);
-setTimeout(caricaCondivise, 800);
+// ===== AUTO-SYNC TEMPO REALE OGNI 1.5 SECONDI =====
+let syncInterval = null;
+let syncCount = 0;
+function avviaAutoSync(){
+  if(syncInterval) clearInterval(syncInterval);
+  syncInterval = setInterval(async ()=>{
+    syncCount++;
+    await caricaCondivise();
+    // aggiorna countdown visivo
+    const badge = document.getElementById('statusBadge');
+    if(badge && badge.innerHTML.includes('CONDIVISO ATTIVO')){
+      // aggiungi pallino che lampeggia per far vedere che sta sincronizzando
+      if(syncCount % 2 === 0){
+        badge.innerHTML = badge.innerHTML.replace('✅', '🔄');
+      } else {
+        badge.innerHTML = badge.innerHTML.replace('🔄', '✅');
+      }
+    }
+  }, 1500); // ogni 1.5 sec per tempo reale
+  console.log("☁️ Auto-sync avviato ogni 1.5s");
+}
+
+setTimeout(()=>{ caricaCondivise(); avviaAutoSync(); }, 800);
+
+// Ricarica quando torni sulla pagina (tablet in standby)
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden){
+    console.log("☁️ Pagina tornata visibile - ricarico cloud");
+    caricaCondivise();
+  }
+});
+
+// Ricarica quando riprende connessione
+window.addEventListener('online', ()=>{
+  console.log("☁️ Connessione tornata - ricarico cloud");
+  setTimeout(caricaCondivise, 500);
+});
+
 
 window.addEventListener('load', ()=>{
   renderPlessiUI();
