@@ -141,7 +141,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
 </div>
-<div style="text-align:center; margin:4px 0"><button onclick="testCloud()" style="font-size:10px; background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px 8px; font-weight:700">🧪 Test Cloud Condiviso</button> <span style="font-size:9px; color:#64748b">Clicca per testare se Firebase funziona</span></div><div id="log" style="max-height:600px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:8px; padding:6px" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
+<div id="log" style="max-height:600px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:8px; padding:6px" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
 
 <div class="card-white">
@@ -641,7 +641,7 @@ async function fetchWithFallback(path){
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
-    if(badge) badge.innerHTML = "☁️ Caricamento...";
+    // NO Caricamento... per non far lampeggiare - resta fisso
     let val = await fetchWithFallback("/timbrature.json");
     if(val){
       let arr = Array.isArray(val) ? val : Object.values(val);
@@ -677,8 +677,7 @@ async function caricaCondivise(){
     }
   }catch(e){ 
     console.log("Cloud fetch errore", e); 
-    const badge = document.getElementById('statusBadge');
-    if(badge){ badge.innerHTML = "☁️ Condiviso attivo"+(e.message||e)+" - uso locale ("+timbratureSalvate.length+") - Apri console F12 per dettagli"; badge.style.background="#fee2e2"; badge.style.borderColor="#ef4444"; }
+    // errore silenzioso, mantieni badge verde fisso
     aggiornaLog();
   }
 }
@@ -686,8 +685,7 @@ async function caricaCondivise(){
 async function salvaNuovaTimbratura(t){
   try{
     if(!t.timestamp) t.timestamp = Date.now();
-    const badge2 = document.getElementById('statusBadge');
-    if(badge2) badge2.innerHTML = "📤 Invio timbratura "+t.nome+" @ "+t.plesso+" al cloud...";
+    // NO badge lampeggiante in invio - resta fisso
     console.log("☁️ Invio timbratura a cloud:", t);
     const res = await fetch(DB_URL + "/timbrature.json", {
       method: "POST",
@@ -697,16 +695,14 @@ async function salvaNuovaTimbratura(t){
     const txt = await res.text();
     console.log("☁️ Risposta invio:", res.status, txt.slice(0,200));
     if(!res.ok){
-      const badge = document.getElementById('statusBadge');
-      if(badge) badge.innerHTML = "☁️ Condiviso attivo"+res.status+": "+txt.slice(0,100)+" - Firebase Rules bloccate?";
+      // errore silenzioso, badge resta fisso
     } else {
       // dopo invio, ricarica subito
       setTimeout(caricaCondivise, 500);
     }
   }catch(e){ 
     console.log("Cloud save errore", e);
-    const badge = document.getElementById('statusBadge');
-    if(badge) badge.innerHTML = "❌ Errore invio: "+e.message;
+    // errore silenzioso
   }
 }
 
