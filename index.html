@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v54 - LOG CONDIVISO AUTO-SYNC TEMPO REALE 1.5s SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
+<title>IC Frosinone 2 - v55 - LOG CONDIVISO AUTO-SYNC FIX - timbra ora invia al cloud SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -361,11 +361,14 @@ function timbra(tipo, nomeF=null){
   const nome=nomeF||document.getElementById('dipendente').value; if(!nome) return;
   const ora=new Date(); const oraStr=ora.toLocaleString('it-IT'); const oraTime=ora.toTimeString().slice(0,5);
   const d=last&&vicino?Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon)):0;
-  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||''};
-  timbratureSalvate.unshift(entry); localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
-  document.getElementById('log').innerHTML='<br>✅ '+oraStr+' - '+tipo+' - '+nome+' @ '+(vicino?vicino.n:'')+' '+d+'m'+document.getElementById('log').innerHTML;
-  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime;
+  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||'', timestamp:Date.now()};
+  timbratureSalvate.unshift(entry); 
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  try{ aggiornaLog(); }catch(e){}
+  try{ salvaNuovaTimbratura(entry); }catch(e){ console.log("Errore invio cloud", e); }
+  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime+' - 📤 Inviato al cloud!';
   if(document.getElementById('beepCheck').checked) beep();
+  console.log("✅ Timbratura locale + invio cloud:", entry);
 }
 function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(); }
 function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
