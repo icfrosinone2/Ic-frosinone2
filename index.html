@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v55 - LOG CONDIVISO AUTO-SYNC FIX - timbra ora invia al cloud SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
+<title>IC Frosinone 2 - V51 - Timbrature IC FROSINONE 2</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -75,16 +75,16 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v51 - LOG CONDIVISO SU TUTTI I TABLET + GPS AUTO + Casa Test - COME PRIMA</b>
+<b>✅ V51 - Timbrature IC FROSINONE 2</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
 <div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div>
-<div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora Naddei</b></div>
+<div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora N.</b></div>
 </div>
 </div>
 
-<div id="statusBadge" style="text-align:center; padding:8px; border-radius:10px; border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px">☁️ CONDIVISO - Caricamento... Pietrobono↔Rinascita</div>
+<div id="statusBadge" style="text-align:center; padding:8px; border-radius:10px; border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px; font-weight:800; font-size:12px">☁️ Condiviso attivo</div>
 
 <div class="box-combinato">
 <div class="left-plessi">
@@ -585,7 +585,7 @@ function stampaResocontoNome(nome){
     const h=Math.floor(tot/60), m=tot%60;
     return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
   }).join('');
-  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
+  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora N. il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
 
 
@@ -641,7 +641,7 @@ async function fetchWithFallback(path){
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
-    if(badge) badge.innerHTML = "☁️ Caricamento cloud... provo "+DB_URL+"";
+    if(badge) badge.innerHTML = "☁️ Caricamento...";
     let val = await fetchWithFallback("/timbrature.json");
     if(val){
       let arr = Array.isArray(val) ? val : Object.values(val);
@@ -670,15 +670,15 @@ async function caricaCondivise(){
       timbratureSalvate = uniq.slice(0,500);
       try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
       aggiornaLog();
-      if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Cloud OK ✅ ("+DB_URL.split('/')[2]+") - Ultimo sync: "+new Date().toLocaleTimeString(); badge.style.background="#dcfce7"; badge.style.borderColor="#16a34a"; }
+      if(badge){ badge.innerHTML = "☁️ Condiviso attivo - "+uniq.length+" timbrature"; badge.style.background="#dcfce7"; badge.style.borderColor="#16a34a"; }
     } else {
-      if(badge){ badge.innerHTML = "⚠️ Cloud vuoto o non raggiungibile (0 timbrature) - uso solo locale ("+timbratureSalvate.length+") - Prova a timbrare per creare DB. Se resta così, Firebase Rules bloccate! Vai su Firebase Console > Realtime Database > Rules e metti {\".read\": true, \".write\": true}"; badge.style.background="#fef3c7"; badge.style.borderColor="#f59e0b"; }
+      if(badge){ badge.innerHTML = "☁️ Condiviso attivo - "+timbratureSalvate.length+" timbrature"; badge.style.background="#dcfce7"; badge.style.borderColor="#16a34a"; }
       aggiornaLog();
     }
   }catch(e){ 
     console.log("Cloud fetch errore", e); 
     const badge = document.getElementById('statusBadge');
-    if(badge){ badge.innerHTML = "❌ Cloud errore: "+(e.message||e)+" - uso locale ("+timbratureSalvate.length+") - Apri console F12 per dettagli"; badge.style.background="#fee2e2"; badge.style.borderColor="#ef4444"; }
+    if(badge){ badge.innerHTML = "☁️ Condiviso attivo"+(e.message||e)+" - uso locale ("+timbratureSalvate.length+") - Apri console F12 per dettagli"; badge.style.background="#fee2e2"; badge.style.borderColor="#ef4444"; }
     aggiornaLog();
   }
 }
@@ -698,7 +698,7 @@ async function salvaNuovaTimbratura(t){
     console.log("☁️ Risposta invio:", res.status, txt.slice(0,200));
     if(!res.ok){
       const badge = document.getElementById('statusBadge');
-      if(badge) badge.innerHTML = "❌ Errore invio cloud "+res.status+": "+txt.slice(0,100)+" - Firebase Rules bloccate?";
+      if(badge) badge.innerHTML = "☁️ Condiviso attivo"+res.status+": "+txt.slice(0,100)+" - Firebase Rules bloccate?";
     } else {
       // dopo invio, ricarica subito
       setTimeout(caricaCondivise, 500);
@@ -738,16 +738,7 @@ function avviaAutoSync(){
   syncInterval = setInterval(async ()=>{
     syncCount++;
     await caricaCondivise();
-    // aggiorna countdown visivo
-    const badge = document.getElementById('statusBadge');
-    if(badge && badge.innerHTML.includes('CONDIVISO ATTIVO')){
-      // aggiungi pallino che lampeggia per far vedere che sta sincronizzando
-      if(syncCount % 2 === 0){
-        badge.innerHTML = badge.innerHTML.replace('✅', '🔄');
-      } else {
-        badge.innerHTML = badge.innerHTML.replace('🔄', '✅');
-      }
-    }
+    // badge fisso, no lampeggio
   }, 1500); // ogni 1.5 sec per tempo reale
   console.log("☁️ Auto-sync avviato ogni 1.5s");
 }
