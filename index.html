@@ -85,10 +85,17 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div class="box-combinato">
 <div class="left-plessi">
 <div style="display:flex; justify-content:space-between; align-items:center">
-<div style="font-size:14px; font-weight:800">📍 6 Plessi</div>
+<div style="font-size:14px; font-weight:800">📍 6 Plessi + Test</div>
 <span style="font-size:10px; background:#f1f5f9; padding:4px 10px; border-radius:999px; border:1px solid #cbd5e1">Maps</span>
 </div>
 <div class="grid-plessi" id="gridPlessi"></div>
+<div style="background:#f0fdf4; border:2px dashed #16a34a; border-radius:10px; padding:8px; margin-top:8px; text-align:center">
+<b style="font-size:11px">🏠 Plesso Casa Test - Viale Portogallo 4</b><br>
+<button onclick="aggiungiCasaDaGPS()" style="font-size:10px; margin-top:4px; background:#16a34a; color:white; border:0; border-radius:6px; padding:6px 10px; font-weight:800">📍 Usa mia posizione come Casa</button>
+<button onclick="aggiungiCasaManuale()" style="font-size:10px; background:#f97316; color:white; border:0; border-radius:6px; padding:6px 10px; font-weight:800">➕ Aggiungi</button>
+<button id="btnRimuoviCasa" style="background:#ef4444; color:white; display:none; margin-top:4px; font-size:10px; border:0; border-radius:6px; padding:6px 10px; font-weight:800" onclick="rimuoviCasa()">🗑️ Rimuovi Casa Test</button>
+<div id="casaStatus" style="font-size:9px; margin-top:4px; color:#166534"></div>
+</div>
 <div class="right-gps">
 <div style="display:flex; justify-content:space-between; align-items:center">
 <div style="font-size:14px; font-weight:800">📡 GPS ±<span id="precTop">--</span>m</div>
@@ -252,7 +259,11 @@ let PLESSI_BASE=[
  {n:'Spinelli', lat:41.613259, lon:13.336852, cls:'spinelli', maps:'https://maps.google.com/?q=41.613259,13.336852', icon:'⭐'}
 ];
 let PLESSI=[...PLESSI_BASE];
-let customPlesso=null; localStorage.removeItem('plesso_casa_v94'); localStorage.removeItem('pietrobono_fix_v44');
+let customPlesso=JSON.parse(localStorage.getItem('plesso_casa_v94')||'null');
+if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; }
+function aggiungiCasaDaGPS(){ if(!last){ alert('Aspetta GPS ATTIVO - clicca Aggiorna GPS'); return; } customPlesso={n:'Casa Test - Viale Portogallo 4', lat:last.coords.latitude, lon:last.coords.longitude, cls:'casa', maps:`https://maps.google.com/?q=${last.coords.latitude},${last.coords.longitude}`, icon:'🏠', isCasa:true}; localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI(); attivaGPS(); }
+function aggiungiCasaManuale(){ let lat=41.6345, lon=13.3350; if(last){lat=last.coords.latitude; lon=last.coords.longitude;} customPlesso={n:'Casa Test - Viale Portogallo 4', lat, lon, cls:'casa', maps:`https://maps.google.com/?q=${lat},${lon}`, icon:'🏠', isCasa:true}; localStorage.setItem('plesso_casa_v94', JSON.stringify(customPlesso)); PLESSI=[...PLESSI_BASE, customPlesso]; renderPlessiUI(); attivaGPS(); }
+function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); attivaGPS(); }
 function dist(a,b,c,d){const R=6371e3,toRad=x=>x*Math.PI/180,dLat=toRad(c-a),dLon=toRad(d-b),aa=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));}
 let last=null, vicino=null, html5Qr=null, ultimoQR='', ultimoTempo=0, dentro=false;
 
@@ -264,6 +275,7 @@ function renderPlessiUI(){
     grid.appendChild(div);
   });
   const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
+  const btnR=document.getElementById('btnRimuoviCasa'); const statusC=document.getElementById('casaStatus'); if(customPlesso){ if(btnR) btnR.style.display='inline-block'; if(statusC) statusC.innerHTML='✅ Casa Test attiva: '+customPlesso.n; } else { if(btnR) btnR.style.display='none'; if(statusC) statusC.innerHTML=''; }
 }
 
 
