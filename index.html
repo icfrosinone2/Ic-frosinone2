@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v95 TENUE + FOTO + QR 75 LEGGIBILE + CAM ANTERIORE</title>
+<title>IC Frosinone 2 - v96 AUTO GPS + TENUE + FOTO + QR 75 + CAM ANTERIORE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -255,57 +255,9 @@ let PLESSI_BASE=[
  {n:'Spinelli', lat:41.613259, lon:13.336852, cls:'spinelli', maps:'https://maps.google.com/?q=41.613259,13.336852', icon:'⭐'}
 ];
 let PLESSI=[...PLESSI_BASE];
-let customPlesso=null; localStorage.removeItem('plesso_casa_v94'); localStorage.removeItem('pietrobono_fix_v44');
+let customPlesso=null; try{ localStorage.removeItem('plesso_casa_v94'); localStorage.removeItem('pietrobono_fix_v44'); localStorage.removeItem('pietrobono_fix_v39'); }catch(e){}
 function dist(a,b,c,d){const R=6371e3,toRad=x=>x*Math.PI/180,dLat=toRad(c-a),dLon=toRad(d-b),aa=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));}
-let last=null, vicino=null, html5Qr=null, ultimoQR='', ultimoTempo=0, dentro=false;
 
-function renderPlessiUI(){
-  const grid=document.getElementById('gridPlessi'); grid.innerHTML='';
-  PLESSI.forEach(pl=>{
-    const div=document.createElement('div'); div.className='card-pl '+(pl.cls||'');
-    div.innerHTML=`${pl.icon||'📍'} ${pl.n}<br><a class="btn-maps" href="${pl.maps}" target="_blank">Maps</a>`+(pl.isCasa?'<br><span style="font-size:8px; background:#16a34a; color:white; padding:2px 6px; border-radius:999px">TEST</span>':'');
-    grid.appendChild(div);
-  });
-  const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
-}
-
-function correggiPietrobonoConGPS(){
-  if(!last){ alert('Aspetta GPS ATTIVO - devi essere DENTRO Pietrobono fisicamente!'); return; }
-  if(!confirm('Correggere posizione Pietrobono con la tua posizione attuale?\nLat: '+last.coords.latitude.toFixed(6)+' Lon: '+last.coords.longitude.toFixed(6)+'\nSei dentro la scuola Pietrobono ora?')) return;
-  // Trova Pietrobono in PLESSI_BASE e aggiorna
-  const idx = PLESSI_BASE.findIndex(p=>p.n==='Pietrobono');
-  if(idx>=0){
-    PLESSI_BASE[idx].lat = last.coords.latitude;
-    PLESSI_BASE[idx].lon = last.coords.longitude;
-    PLESSI_BASE[idx].maps = 'https://maps.google.com/?q='+last.coords.latitude+','+last.coords.longitude;
-    localStorage.setItem('pietrobono_fix_v39', JSON.stringify({lat:last.coords.latitude, lon:last.coords.longitude}));
-    // Aggiorna anche PLESSI
-    const idx2 = PLESSI.findIndex(p=>p.n==='Pietrobono');
-    if(idx2>=0){ PLESSI[idx2].lat = last.coords.latitude; PLESSI[idx2].lon = last.coords.longitude; PLESSI[idx2].maps = PLESSI_BASE[idx].maps; }
-    renderPlessiUI();
-    attivaGPS();
-    alert('✅ Pietrobono corretto! Nuova posizione salvata: '+last.coords.latitude.toFixed(6)+','+last.coords.longitude.toFixed(6)+'\nOra sei DENTRO Pietrobono correttamente!');
-  }
-}
-// Carica fix salvato all'avvio
-(function(){
-  try{
-    const fix = JSON.parse(localStorage.getItem('pietrobono_fix_UNUSED')||'null');
-    if(fix && fix.lat && fix.lon){
-      const idx = PLESSI_BASE.findIndex(p=>p.n==='Pietrobono');
-      if(idx>=0){ PLESSI_BASE[idx].lat=fix.lat; PLESSI_BASE[idx].lon=fix.lon; PLESSI_BASE[idx].maps='https://maps.google.com/?q='+fix.lat+','+fix.lon; }
-    }
-  }catch(e){}
-})();
-
-function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
-function aggiornaUIBlocco(){
-  const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
-  const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
-  if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
-  else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
-}
-let watchId = null;
 function aggiornaPosizione(p){
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
     let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite = (pl.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono' ? '(400m)' : ''}</span>`; if(d<min){min=d; best=pl;}});
@@ -318,40 +270,68 @@ function aggiornaPosizione(p){
 }
 function attivaGPS(){
   if(!navigator.geolocation){ 
-    const c=document.getElementById('coordBox'); if(c) c.innerHTML='GPS non supportato'; 
+    const c=document.getElementById('coordBox'); if(c) c.innerHTML='❌ GPS non supportato - usa Chrome!'; 
     return; 
   }
-  // Ferma watch precedente
-  if(watchId!==null){ try{ navigator.geolocation.clearWatch(watchId); }catch(e){} watchId=null; }
-  // Prova watchPosition continuo (meglio per smartphone)
+  const coordEl = document.getElementById('coordBox'); 
+  if(coordEl && !last) coordEl.innerHTML='📡 GPS auto in aggancio... (consenti posizione se chiesto)';
+  // Se già watch attivo, non rifare
+  if(watchId!==null){ return; }
+  // AUTO-AGGANCIO SENZA CLICK - watch + getCurrent insieme
   try{
     watchId = navigator.geolocation.watchPosition(
-      (p)=>{ aggiornaPosizione(p); },
+      (p)=>{ console.log("GPS AUTO OK", p.coords.latitude, p.coords.longitude); aggiornaPosizione(p); },
       (e)=>{ 
-        console.log("watch error", e);
-        // fallback a getCurrentPosition
+        console.log("GPS watch errore", e.code, e.message);
+        // Se watch fallisce, prova getCurrent auto
         navigator.geolocation.getCurrentPosition(
           (p)=>{ aggiornaPosizione(p); },
           (err)=>{ 
-            const c=document.getElementById('coordBox'); if(c) c.innerHTML='GPS negato/bloccato - controlla permessi posizione! '+err.message; 
+            const c=document.getElementById('coordBox'); 
+            if(err.code===1){
+              if(c) c.innerHTML='❌ Permesso posizione NEGATO - Vai su 🔒 lucchetto indirizzo → Posizione → Consenti. Poi ricarica pagina.';
+            } else {
+              if(c) c.innerHTML='📡 GPS auto... riprovo tra poco... ('+err.message+') - Attiva GPS telefono!';
+            }
+            // Non fermare, riproverà con interval load
             last=null; dentro=false; aggiornaUIBlocco(); 
-            setTimeout(attivaGPS,5000); 
           },
-          {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+          {enableHighAccuracy:true, timeout:12000, maximumAge:0}
         );
       },
       {enableHighAccuracy:true, timeout:15000, maximumAge:0}
     );
+    // Anche getCurrent immediato per aggancio rapido auto
+    navigator.geolocation.getCurrentPosition(
+      (p)=>{ aggiornaPosizione(p); },
+      ()=>{},
+      {enableHighAccuracy:true, timeout:8000, maximumAge:0}
+    );
   }catch(e){
-    // fallback vecchio metodo
-    navigator.geolocation.getCurrentPosition(p=>{ aggiornaPosizione(p); }, err=>{ const c=document.getElementById('coordBox'); if(c) c.innerHTML='GPS negato '+err.message; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+    const c=document.getElementById('coordBox'); if(c) c.innerHTML='❌ GPS errore: '+e.message;
   }
-  // Aggiorna ogni 10s anche con getCurrent per sicurezza
-  setTimeout(()=>{ if(!last) attivaGPS(); }, 8000);
 }
 function forzaAggiornaGPS(){ 
-  const c=document.getElementById('coordBox'); if(c) c.innerHTML='🔄 Rilevo GPS... attiva posizione su smartphone!';
-  attivaGPS(); 
+  const c=document.getElementById('coordBox'); if(c) c.innerHTML='🔄 Rilevo GPS auto...';
+  // Su iOS serve gesto utente, quindi questo click sblocca watch
+  if(watchId!==null){ try{ navigator.geolocation.clearWatch(watchId); }catch(e){} watchId=null; }
+  // Richiesta diretta con getCurrent per triggerare prompt permesso
+  navigator.geolocation.getCurrentPosition(
+    (p)=>{ 
+      aggiornaPosizione(p); 
+      // Poi avvia watch continuo
+      attivaGPS();
+    },
+    (err)=>{
+      const c2=document.getElementById('coordBox'); 
+      let msg = '❌ GPS negato: ';
+      if(err.code===1) msg += 'Hai cliccato Blocca! Vai su 🔒 icona indirizzo → Posizione → Consenti, poi Riprova';
+      else msg += err.message;
+      if(c2) c2.innerHTML = msg + '<br><button onclick="forzaAggiornaGPS()" style="margin-top:6px; background:#ef4444; color:white; border:0; border-radius:6px; padding:8px 14px">🔄 Consenti e Riprova</button>';
+      last=null; dentro=false; aggiornaUIBlocco();
+    },
+    {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+  );
 }
 
 
@@ -801,8 +781,14 @@ setTimeout(caricaCondivise, 800);
 
 window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('badgeCartaBox'); if(b){ b.style.display='flex'; } });
 window.addEventListener('load', ()=>{
-  if(customPlesso){ PLESSI=[...PLESSI_BASE]; document.getElementById('casaStatus').innerHTML='🏠 Casa Test attivo';  }
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  try{
+    renderPlessiUI(); loadAnag(); resetOrariSettimana(); 
+    const c=document.getElementById('coordBox'); if(c) c.innerHTML='📡 GPS auto in avvio...';
+    // Auto-aggancio GPS da solo, senza click!
+    setTimeout(()=>{ attivaGPS(); }, 800);
+    // Riprova auto ogni 8s se non ancora agganciato
+    setInterval(()=>{ if(!last) { console.log('GPS auto retry'); attivaGPS(); } }, 8000);
+  }catch(e){ console.log('load err', e); }
 });
 </script>
 
