@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v42 - CASA TEST + GPS AUTO + 6 PLESSI + TEST - PRIMA VERSIONE</title>
+<title>IC Frosinone 2 - v51 - LOG CONDIVISO SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .top-verde{border:3px solid #16a34a; background:white; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center}
@@ -73,7 +75,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ v42 - CASA TEST + GPS AUTO - Prima che levavo Casa Test</b>
+<b>✅ v51 - LOG CONDIVISO SU TUTTI I TABLET + GPS AUTO + Casa Test - COME PRIMA</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -81,6 +83,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora Naddei</b></div>
 </div>
 </div>
+
+<div id="statusBadge" style="text-align:center; padding:8px; border-radius:10px; border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px">☁️ CONDIVISO - Caricamento... Pietrobono↔Rinascita</div>
 
 <div class="box-combinato">
 <div class="left-plessi">
@@ -580,6 +584,111 @@ function stampaResocontoNome(nome){
   }).join('');
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
+
+
+
+// ===== LOG CONDIVISO SU TUTTI I TABLET - COME PRIMA =====
+function aggiornaLog(){
+  try{
+    const logDiv = document.getElementById('log');
+    if(!logDiv) return;
+    let html = '';
+    timbratureSalvate.slice(0,30).forEach(t=>{
+      const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      html += `<div style="border-left:3px solid ${colore}; padding:2px 4px; margin:2px 0; background:white; font-size:11px"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ ${t.plesso||''} ${t.distanza? '('+t.distanza+'m)':''}</div>`;
+    });
+    if(html==='') html = 'Nessuna timbratura condivisa ancora - in attesa cloud...';
+    else html = '<div style="font-size:9px; color:#16a34a; font-weight:800; margin-bottom:4px">📋 TIMBRATURE CONDIVISE DA TUTTI I TABLET (ultime 30) - Pietrobono↔Rinascita:</div>' + html;
+    logDiv.innerHTML = html;
+    try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
+  }catch(e){ console.log("aggiornaLog errore", e); }
+}
+function renderGestioneTimbrature(){ aggiornaLog(); }
+
+// ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
+const DB_URLS = [
+  "https://icfrosinone2-default-rtdb.firebaseio.com",
+  "https://icfrosinone2-default-rtdb.europe-west1.firebasedatabase.app"
+];
+let DB_URL = DB_URLS[0];
+let lastCloudCount = 0;
+
+async function fetchWithFallback(path){
+  for(let base of DB_URLS){
+    try{
+      const r = await fetch(base + path + "?ts="+Date.now(), {cache:"no-store"});
+      if(r.ok){
+        DB_URL = base;
+        return await r.json();
+      }
+    }catch(e){}
+  }
+  return null;
+}
+
+async function caricaCondivise(){
+  try{
+    let val = await fetchWithFallback("/timbrature.json");
+    if(val){
+      let arr = Array.isArray(val) ? val : Object.values(val);
+      arr = arr.filter(x=>x && x.data);
+      arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+      let merged = [...timbratureSalvate, ...arr];
+      let seen = new Set();
+      let uniq = [];
+      merged.forEach(t=>{
+        let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+        if(!seen.has(key)){
+          seen.add(key);
+          uniq.push(t);
+        }
+      });
+      uniq.sort((a,b)=>{
+        if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+        return 0;
+      });
+      if(uniq.length !== timbratureSalvate.length){
+        timbratureSalvate = uniq.slice(0,500);
+        try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+        aggiornaLog();
+      }
+      const badge = document.getElementById('statusBadge');
+      if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
+    }
+    let valAnag = await fetchWithFallback("/anagrafiche.json");
+    if(valAnag){
+      let arrA = Array.isArray(valAnag) ? valAnag : Object.values(valAnag);
+      if(arrA.length>0 && arrA.length !== anagrafiche.length){
+        anagrafiche = arrA;
+        try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(arrA)); }catch(e){}
+        if(typeof render === 'function') try{render();}catch(e){}
+      }
+    }
+  }catch(e){ console.log("Cloud fetch errore", e); }
+}
+
+async function salvaNuovaTimbratura(t){
+  try{
+    await fetch(DB_URL + "/timbrature.json", {
+      method: "POST",
+      body: JSON.stringify(t),
+      headers: {"Content-Type":"application/json"}
+    });
+  }catch(e){ console.log("Cloud save errore", e); }
+}
+
+async function salvaAnagraficheCloud(){
+  try{
+    await fetch(DB_URL + "/anagrafiche.json", {
+      method: "PUT",
+      body: JSON.stringify(anagrafiche),
+      headers: {"Content-Type":"application/json"}
+    });
+  }catch(e){}
+}
+
+setInterval(caricaCondivise, 2000);
+setTimeout(caricaCondivise, 800);
 
 window.addEventListener('load', ()=>{
   renderPlessiUI();
