@@ -99,7 +99,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto...</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
-<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico</div>
+<div style="text-align:center; margin:4px 0"><button onclick="forzaAggiornaGPS()" style="font-size:10px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:5px 10px">🔄 Aggiorna GPS</button> <small style="font-size:9px; color:#64748b">Se non va, attiva posizione su smartphone</small></div><div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico</div>
 </div>
 </div>
 
@@ -305,13 +305,55 @@ function aggiornaUIBlocco(){
   if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
-function attivaGPS(){
-  navigator.geolocation.getCurrentPosition(p=>{
+let watchId = null;
+function aggiornaPosizione(p){
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
     let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite = (pl.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono' ? '(400m)' : ''}</span>`; if(d<min){min=d; best=pl;}});
-    vicino=best; const limiteBest = (best && best.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); dentro=min<=limiteBest; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best.n==='Pietrobono' ? '🏫 PIETROBONO 400m' : ''}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
-  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+    vicino=best; const limiteBest = (best && best.n==='Pietrobono' ? GEOFENCE_PIETROBONO : GEOFENCE); dentro=min<=limiteBest; 
+    const precEl = document.getElementById('precTop'); if(precEl) precEl.textContent=acc; 
+    const vicinoEl = document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best.n==='Pietrobono' ? '🏫 PIETROBONO 400m' : ''}`; 
+    const listaEl = document.getElementById('listaDistanze'); if(listaEl) listaEl.innerHTML=chips; 
+    const coordEl = document.getElementById('coordBox'); if(coordEl) coordEl.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO - ${new Date().toLocaleTimeString()}`;
+    aggiornaUIBlocco();
 }
+function attivaGPS(){
+  if(!navigator.geolocation){ 
+    const c=document.getElementById('coordBox'); if(c) c.innerHTML='GPS non supportato'; 
+    return; 
+  }
+  // Ferma watch precedente
+  if(watchId!==null){ try{ navigator.geolocation.clearWatch(watchId); }catch(e){} watchId=null; }
+  // Prova watchPosition continuo (meglio per smartphone)
+  try{
+    watchId = navigator.geolocation.watchPosition(
+      (p)=>{ aggiornaPosizione(p); },
+      (e)=>{ 
+        console.log("watch error", e);
+        // fallback a getCurrentPosition
+        navigator.geolocation.getCurrentPosition(
+          (p)=>{ aggiornaPosizione(p); },
+          (err)=>{ 
+            const c=document.getElementById('coordBox'); if(c) c.innerHTML='GPS negato/bloccato - controlla permessi posizione! '+err.message; 
+            last=null; dentro=false; aggiornaUIBlocco(); 
+            setTimeout(attivaGPS,5000); 
+          },
+          {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+        );
+      },
+      {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+    );
+  }catch(e){
+    // fallback vecchio metodo
+    navigator.geolocation.getCurrentPosition(p=>{ aggiornaPosizione(p); }, err=>{ const c=document.getElementById('coordBox'); if(c) c.innerHTML='GPS negato '+err.message; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+  }
+  // Aggiorna ogni 10s anche con getCurrent per sicurezza
+  setTimeout(()=>{ if(!last) attivaGPS(); }, 8000);
+}
+function forzaAggiornaGPS(){ 
+  const c=document.getElementById('coordBox'); if(c) c.innerHTML='🔄 Rilevo GPS... attiva posizione su smartphone!';
+  attivaGPS(); 
+}
+
 
 // PIN
 let pinSalvato='211285';
@@ -544,7 +586,6 @@ function stampaBadgeCartaFix(){
     alert('Prima genera il badge! Vai in Elenco sotto e clicca Badge sul nome.');
     return;
   }
-  // Prendi foto
   const fotoEl = document.getElementById('badgeFoto');
   const fotoSrc = fotoEl && fotoEl.src && fotoEl.style.display!=='none' ? fotoEl.src : '';
   const nome = document.getElementById('bNomeCarta') ? document.getElementById('bNomeCarta').innerText : '';
@@ -555,7 +596,6 @@ function stampaBadgeCartaFix(){
   const qrEl = document.getElementById('qrcodeCarta');
   let qrHTML = '';
   if(qrEl){
-    // Prova a prendere canvas come immagine base64
     const canvas = qrEl.querySelector('canvas');
     if(canvas){
       try{ qrHTML = '<img src="'+canvas.toDataURL('image/png')+'" style="width:70px; height:70px; display:block;">'; }catch(e){ qrHTML = qrEl.innerHTML; }
@@ -567,138 +607,8 @@ function stampaBadgeCartaFix(){
   }
   const w = window.open('', '_blank', 'width=400,height=600');
   if(!w){ alert('Sblocca i popup per stampare!'); return; }
-  w.document.write(`
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Badge ${nome} - 6x9cm</title>
-<style>
-  @page{ size:A4; margin:10mm; }
-  body{ margin:0; padding:0; background:white; font-family:system-ui, sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; }
-  .badge-carta{ width:60mm; height:90mm; border:2px solid #0ea5e9; border-radius:10px; background:white; display:flex; flex-direction:column; overflow:hidden; }
-  .badge-carta-left{ width:100%; height:58%; background:#f0f9ff; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border-bottom:2px solid #bae6fd; box-sizing:border-box; }
-  .badge-carta-right{ width:100%; height:42%; padding:8px; display:flex; flex-direction:column; justify-content:space-between; background:white; box-sizing:border-box; }
-  .badge-foto{ width:60px; height:74px; border-radius:10px; border:2.5px solid white; object-fit:cover; display:block; background:#f1f5f9; }
-  .badge-foto-placeholder{ width:60px; height:74px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:30px; border:2.5px solid #bae6fd; }
-  #qrcodeCarta{ width:70px; height:70px; background:white; padding:3px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; }
-  @media print{ body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
-</style>
-</head>
-<body>
-<div class="badge-carta">
-  <div class="badge-carta-left">
-    ${fotoSrc ? '<img class="badge-foto" src="'+fotoSrc+'">' : '<div class="badge-foto-placeholder">👤</div>'}
-    <div style="font-size:13px; font-weight:900; margin-top:10px; line-height:1.1; color:#0c4a6e">${nome}</div>
-    <div style="font-size:9px; background:white; color:#334155; padding:4px 10px; border-radius:999px; margin-top:8px; font-weight:700; border:1.5px solid #bae6fd">${qualifica}</div>
-  </div>
-  <div class="badge-carta-right">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start">
-      <div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 75x75 - LEGGIBILE</span></div>
-      <div id="qrcodeCarta">${qrHTML}</div>
-    </div>
-    <div><div style="font-size:12px; font-weight:800; color:#0c4a6e">${plesso}</div><div style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569">${orario}</div></div>
-    <div style="display:flex; justify-content:space-between; align-items:flex-end"><div style="font-size:6px; color:#94a3b8">${id}</div><div style="font-size:7px; color:#0369a1; font-weight:700">6x9cm + QR 75</div></div>
-  </div>
-</div>
-<script>
-  setTimeout(()=>{ window.print(); setTimeout(()=>{ window.close(); }, 500); }, 600);
-<\/script>
-</body>
-</html>
-  `);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Badge ${nome} - 6x9cm</title><style>@page{ size:A4; margin:10mm; } body{ margin:0; padding:0; background:white; font-family:system-ui, sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; } .badge-carta{ width:60mm; height:90mm; border:2px solid #0ea5e9; border-radius:10px; background:white; display:flex; flex-direction:column; overflow:hidden; } .badge-carta-left{ width:100%; height:58%; background:#f0f9ff; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border-bottom:2px solid #bae6fd; box-sizing:border-box; } .badge-carta-right{ width:100%; height:42%; padding:8px; display:flex; flex-direction:column; justify-content:space-between; background:white; box-sizing:border-box; } .badge-foto{ width:60px; height:74px; border-radius:10px; border:2.5px solid white; object-fit:cover; display:block; background:#f1f5f9; } .badge-foto-placeholder{ width:60px; height:74px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:30px; border:2.5px solid #bae6fd; } #qrcodeCarta{ width:70px; height:70px; background:white; padding:3px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; } @media print{ body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; } } </style></head><body><div class="badge-carta"><div class="badge-carta-left">${fotoSrc ? '<img class="badge-foto" src="'+fotoSrc+'">' : '<div class="badge-foto-placeholder">👤</div>'}<div style="font-size:13px; font-weight:900; margin-top:10px; line-height:1.1; color:#0c4a6e">${nome}</div><div style="font-size:9px; background:white; color:#334155; padding:4px 10px; border-radius:999px; margin-top:8px; font-weight:700; border:1.5px solid #bae6fd">${qualifica}</div></div><div class="badge-carta-right"><div style="display:flex; justify-content:space-between; align-items:flex-start"><div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR 75x75 - LEGGIBILE</span></div><div id="qrcodeCarta">${qrHTML}</div></div><div><div style="font-size:12px; font-weight:800; color:#0c4a6e">${plesso}</div><div style="font-size:8px; line-height:1.3; margin-top:4px; color:#475569">${orario}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end"><div style="font-size:6px; color:#94a3b8">${id}</div><div style="font-size:7px; color:#0369a1; font-weight:700">6x9cm + QR 75</div></div></div></div><script>setTimeout(()=>{ window.print(); setTimeout(()=>{ window.close(); }, 500); }, 600);<\/script></body></html>`);
   w.document.close();
-}
-
-function stampaBadgeCarta(){ const box=document.getElementById('badgeCartaBox'); if(!box || box.style.display==='none'){ alert('Prima clicca Badge!'); return; } window.print(); }
-function creaBadgeDa(nome){
-
-  const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
-  const boxVecchio=document.getElementById('badgeBox'); if(boxVecchio) boxVecchio.style.display='none';
-  const box=document.getElementById('badgeCartaBox');
-  if(box){
-    box.style.display='flex';
-    document.getElementById('bNomeCarta').innerText=a.nome;
-    document.getElementById('bQualificaCarta').innerText=a.qualifica||'';
-    document.getElementById('bPlessoCarta').innerText=a.plesso;
-    const riepilogoBreve=Object.keys(giorniMap).map(g=>{ const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[]; if(slots.length===0) return ''; return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/'); }).filter(x=>x).join(' ');
-    document.getElementById('bOrarioCarta').innerText=riepilogoBreve.substring(0,140)+' ('+(a.totale||'')+')';
-    document.getElementById('bIdCarta').innerText='IC2|'+a.nome+'|'+a.plesso;
-    let fotos=JSON.parse(localStorage.getItem('foto_badge_v95_foto')||'{}');
-    let foto=fotos[a.nome];
-    const imgEl=document.getElementById('badgeFoto'); const phEl=document.getElementById('badgeFotoPlaceholder');
-    if(foto){ imgEl.src=foto; imgEl.style.display='block'; if(phEl) phEl.style.display='none'; } else { imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }
-    const qrCarta=document.getElementById('qrcodeCarta'); if(qrCarta){ qrCarta.innerHTML=''; const qrText=(a.nome||'').trim(); if(!qrText){ qrCarta.innerHTML='<span style=\'font-size:8px\'>NO QR</span>'; } else { try{ new QRCode(qrCarta, {text:qrText, width:200, height:200, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); }catch(e){ try{ new QRCode(qrCarta, qrText); }catch(e2){ qrCarta.innerHTML='<span style=\'font-size:8px\'>'+qrText+'</span>'; } } setTimeout(()=>{ const c=qrCarta.querySelector('canvas'); if(c){ c.style.width='65px'; c.style.height='65px'; c.style.display='block'; } const im=qrCarta.querySelector('img'); if(im){ im.style.width='65px'; im.style.height='65px'; im.style.display='block'; } }, 150); } }
-    box.scrollIntoView({behavior:'smooth'});
-    try{
-      document.getElementById('bNome').innerText=a.nome;
-      document.getElementById('bQualifica').innerText=a.qualifica||'';
-      document.getElementById('bPlesso').innerText=a.plesso;
-      document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
-      document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso;
-      const qr=document.getElementById('qrcode'); if(qr){ qr.innerHTML=''; new QRCode(qr, {text:a.nome, width:200, height:200}); }
-    }catch(e){}
-    return;
-  }
-  const box2=document.getElementById('badgeBox'); box2.style.display='flex';
-  document.getElementById('bNome').innerText=a.nome;
-  document.getElementById('bQualifica').innerText=a.qualifica||'';
-  document.getElementById('bPlesso').innerText=a.plesso;
-  const riepilogoBreve=Object.keys(giorniMap).map(g=>{
-    const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
-    if(slots.length===0) return '';
-    return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/');
-  }).filter(x=>x).join(' ');
-  document.getElementById('bOrario').innerText=riepilogoBreve.substring(0,120)+' ('+(a.totale||'')+')';
-  document.getElementById('bId').innerText='IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||'');
-  const qr=document.getElementById('qrcode'); qr.innerHTML=''; new QRCode(qr, {text:'IC2|'+a.nome+'|'+a.plesso+'|'+(a.qualifica||''), width:78, height:78});
-  // scroll al badge
-  box.scrollIntoView({behavior:'smooth'});
-}
-
-function stampaBadgeCartaFix(){
-  const b = document.getElementById('badgeCartaBox');
-  if(!b || b.style.display==='none'){ alert('Prima genera il badge! Clicca su Badge nella lista.'); return; }
-  // Forza visibilità per stampa
-  b.style.display='flex';
-  window.print();
-}
-
-function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
-function stampaResocontoNome(nome){
-  const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,200);
-  const printArea=document.getElementById('printArea'); printArea.style.display='block';
-  const tabOrari=Object.keys(giorniMap).map(g=>{
-    const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
-    if(slots.length===0) return `<tr><td style="border:1px solid #ccc; padding:4px">${giorniMap[g]}</td><td colspan=2 style="border:1px solid #ccc; padding:4px; text-align:center; color:#94a3b8">Libero</td></tr>`;
-    const tot=slots.reduce((acc,s)=>{const [eh,em]=s.entrata.split(':').map(Number); const [uh,um]=s.uscita.split(':').map(Number); let d=(uh*60+um)-(eh*60+em); if(d<0) d+=24*60; return acc+d;},0);
-    const h=Math.floor(tot/60), m=tot%60;
-    return `<tr><td style="border:1px solid #ccc; padding:4px"><b>${giorniMap[g]}</b></td><td style="border:1px solid #ccc; padding:4px">${slots.map(s=>s.entrata+' - '+s.uscita).join(' + ')}</td><td style="border:1px solid #ccc; padding:4px; text-align:center">${h}h${String(m).padStart(2,'0')}</td></tr>`;
-  }).join('');
-  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora Naddei il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
-}
-
-function aggiornaLog(){
-  try{
-    const logDiv = document.getElementById('log');
-    if(!logDiv) return;
-    const pinOk = document.getElementById('pinLock').style.display==='none';
-    let html = '';
-    timbratureSalvate.slice(0,200).forEach((t,idx)=>{
-      const col = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      const chk = pinOk ? '<input type="checkbox" class="chkTimbro" data-idx="'+idx+'" style="width:18px; height:18px; margin-right:6px; vertical-align:middle">' : '';
-      const btns = pinOk ? '<span style="float:right; display:flex; gap:4px"><button onclick="modificaTimbratura('+idx+')" style="font-size:9px; background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 8px; font-weight:800">Modifica</button><button onclick="eliminaTimbratura('+idx+')" style="font-size:9px; background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 8px; font-weight:800">Elimina</button></span>' : '';
-      html += '<div style="border-left:4px solid '+col+'; padding:6px 8px; margin:4px 0; background:white; border-radius:6px"><div>'+chk+'<b style="font-size:11px">'+(t.data||'')+'</b> - <span style="color:'+col+'; font-weight:800; font-size:11px">'+(t.tipo||'')+'</span> - <span style="font-size:11px">'+(t.nome||'')+' @ '+(t.plesso||'')+'</span> '+btns+'</div></div>';
-    });
-    if(html==='') html = 'Nessuna timbratura ancora';
-    else {
-      const tools = pinOk ? '<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; margin-bottom:8px"><b style="font-size:11px">MODIFICA / ELIMINA - scegli con ☑️ quali di PROVA levare (puoi sceglierne 1, 2, 5, 10 alla volta - NON tutte insieme!):</b><br><div style="margin-top:6px"><button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=true)" style="font-size:10px; background:#64748b; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Seleziona tutte</button> <button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=false)" style="font-size:10px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:11px; background:#dc2626; color:white; border:0; border-radius:6px; padding:7px 14px; font-weight:800; margin:2px">Elimina selezionate</button></div></div>' : '<div style="font-size:10px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:6px">🔒 Sblocca con PIN per modificare/eliminare timbrature di prova</div>';
-      html = '<div style="font-size:11px; color:#16a34a; font-weight:800; margin-bottom:6px">TIMBRATURE CONDIVISE ('+timbratureSalvate.length+') - Pietrobono-Rinascita - MODIFICA/ELIMINA A SCELTA '+tools+'</div>' + html;
-    }
-    logDiv.innerHTML = html;
-    try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
-  }catch(e){ console.log("log err", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
 function modificaTimbratura(idx){
