@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - v51 - LOG CONDIVISO SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
+<title>IC Frosinone 2 - v52 - LOG CONDIVISO FIX SU TUTTI I TABLET + GPS AUTO + CASA TEST</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -629,10 +629,19 @@ async function fetchWithFallback(path){
 async function caricaCondivise(){
   try{
     let val = await fetchWithFallback("/timbrature.json");
+    const badge = document.getElementById('statusBadge');
     if(val){
       let arr = Array.isArray(val) ? val : Object.values(val);
       arr = arr.filter(x=>x && x.data);
       arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+      // filtro cancellate
+      let cancellate = [];
+      try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
+      const isCancellata = (t) => {
+        let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'');
+        return cancellate.includes(key) || cancellate.includes((t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||''));
+      };
+      arr = arr.filter(t=>!isCancellata(t));
       let merged = [...timbratureSalvate, ...arr];
       let seen = new Set();
       let uniq = [];
@@ -647,25 +656,33 @@ async function caricaCondivise(){
         if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
         return 0;
       });
-      if(uniq.length !== timbratureSalvate.length){
-        timbratureSalvate = uniq.slice(0,500);
-        try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-        aggiornaLog();
-      }
-      const badge = document.getElementById('statusBadge');
-      if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
+      timbratureSalvate = uniq.slice(0,500);
+      try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+      aggiornaLog();
+      if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Cloud: "+DB_URL.split('/')[2]; badge.style.background="#dcfce7"; badge.style.borderColor="#16a34a"; }
+      console.log("☁️ Cloud OK: "+uniq.length+" timbrature");
+    } else {
+      if(badge){ badge.innerHTML = "⚠️ Cloud vuoto o non raggiungibile - uso locale ("+timbratureSalvate.length+") - verifica Firebase Rules"; badge.style.background="#fef3c7"; badge.style.borderColor="#f59e0b"; }
+      aggiornaLog();
     }
     let valAnag = await fetchWithFallback("/anagrafiche.json");
     if(valAnag){
       let arrA = Array.isArray(valAnag) ? valAnag : Object.values(valAnag);
-      if(arrA.length>0 && arrA.length !== anagrafiche.length){
+      if(arrA.length>0){
         anagrafiche = arrA;
         try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(arrA)); }catch(e){}
         if(typeof render === 'function') try{render();}catch(e){}
       }
     }
-  }catch(e){ console.log("Cloud fetch errore", e); }
+  }catch(e){ 
+    console.log("Cloud fetch errore", e); 
+    const badge = document.getElementById('statusBadge');
+    if(badge){ badge.innerHTML = "❌ Cloud errore: "+(e.message||e)+" - uso locale"; badge.style.background="#fee2e2"; }
+    aggiornaLog();
+  }
 }
+
+
 
 async function salvaNuovaTimbratura(t){
   try{
@@ -694,6 +711,8 @@ window.addEventListener('load', ()=>{
   renderPlessiUI();
   if(typeof loadAnag==='function') try{loadAnag();}catch(e){}
   if(typeof resetOrariSettimana==='function') try{resetOrariSettimana();}catch(e){}
+  try{ aggiornaLog(); }catch(e){}
+  setTimeout(()=>{ try{ caricaCondivise(); }catch(e){} }, 500);
   // GPS AUTO subito + dopo 1 sec + watch + ogni 15 sec
   try{ attivaGPS(); }catch(e){}
   setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 1000);
