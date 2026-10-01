@@ -56,17 +56,16 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .badge-foto-placeholder{width:60px; height:74px; border-radius:10px; background:#e0f2fe; display:flex; align-items:center; justify-content:center; font-size:34px; border:2.5px solid #bae6fd; color:#0369a1}
 #qrcodeCarta{width:75px; height:75px; background:white; padding:4px; border-radius:6px; border:2px solid #000; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15)}
 @media print{
-  html, body{ height:auto !important; overflow:visible !important; margin:0 !important; padding:0 !important; background:white !important; }
   body *{ visibility:hidden !important; }
   #badgeCartaBox, #badgeCartaBox *, #badgeCartaBox canvas, #badgeCartaBox img, #qrcodeCarta, #qrcodeCarta *, #qrcodeCarta canvas, #qrcodeCarta img{ visibility:visible !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-  #badgeCartaBox{ position:absolute !important; left:50% !important; top:20mm !important; transform:translateX(-50%) !important; width:60mm !important; height:90mm !important; margin:0 !important; display:flex !important; flex-direction:column !important; border:2px solid #0ea5e9 !important; background:white !important; box-shadow:none !important; border-radius:10px !important; overflow:hidden !important; }
-  #badgeCartaBox .badge-carta-left{ width:100% !important; height:58% !important; background:#f0f9ff !important; background-color:#f0f9ff !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:6px !important; border-bottom:2px solid #bae6fd !important; border-right:0 !important; }
-  #badgeCartaBox .badge-carta-right{ width:100% !important; height:42% !important; padding:6px !important; display:flex !important; flex-direction:column !important; justify-content:space-between !important; }
-  #badgeCartaBox .badge-foto, #badgeCartaBox .badge-foto-placeholder{ width:58px !important; height:72px !important; }
-  #qrcodeCarta{ width:70px !important; height:70px !important; }
+  #badgeCartaBox{ position:absolute !important; left:15mm !important; top:15mm !important; width:60mm !important; height:90mm !important; margin:0 !important; display:flex !important; flex-direction:column !important; border:2px solid #0ea5e9 !important; background:white !important; border-radius:10px !important; overflow:hidden !important; box-shadow:none !important; }
+  #badgeCartaBox .badge-carta-left{ width:100% !important; height:58% !important; background:#f0f9ff !important; background-color:#f0f9ff !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:8px !important; border-bottom:2px solid #bae6fd !important; }
+  #badgeCartaBox .badge-carta-right{ width:100% !important; height:42% !important; padding:8px !important; display:flex !important; flex-direction:column !important; justify-content:space-between !important; background:white !important; }
+  #badgeCartaBox .badge-foto{ width:60px !important; height:74px !important; display:block !important; }
+  #badgeCartaBox .badge-foto-placeholder{ width:60px !important; height:74px !important; display:flex !important; }
+  #qrcodeCarta{ width:70px !important; height:70px !important; display:flex !important; }
   #qrcodeCarta canvas, #qrcodeCarta img{ width:70px !important; height:70px !important; image-rendering:pixelated !important; display:block !important; }
-  @page{ size:A4; margin:0; }
-  #printArea, .top-verde, .box-combinato, .bottom-grid, #cloudLog, #bloccoBox, #okBox{ display:none !important; }
+  @page{ size:A4; margin:10mm; }
 }
 </style>
 </head>
@@ -95,9 +94,10 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="font-size:14px; font-weight:800">📡 GPS ±<span id="precTop">--</span>m</div>
 <div id="badgeStato" class="badge-rosso" style="background:#f59e0b">AUTO...</div>
 </div>
-<div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto...</div>
+<div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto in corso... clicca Aggiorna se non parte</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
-<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico</div>
+<div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - su PC clicca Aggiorna GPS e consenti posizione</div>
+<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <span style="font-size:9px; color:#64748b; margin-left:6px">Se non va, attiva posizione su smartphone</span></div>
 </div>
 </div>
 
@@ -568,8 +568,9 @@ function stampaResocontoNome(nome){
 }
 
 window.addEventListener('load', ()=>{
-  renderPlessiUI(); loadAnag(); resetOrariSettimana(); setTimeout(()=>{attivaGPS();}, 1200); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 15000);
+  renderPlessiUI(); if(typeof loadAnag==='function') try{loadAnag();}catch(e){} if(typeof resetOrariSettimana==='function') try{resetOrariSettimana();}catch(e){} setTimeout(()=>{attivaGPS(); avviaWatchGPS();}, 800); setInterval(()=>{ if(navigator.geolocation) attivaGPS(); }, 20000);
 });
+window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('badgeCartaBox'); if(b){ b.style.display='flex'; } });
 </script>
 
 </body>
