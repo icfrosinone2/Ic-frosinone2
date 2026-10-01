@@ -109,7 +109,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="cloudLog" style="background:#f0fdf4;border:2px solid #16a34a;border-radius:10px;padding:8px;margin-bottom:8px;font-size:11px;font-weight:700;text-align:center">☁️ Cloud: in attesa...</div>
 <div class="bottom-grid">
 <div class="card-timbra">
-<b style="font-size:15px">📷 Scanner + Timbratura</b>
+<b style="font-size:15px">📷 Scanner + Timbratura (senza badge - con fotocamera)</b><br><small style="font-size:10px; color:#0c4a6e">Metodo 1: inquadra QR badge con fotocamera → timbra automatico senza selezionare nome!<br>Metodo 2: seleziona nome sotto e premi ENTRATA/USCITA (senza QR)</small>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0">
 <button class="btn btn-gray" id="btnContinuo" onclick="avviaContinuo()">📷 Continuo</button>
 <button class="btn btn-dark" id="btnSingolo" onclick="avviaSingolo()">📷 Singola</button>
@@ -442,7 +442,9 @@ function switchCamera(){
 let anagrafiche=[];
 function loadAnag(){
   try{const s=localStorage.getItem('anagrafiche_v95')||localStorage.getItem('anagrafiche_v90'); if(s) anagrafiche=JSON.parse(s);}catch(e){}
-  if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
+  if(anagrafiche.length<=1){ // se hai solo 1 nome, ripristina backup da localStorage vecchio o aggiungi esempio
+  try{ const old = localStorage.getItem('anagrafiche_v90'); if(old){ const arrOld = JSON.parse(old); if(arrOld.length>anagrafiche.length) anagrafiche = arrOld; } }catch(e){}
+  if(anagrafiche.length<=1){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
   render();
 }
 function saveAnag(){localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));}
@@ -691,7 +693,7 @@ function aggiornaLog(){
     });
     if(html==='') html = 'Nessuna timbratura ancora';
     else {
-      const tools = pinOk ? '<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; margin-bottom:8px"><b style="font-size:11px">MODIFICA / ELIMINA - scegli con checkbox quali di prova levare (non tutte insieme):</b><br><div style="margin-top:6px"><button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=true)" style="font-size:10px; background:#64748b; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Seleziona tutte</button> <button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=false)" style="font-size:10px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:11px; background:#dc2626; color:white; border:0; border-radius:6px; padding:7px 14px; font-weight:800; margin:2px">Elimina selezionate</button></div></div>' : '<div style="font-size:10px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:6px">🔒 Sblocca con PIN per modificare/eliminare timbrature di prova</div>';
+      const tools = pinOk ? '<div style="background:#fffbeb; border:2px solid #f59e0b; border-radius:10px; padding:8px; margin-bottom:8px"><b style="font-size:11px">MODIFICA / ELIMINA - scegli con ☑️ quali di PROVA levare (puoi sceglierne 1, 2, 5, 10 alla volta - NON tutte insieme!):</b><br><div style="margin-top:6px"><button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=true)" style="font-size:10px; background:#64748b; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Seleziona tutte</button> <button onclick="document.querySelectorAll(\'.chkTimbro\').forEach(c=>c.checked=false)" style="font-size:10px; background:#94a3b8; color:white; border:0; border-radius:6px; padding:6px 12px; margin:2px">Deseleziona</button> <button onclick="eliminaSelezionate()" style="font-size:11px; background:#dc2626; color:white; border:0; border-radius:6px; padding:7px 14px; font-weight:800; margin:2px">Elimina selezionate</button></div></div>' : '<div style="font-size:10px; color:#64748b; background:#f1f5f9; padding:6px; border-radius:6px">🔒 Sblocca con PIN per modificare/eliminare timbrature di prova</div>';
       html = '<div style="font-size:11px; color:#16a34a; font-weight:800; margin-bottom:6px">TIMBRATURE CONDIVISE ('+timbratureSalvate.length+') - Pietrobono-Rinascita - MODIFICA/ELIMINA A SCELTA '+tools+'</div>' + html;
     }
     logDiv.innerHTML = html;
@@ -751,15 +753,20 @@ let lastCloudCount = 0;
 async function fetchWithFallback(path){
   for(let base of DB_URLS){
     try{
-      const r = await fetch(base + path + "?ts="+Date.now(), {cache:"no-store"});
+      const controller = new AbortController();
+      const timeout = setTimeout(()=>controller.abort(), 4000);
+      const r = await fetch(base + path + "?ts="+Date.now(), {cache:"no-store", signal: controller.signal});
+      clearTimeout(timeout);
       if(r.ok){
-        DB_URL = base; // memorizza quello che funziona
+        DB_URL = base;
         return await r.json();
       }
-    }catch(e){}
+    }catch(e){ console.log("fetch fallback errore", e.message); }
   }
   return null;
 }
+let cloudTentativi = 0;
+
 
 function getKeyTimbratura(t){ return (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||''); }
 function getCancellate(){ try{ return JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){ return []; } }
@@ -768,57 +775,74 @@ async function caricaCondivise(){
   try{
     // timbrature
     let val = await fetchWithFallback("/timbrature.json");
+    const badge = document.getElementById('statusBadge');
+    const cloudLog = document.getElementById('cloudLog');
     if(val){
+      cloudTentativi = 0;
       let arr = Array.isArray(val) ? val : Object.values(val);
       arr = arr.filter(x=>x && x.data);
-      // filtra quelle che hai cancellato di proposito (a scelta)
       const cancellate = getCancellate();
       const cancellateSet = new Set(cancellate);
       if(cancellateSet.size>0){ arr = arr.filter(t=>!cancellateSet.has(getKeyTimbratura(t))); }
-      // ordina per timestamp o data
       arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-      if(true){
-        lastCloudCount = arr.length;
-        // MERGE: unisci locale + cloud, elimina duplicati per data+nome+tipo+plesso
-        let merged = [...timbratureSalvate, ...arr];
-        let seen = new Set();
-        let uniq = [];
-        merged.forEach(t=>{
-          let key = getKeyTimbratura(t);
-          if(cancellateSet.has(key)) return; // non reimportare quelle cancellate a scelta
-          if(!seen.has(key)){
-            seen.add(key);
-            uniq.push(t);
-          }
-        });
-        // ordina per data più recente prima (timestamp o data string)
-        uniq.sort((a,b)=>{
-          if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
-          return 0;
-        });
-        if(uniq.length !== timbratureSalvate.length || JSON.stringify(uniq).length !== JSON.stringify(timbratureSalvate).length){
-          timbratureSalvate = uniq.slice(0,500);
-          try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
-          aggiornaLog();
-          console.log("☁️ Cloud merge: "+uniq.length+" timbrature condivise (erano "+timbratureSalvate.length+")");
-        }
-        const badge = document.getElementById('statusBadge');
-        if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
+      lastCloudCount = arr.length;
+      let merged = [...timbratureSalvate, ...arr];
+      let seen = new Set();
+      let uniq = [];
+      merged.forEach(t=>{
+        let key = getKeyTimbratura(t);
+        if(cancellateSet.has(key)) return;
+        if(!seen.has(key)){ seen.add(key); uniq.push(t); }
+      });
+      uniq.sort((a,b)=>{ if(a.timestamp && b.timestamp) return b.timestamp - a.timestamp; return 0; });
+      if(uniq.length !== timbratureSalvate.length || JSON.stringify(uniq).length !== JSON.stringify(timbratureSalvate).length){
+        timbratureSalvate = uniq.slice(0,500);
+        try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+        aggiornaLog();
+      }
+      if(badge){ badge.innerHTML = "☁️ CONDIVISO ATTIVO - "+uniq.length+" timbrature - Pietrobono↔Rinascita OK ✅ - Vedi sotto in 📋"; badge.style.background="#dcfce7"; }
+      if(cloudLog){ cloudLog.innerHTML = "☁️ Cloud OK - "+uniq.length+" timbrature condivise - Pietrobono↔Rinascita ✅"; cloudLog.style.background="#dcfce7"; cloudLog.style.borderColor="#16a34a"; }
+    } else {
+      cloudTentativi++;
+      if(badge && cloudTentativi>2){
+        badge.innerHTML = "⚠️ Cloud offline (uso locale) - "+timbratureSalvate.length+" timbrature locali - internet o Firebase bloccato? Riprovo...";
+        badge.style.background="#fef3c7"; badge.style.borderColor="#f59e0b";
+      }
+      if(cloudLog && cloudTentativi>2){
+        cloudLog.innerHTML = "⚠️ Cloud in attesa/offline - uso dati locali ("+timbratureSalvate.length+") - controlla WiFi. Se resta, Firebase bloccato da rete scuola. Riprovo ogni 2s...";
+        cloudLog.style.background="#fef3c7"; cloudLog.style.borderColor="#f59e0b";
       }
     }
-    // anagrafiche condivise
+    // anagrafiche condivise - MERGE intelligente, non sostituire se cloud ha meno nomi!
     let valAnag = await fetchWithFallback("/anagrafiche.json");
     if(valAnag){
       let arrA = Array.isArray(valAnag) ? valAnag : Object.values(valAnag);
-      if(arrA.length>0 && arrA.length !== anagrafiche.length){
-        anagrafiche = arrA;
-        try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(arrA)); }catch(e){}
-        if(typeof renderAnagrafica === 'function') try{renderAnagrafica();}catch(e){}
-        if(typeof renderPlessiUI === 'function') try{renderPlessiUI();}catch(e){}
+      arrA = arrA.filter(x=>x && x.nome);
+      if(arrA.length>0){
+        // MERGE: unisci locale + cloud, non perdere nomi!
+        let mergedAnag = [...anagrafiche, ...arrA];
+        let seenNomi = new Set();
+        let uniqAnag = [];
+        mergedAnag.forEach(a=>{
+          const key = (a.nome||'').toLowerCase().trim();
+          if(key && !seenNomi.has(key)){ seenNomi.add(key); uniqAnag.push(a); }
+        });
+        // Solo se cloud+locale da più nomi di prima, aggiorna (così non perdi se cloud ha solo 1 nome)
+        if(uniqAnag.length >= anagrafiche.length){
+          anagrafiche = uniqAnag;
+          try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); }catch(e){}
+          if(typeof render === 'function') try{render();}catch(e){}
+        } else if(arrA.length > anagrafiche.length){
+          // se cloud ha più del locale, usa cloud
+          anagrafiche = arrA;
+          try{ localStorage.setItem('anagrafiche_v95', JSON.stringify(arrA)); }catch(e){}
+          if(typeof render === 'function') try{render();}catch(e){}
+        }
       }
     }
-  }catch(e){ console.log("Cloud fetch errore", e); }
+  }catch(e){ console.log("Cloud fetch errore", e); const badge=document.getElementById('statusBadge'); if(badge){ badge.innerHTML = "⚠️ Cloud errore - uso locale - "+timbratureSalvate.length+" timbrature"; badge.style.background="#fef3c7"; } }
 }
+
 
 async function salvaNuovaTimbratura(t){
   try{
