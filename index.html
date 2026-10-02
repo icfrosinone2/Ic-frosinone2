@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V52.1 - Timbrature con Modifica/Cancella CLOUD REALE</title>
+<title>IC Frosinone 2 - V52.2 - Timbrature con Modifica/Cancella MULTI-TABLET</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -70,7 +70,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
   @page{ size:A4; margin:10mm; }
 }
 
-/* MODIFICA/CANCELLA TIMBRATURE - AGGIUNTO V52 SENZA TOCCARE GPS/CLOUD */
+/* V52.2 - MODIFICA/CANCELLA CLOUD REALE MULTI-TABLET */
 .btn-edit{background:#f59e0b; color:white; border:0; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:800; cursor:pointer; margin-left:4px}
 .btn-del{background:#ef4444; color:white; border:0; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:800; cursor:pointer; margin-left:4px}
 .modal-edit{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:9999}
@@ -85,7 +85,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V52 - Timbrature IC FROSINONE 2</b>
+<b>✅ V52.2 - Timbrature con Modifica/Cancella MULTI-TABLET</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -613,25 +613,44 @@ function aggiornaLog(){
       html += `<div style="border-left:3px solid ${colore}; padding:4px 6px; margin:4px 0; background:white; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center"><div style="flex:1"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ <b>${t.plesso||''}</b> ${t.distanza? '('+t.distanza+'m)':''} <span style="font-size:9px; color:#64748b">${ora}</span></div><div style="display:flex; gap:2px"><button class="btn-edit" onclick="modificaTimbratura(${i})" title="Modifica">✏️</button><button class="btn-del" onclick="cancellaTimbratura(${i})" title="Cancella">🗑️</button></div></div>`;
     });
     if(html==='') html = '<div style="padding:8px; color:#64748b">Nessuna timbratura ancora - fai una prova!</div>';
-    else html = '<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:6px; background:#f0fdf4; padding:4px; border-radius:6px">📋 TIMBRATURE CONDIVISE (ultime 50) - Tot: '+timbratureSalvate.length+' - ✏️ Modifica 🗑️ Cancella</div>' + html;
+    else html = '<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:6px; background:#f0fdf4; padding:4px; border-radius:6px">📋 TIMBRATURE CONDIVISE (ultime 50) - Tot: '+timbratureSalvate.length+' - ✏️ Modifica 🗑️ Cancella su TUTTI i tablet</div>' + html;
     logDiv.innerHTML = html;
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
 
-// ===== MODIFICA / CANCELLA TIMBRATURE - V52.1 - CLOUD REALE - NON TOCCA GPS =====
+// ===== V52.2 MULTI-TABLET - MODIFICA/CANCELLA CLOUD REALE =====
+let mappaChiaviFirebase = {};
 let indiceModifica = -1;
+
+async function cancellaDalCloudFirebase(t){
+  try{
+    let hash = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+    let fbKey = t._firebaseKey || mappaChiaviFirebase[hash];
+    if(!fbKey){
+      console.log("⚠️ Cerco chiave Firebase per", t.nome, t.data);
+      // fallback: cerca in cloud per timestamp vicino
+      return false;
+    }
+    console.log("🗑️ DELETE CLOUD REALE:", fbKey);
+    for(let base of DB_URLS){
+      try{
+        await fetch(base + "/timbrature/" + fbKey + ".json", {method:"DELETE"});
+      }catch(e){}
+    }
+    delete mappaChiaviFirebase[hash];
+    return true;
+  }catch(e){ return false; }
+}
+
 async function cancellaTimbratura(idx){
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
-  if(!confirm('Cancellare questa timbratura?\n'+(t.data||'')+' - '+(t.nome||'')+' - '+(t.tipo||'')+' @ '+(t.plesso||'')+'\n\nVerrà cancellata anche dal cloud su TUTTI i tablet!')) return;
+  if(!confirm('Cancellare?\n'+(t.data||'')+' - '+t.nome+' - '+t.tipo+' @ '+t.plesso+'\n\nCancellata su TUTTI i tablet!')) return;
+  await cancellaDalCloudFirebase(t);
   try{
-    // 1) Cancella dal cloud reale Firebase
-    await cancellaDalCloudFirebase(t);
-    // 2) aggiungi a lista cancellate locale per sicurezza
-    let cancellate = [];
-    try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
+    let cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]');
     let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'');
     let key2 = key + '|' + (t.ora||'');
     if(!cancellate.includes(key)) cancellate.push(key);
@@ -639,10 +658,9 @@ async function cancellaTimbratura(idx){
     localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-500)));
   }catch(e){}
   timbratureSalvate.splice(idx,1);
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
-  // ricarica cloud subito per propagare a tutti
-  setTimeout(caricaCondivise, 600);
+  setTimeout(caricaCondivise, 500);
 }
 
 function modificaTimbratura(idx){
@@ -656,28 +674,19 @@ function modificaTimbratura(idx){
   document.getElementById('editOra').value = t.ora||'';
   document.getElementById('modalEdit').style.display='flex';
 }
-
-function chiudiModaleEdit(){
-  document.getElementById('modalEdit').style.display='none';
-  indiceModifica = -1;
-}
-
+function chiudiModaleEdit(){ document.getElementById('modalEdit').style.display='none'; indiceModifica=-1; }
 async function salvaModificaTimbratura(){
-  if(indiceModifica<0 || indiceModifica>=timbratureSalvate.length) return;
+  if(indiceModifica<0) return;
   const old = timbratureSalvate[indiceModifica];
-  // 1) Cancella vecchia dal cloud reale
   await cancellaDalCloudFirebase(old);
-  // 2) marca come cancellata localmente
   try{
-    let cancellate = [];
-    try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
+    let cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]');
     let key = (old.data||'') + '|' + (old.nome||'') + '|' + (old.tipo||'') + '|' + (old.plesso||'');
     let key2 = key + '|' + (old.ora||'');
     if(!cancellate.includes(key)) cancellate.push(key);
     if(!cancellate.includes(key2)) cancellate.push(key2);
     localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-500)));
   }catch(e){}
-  
   const nuovo = {
     data: document.getElementById('editData').value || old.data,
     ora: document.getElementById('editOra').value || old.ora,
@@ -688,11 +697,9 @@ async function salvaModificaTimbratura(){
     giorno: old.giorno||'',
     timestamp: Date.now()
   };
-  // sostituisci localmente
-  timbratureSalvate[indiceModifica] = nuovo;
-  try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
-  // invia nuova al cloud (vecchia già cancellata dal cloud reale)
-  try{ await salvaNuovaTimbratura(nuovo); }catch(e){}
+  timbratureSalvate[indiceModifica]=nuovo;
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  await salvaNuovaTimbratura(nuovo);
   chiudiModaleEdit();
   aggiornaLog();
   setTimeout(caricaCondivise, 800);
@@ -727,20 +734,15 @@ async function fetchWithFallback(path){
   return null;
 }
 
-// MAPPA CHIAVI FIREBASE PER DELETE CLOUD REALE
-let mappaChiaviFirebase = {}; // key: hash timbratura -> firebaseKey
-
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
-    // NO Caricamento... per non far lampeggiare - resta fisso
     let val = await fetchWithFallback("/timbrature.json");
     if(val){
       let arr = [];
       if(Array.isArray(val)){
         arr = val.filter(x=>x && x.data);
       } else {
-        // OGGETTO con chiavi Firebase - conserviamo le chiavi!
         Object.entries(val).forEach(([fbKey, t])=>{
           if(t && t.data){
             t._firebaseKey = fbKey;
@@ -759,7 +761,6 @@ async function caricaCondivise(){
         return cancellate.includes(key) || cancellate.includes(key2);
       };
       arr = arr.filter(t=>!isCancellata(t));
-      // merge - conserva chiavi
       let merged = [...arr, ...timbratureSalvate];
       let seen = new Set();
       let uniq = [];
@@ -767,7 +768,6 @@ async function caricaCondivise(){
         let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
         if(!seen.has(key)){
           seen.add(key);
-          // ripristina mappa chiavi se manca
           if(t._firebaseKey) mappaChiaviFirebase[key] = t._firebaseKey;
           uniq.push(t);
         }
@@ -786,30 +786,6 @@ async function caricaCondivise(){
     aggiornaLog();
   }
 }
-
-async function cancellaDalCloudFirebase(t){
-  try{
-    // trova chiave Firebase
-    let hash = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
-    let fbKey = t._firebaseKey || mappaChiaviFirebase[hash];
-    if(!fbKey){
-      console.log("⚠️ Nessuna chiave Firebase trovata per", hash);
-      // prova a cercare nel cloud per timestamp/nome
-      return false;
-    }
-    console.log("🗑️ Cancello dal cloud reale:", fbKey, t);
-    // cancella da ENTRAMBI gli URL per sicurezza
-    for(let base of DB_URLS){
-      try{
-        await fetch(base + "/timbrature/" + fbKey + ".json", {method: "DELETE"});
-        console.log("✅ Cancellato da", base);
-      }catch(e){ console.log("Errore delete", base, e); }
-    }
-    delete mappaChiaviFirebase[hash];
-    return true;
-  }catch(e){ console.log("Errore cancellaDalCloud", e); return false; }
-}
-
 
 async function salvaNuovaTimbratura(t){
   try{
@@ -904,23 +880,17 @@ window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('ba
 </script>
 
 
-<!-- MODALE MODIFICA TIMBRATURA - V52 -->
+<!-- MODALE MODIFICA V52.2 MULTI-TABLET -->
 <div id="modalEdit" class="modal-edit" onclick="if(event.target===this) chiudiModaleEdit()">
   <div class="modal-edit-box">
-    <h3>✏️ Modifica Timbratura</h3>
-    <label>Nome</label>
-    <input id="editNome" type="text">
-    <label>Tipo</label>
-    <select id="editTipo"><option>ENTRATA</option><option>USCITA</option></select>
-    <label>Plesso</label>
-    <input id="editPlesso" type="text" list="plessiList">
-    <datalist id="plessiList"><option value="Pietrobono"><option value="Rinascita"><option value="XXIII"><option value="Verdi"><option value="Pinocchio"><option value="Spinelli"></datalist>
-    <label>Data (es: 02/10/2026, 09:30:00)</label>
-    <input id="editData" type="text">
-    <label>Ora (es: 09:30)</label>
-    <input id="editOra" type="text">
+    <h3>✏️ Modifica Timbratura - Tutti i tablet</h3>
+    <label>Nome</label><input id="editNome" type="text">
+    <label>Tipo</label><select id="editTipo"><option>ENTRATA</option><option>USCITA</option></select>
+    <label>Plesso</label><input id="editPlesso" type="text" list="plessiList"><datalist id="plessiList"><option value="Pietrobono"><option value="Rinascita"><option value="XXIII"><option value="Verdi"><option value="Pinocchio"><option value="Spinelli"></datalist>
+    <label>Data</label><input id="editData" type="text">
+    <label>Ora</label><input id="editOra" type="text">
     <div style="display:flex; gap:8px; margin-top:12px">
-      <button onclick="salvaModificaTimbratura()" style="flex:1; background:#16a34a; color:white; border:0; border-radius:8px; padding:10px; font-weight:800">💾 Salva</button>
+      <button onclick="salvaModificaTimbratura()" style="flex:1; background:#16a34a; color:white; border:0; border-radius:8px; padding:10px; font-weight:800">💾 Salva su tutti i tablet</button>
       <button onclick="chiudiModaleEdit()" style="flex:1; background:#64748b; color:white; border:0; border-radius:8px; padding:10px; font-weight:800">Annulla</button>
     </div>
   </div>
