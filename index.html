@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V52 - Timbrature con Modifica/Cancella</title>
+<title>IC Frosinone 2 - V52.1 - Timbrature con Modifica/Cancella CLOUD REALE</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -620,14 +620,16 @@ function aggiornaLog(){
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
 
-// ===== MODIFICA / CANCELLA TIMBRATURE - V52 - NON TOCCA GPS E CLOUD =====
+// ===== MODIFICA / CANCELLA TIMBRATURE - V52.1 - CLOUD REALE - NON TOCCA GPS =====
 let indiceModifica = -1;
-function cancellaTimbratura(idx){
+async function cancellaTimbratura(idx){
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
-  if(!confirm('Cancellare questa timbratura?\n'+(t.data||'')+' - '+(t.nome||'')+' - '+(t.tipo||'')+' @ '+(t.plesso||''))) return;
+  if(!confirm('Cancellare questa timbratura?\n'+(t.data||'')+' - '+(t.nome||'')+' - '+(t.tipo||'')+' @ '+(t.plesso||'')+'\n\nVerrà cancellata anche dal cloud su TUTTI i tablet!')) return;
   try{
-    // aggiungi a lista cancellate per filtrare cloud
+    // 1) Cancella dal cloud reale Firebase
+    await cancellaDalCloudFirebase(t);
+    // 2) aggiungi a lista cancellate locale per sicurezza
     let cancellate = [];
     try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
     let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'');
@@ -639,7 +641,8 @@ function cancellaTimbratura(idx){
   timbratureSalvate.splice(idx,1);
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
   aggiornaLog();
-  alert('Timbratura cancellata (anche dal cloud condiviso)');
+  // ricarica cloud subito per propagare a tutti
+  setTimeout(caricaCondivise, 600);
 }
 
 function modificaTimbratura(idx){
@@ -659,10 +662,12 @@ function chiudiModaleEdit(){
   indiceModifica = -1;
 }
 
-function salvaModificaTimbratura(){
+async function salvaModificaTimbratura(){
   if(indiceModifica<0 || indiceModifica>=timbratureSalvate.length) return;
   const old = timbratureSalvate[indiceModifica];
-  // marca vecchia come cancellata per cloud
+  // 1) Cancella vecchia dal cloud reale
+  await cancellaDalCloudFirebase(old);
+  // 2) marca come cancellata localmente
   try{
     let cancellate = [];
     try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
@@ -686,11 +691,11 @@ function salvaModificaTimbratura(){
   // sostituisci localmente
   timbratureSalvate[indiceModifica] = nuovo;
   try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
-  // invia nuova al cloud (la vecchia resta filtrata da cancellate)
-  try{ salvaNuovaTimbratura(nuovo); }catch(e){}
+  // invia nuova al cloud (vecchia già cancellata dal cloud reale)
+  try{ await salvaNuovaTimbratura(nuovo); }catch(e){}
   chiudiModaleEdit();
   aggiornaLog();
-  alert('Timbratura modificata!');
+  setTimeout(caricaCondivise, 800);
 }
 
 
@@ -722,14 +727,29 @@ async function fetchWithFallback(path){
   return null;
 }
 
+// MAPPA CHIAVI FIREBASE PER DELETE CLOUD REALE
+let mappaChiaviFirebase = {}; // key: hash timbratura -> firebaseKey
+
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
     // NO Caricamento... per non far lampeggiare - resta fisso
     let val = await fetchWithFallback("/timbrature.json");
     if(val){
-      let arr = Array.isArray(val) ? val : Object.values(val);
-      arr = arr.filter(x=>x && x.data);
+      let arr = [];
+      if(Array.isArray(val)){
+        arr = val.filter(x=>x && x.data);
+      } else {
+        // OGGETTO con chiavi Firebase - conserviamo le chiavi!
+        Object.entries(val).forEach(([fbKey, t])=>{
+          if(t && t.data){
+            t._firebaseKey = fbKey;
+            let hash = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+            mappaChiaviFirebase[hash] = fbKey;
+            arr.push(t);
+          }
+        });
+      }
       arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
       let cancellate = [];
       try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
@@ -739,7 +759,7 @@ async function caricaCondivise(){
         return cancellate.includes(key) || cancellate.includes(key2);
       };
       arr = arr.filter(t=>!isCancellata(t));
-      // merge
+      // merge - conserva chiavi
       let merged = [...arr, ...timbratureSalvate];
       let seen = new Set();
       let uniq = [];
@@ -747,6 +767,8 @@ async function caricaCondivise(){
         let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
         if(!seen.has(key)){
           seen.add(key);
+          // ripristina mappa chiavi se manca
+          if(t._firebaseKey) mappaChiaviFirebase[key] = t._firebaseKey;
           uniq.push(t);
         }
       });
@@ -761,10 +783,33 @@ async function caricaCondivise(){
     }
   }catch(e){ 
     console.log("Cloud fetch errore", e); 
-    // errore silenzioso, mantieni badge verde fisso
     aggiornaLog();
   }
 }
+
+async function cancellaDalCloudFirebase(t){
+  try{
+    // trova chiave Firebase
+    let hash = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+    let fbKey = t._firebaseKey || mappaChiaviFirebase[hash];
+    if(!fbKey){
+      console.log("⚠️ Nessuna chiave Firebase trovata per", hash);
+      // prova a cercare nel cloud per timestamp/nome
+      return false;
+    }
+    console.log("🗑️ Cancello dal cloud reale:", fbKey, t);
+    // cancella da ENTRAMBI gli URL per sicurezza
+    for(let base of DB_URLS){
+      try{
+        await fetch(base + "/timbrature/" + fbKey + ".json", {method: "DELETE"});
+        console.log("✅ Cancellato da", base);
+      }catch(e){ console.log("Errore delete", base, e); }
+    }
+    delete mappaChiaviFirebase[hash];
+    return true;
+  }catch(e){ console.log("Errore cancellaDalCloud", e); return false; }
+}
+
 
 async function salvaNuovaTimbratura(t){
   try{
