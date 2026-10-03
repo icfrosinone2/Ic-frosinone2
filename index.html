@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.3 - TOLLERANZA FIX - ritardo da 07:36, permesso fino 14:37</title>
+<title>IC Frosinone 2 - V51.4 - GPS + TOLLERANZA FIX + CAMERA SWITCH FIX</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -85,7 +85,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.3 - TOLLERANZA FIX - ritardo da 07:36, permesso fino 14:37</b>
+<b>✅ V51.4 - GPS + TOLLERANZA FIX + CAMERA SWITCH FIX</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -121,6 +121,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <span style="font-size:9px; color:#64748b; margin-left:6px">Se non va, attiva posizione su smartphone</span></div>
 </div>
 </div>
+
+<div id="bloccoBox"
 
 <div id="bloccoBox" class="red-banner">Avvicinati a un plesso per timbrare.</div>
 <div id="okBox" class="red-banner" style="display:none; background:#16a34a">✅ Sei dentro il plesso - Puoi timbrare anche se fai servizio in un altro plesso</div>
@@ -409,10 +411,11 @@ function avviaScanner(facingPref){
   reader.style.display='block'; 
   document.getElementById('stopBtn').style.display='block';
   let sw=document.getElementById('switchBtn'); if(sw) sw.style.display='block';
-  document.getElementById('qrResult').innerHTML='📷 Avvio fotocamera anteriore...';
+  document.getElementById('qrResult').innerHTML='📷 Avvio fotocamera '+(currentFacing==='user'?'anteriore 🤳':'posteriore 📷')+'...';
   if(html5Qr){ try{html5Qr.stop();}catch(e){} try{html5Qr.clear();}catch(e){} }
   html5Qr=new Html5Qrcode("reader");
-  let cameraConfig = facingPref || {facingMode:"user"};
+  let cameraConfig = facingPref || {facingMode: currentFacing};
+  if(facingPref && facingPref.facingMode) currentFacing = facingPref.facingMode;
   html5Qr.start(cameraConfig, {fps:30, qrbox:{width:300, height:300}, aspectRatio:1.0, disableFlip:false}, (decoded)=>{
     if(!dentro) return; 
     const now=Date.now(); 
@@ -428,7 +431,7 @@ function avviaScanner(facingPref){
     timbra(tipoScelto, nome); 
     if(!continuo) setTimeout(()=>fermaScanner(), 1500);
   }, ()=>{}).then(()=>{
-    document.getElementById('qrResult').innerHTML='✅ Fotocamera anteriore ATTIVA - inquadra QR grande';
+    document.getElementById('qrResult').innerHTML='✅ Fotocamera '+(currentFacing==='user'?'anteriore 🤳 ATTIVA':'posteriore 📷 ATTIVA')+' - inquadra QR grande';
   }).catch((err)=>{
     document.getElementById('qrResult').innerHTML='⚠️ Anteriore non disponibile, provo posteriore...';
     if(JSON.stringify(cameraConfig).includes('user')){
@@ -452,12 +455,31 @@ function fermaScanner(){
     }); 
   } 
 }
+let currentFacing = "user"; // user = anteriore, environment = posteriore
 function switchCamera(){
-  fermaScanner();
-  setTimeout(()=>{
-    const lastWasUser = document.getElementById('qrResult').innerHTML.includes('anteriore');
-    avviaScanner(lastWasUser ? {facingMode:"environment"} : {facingMode:"user"});
-  }, 500);
+  // chiudi scanner attuale
+  if(html5Qr){
+    try{
+      html5Qr.stop().then(()=>{
+        document.getElementById('reader').style.display='none';
+        document.getElementById('stopBtn').style.display='none';
+        let sw2=document.getElementById('switchBtn'); if(sw2) sw2.style.display='none';
+        // toggle camera
+        currentFacing = (currentFacing==="user" ? "environment" : "user");
+        console.log("🔄 Cambio camera a", currentFacing);
+        setTimeout(()=>{ avviaScanner({facingMode: currentFacing}); }, 600);
+      }).catch(()=>{
+        currentFacing = (currentFacing==="user" ? "environment" : "user");
+        setTimeout(()=>{ avviaScanner({facingMode: currentFacing}); }, 600);
+      });
+    }catch(e){
+      currentFacing = (currentFacing==="user" ? "environment" : "user");
+      setTimeout(()=>{ avviaScanner({facingMode: currentFacing}); }, 600);
+    }
+  } else {
+    currentFacing = (currentFacing==="user" ? "environment" : "user");
+    avviaScanner({facingMode: currentFacing});
+  }
 }
 
 
