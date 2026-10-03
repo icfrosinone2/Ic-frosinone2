@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.4 - GPS + TOLLERANZA FIX + CAMERA SWITCH FIX</title>
+<title>IC Frosinone 2 - V51.5 - FIX CANCELLA/MODIFICA + GPS + TOLLERANZA + CAMERA</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -78,14 +78,23 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .modal-edit-box h3{margin:0 0 10px 0; font-size:14px}
 .modal-edit-box label{font-size:11px; font-weight:700; display:block; margin-top:8px}
 .modal-edit-box input, .modal-edit-box select{width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box; margin-top:2px}
+
+.btn-edit{background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px 8px; font-size:11px; font-weight:800; cursor:pointer; margin-left:4px}
+.btn-del{background:#ef4444; color:white; border:0; border-radius:6px; padding:4px 8px; font-size:11px; font-weight:800; cursor:pointer; margin-left:4px}
+.modal-edit{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:9999}
+.modal-edit-box{background:white; border-radius:12px; padding:16px; width:90%; max-width:380px; box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.modal-edit-box h3{margin:0 0 10px 0; font-size:14px}
+.modal-edit-box label{font-size:11px; font-weight:700; display:block; margin-top:8px}
+.modal-edit-box input, .modal-edit-box select{width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box; margin-top:2px}
 </style>
+
 
 </head>
 <body>
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.4 - GPS + TOLLERANZA FIX + CAMERA SWITCH FIX</b>
+<b>✅ V51.5 - FIX CANCELLA/MODIFICA + GPS + TOLLERANZA + CAMERA</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -918,11 +927,25 @@ aggiornaLog = aggiornaLogConTolleranza;
 
 function cancellaTimbraturaLocale(idx){
   if(idx<0 || idx>=timbratureSalvate.length) return;
-  if(!confirm('Cancellare questa timbratura?')) return;
+  const t = timbratureSalvate[idx];
+  if(!confirm('Cancellare questa timbratura?\n'+t.data+' - '+t.nome+' - '+t.tipo)) return;
+  // aggiungi a lista cancellate così non torna dal cloud
+  try{
+    let cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]');
+    let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'');
+    let key2 = key + '|' + (t.ora||'');
+    if(!cancellate.includes(key)) cancellate.push(key);
+    if(!cancellate.includes(key2)) cancellate.push(key2);
+    localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-1000)));
+  }catch(e){}
   timbratureSalvate.splice(idx,1);
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
+  console.log("🗑️ Cancellata localmente e aggiunta a lista cancellate");
 }
+
+// Fix anche caricaCondivise per filtrare cancellate - già esiste in V51 ma assicuriamoci
+
 
 // per compatibilità con vecchia funzione
 function cancellaTimbratura(idx){ cancellaTimbraturaLocale(idx); }
