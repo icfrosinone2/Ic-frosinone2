@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53 - MULTI-TABLET + PIN nascosto + Scanner ENTRATA/USCITA + Tolleranza + Stampa mensile</title>
+<title>IC Frosinone 2 - V53.1 FIX GPS - MULTI-TABLET + PIN + Scanner + Tolleranza + Scanner ENTRATA/USCITA + Tolleranza + Stampa mensile</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -85,7 +85,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53 - MULTI-TABLET + PIN nascosto + Scanner ENTRATA/USCITA + Tolleranza + Stampa mensile</b>
+<b>✅ V53.1 FIX GPS - MULTI-TABLET + PIN + Scanner + Tolleranza + Scanner ENTRATA/USCITA + Tolleranza + Stampa mensile</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -289,6 +289,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 
 <script>
 const GEOFENCE=150;
+const GEOFENCE_PIETROBONO=400;
 const GEOFENCE_PIETROBONO=400; // solo Pietrobono 400m per GPS ballerino, altre 150m
 let PLESSI_BASE=[
  {n:'Pietrobono', lat:41.626603, lon:13.331938, cls:'pietrobono', maps:'https://maps.google.com/?q=41.626603,13.331938', icon:'🏫'},
@@ -331,9 +332,9 @@ function avviaWatchGPS(){ if(!navigator.geolocation) return; if(watchId) navigat
 function attivaGPS(){
   navigator.geolocation.getCurrentPosition(p=>{
     last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
-    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
-  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; if(d<min){min=d; best=pl;}});
+    vicino=best; const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); dentro=min<=limiteBest; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best && best.n==='Pietrobono'?'🏫 PIETROBONO 400m':''}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
+  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato - clicca Aggiorna e consenti posizione'; console.log('GPS errore', e); last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
 }
 
 let pinSalvato='211285';
