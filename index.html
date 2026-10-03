@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.8 TABLET OK - ANAGRAFICA SEMPRE NASCOSTA + PIN + GPS + TOLLERANZA</title>
+<title>IC Frosinone 2 - V53 - GPS ESATTO OBBLIGATORIO (non puoi timbrare fuori) + ANAGRAFICA NASCOSTA + TOLLERANZA + TABLET OK</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.8 TABLET OK - ANAGRAFICA SEMPRE NASCOSTA + PIN + GPS + TOLLERANZA</b>
+<b>✅ V53 - GPS ESATTO OBBLIGATORIO (non puoi timbrare fuori) + ANAGRAFICA NASCOSTA + TOLLERANZA + TABLET OK</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -131,7 +131,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto in corso... clicca Aggiorna se non parte</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
 <div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - su PC clicca Aggiorna GPS e consenti posizione</div>
-<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <button onclick="modalitaPC()" style="background:#f59e0b; color:white; border:0; border-radius:8px; padding:8px 10px; font-weight:700; font-size:11px">🖥️ PC Test</button> <span style="font-size:9px; color:#64748b; margin-left:6px; display:block; margin-top:4px">PC: Se GPS si sconnette, usa Modalità PC Test (10 min)</span></div>
+<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <span style="font-size:10px; background:#fee2e2; padding:4px 8px; border-radius:999px; border:1px solid #ef4444; font-weight:800">🔒 GPS ESATTO OBBLIGATORIO</span> <span style="font-size:9px; color:#64748b; margin-left:6px; display:block; margin-top:4px">GPS ESATTO obbligatorio - non puoi timbrare fuori</span></div>
 
 </div>
 </div>
@@ -347,8 +347,24 @@ function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioCont
 function aggiornaUIBlocco(){
   const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
   const blocco=document.getElementById('bloccoBox'), ok=document.getElementById('okBox'), badge=document.getElementById('badgeStato');
-  if(dentro){ btnE.disabled=false; btnU.disabled=false; btnC.disabled=false; btnS.disabled=false; blocco.style.display='none'; ok.style.display='block'; badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; }
-  else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
+  // V53 - GPS ESATTO OBBLIGATORIO come richiesto: non si può timbrare fuori
+  if(dentro){ 
+    if(btnE) btnE.disabled=false; if(btnU) btnU.disabled=false; if(btnC) btnC.disabled=false; if(btnS) btnS.disabled=false;
+    blocco.style.display='none'; ok.style.display='block'; 
+    ok.style.background='#16a34a';
+    ok.innerHTML='✅ Sei dentro il plesso - Puoi timbrare';
+    badge.textContent='GPS ATTIVO - DENTRO'; badge.style.background='#16a34a'; 
+  } else { 
+    if(btnE) btnE.disabled=true; if(btnU) btnU.disabled=true; if(btnC) btnC.disabled=true; if(btnS) btnS.disabled=true;
+    blocco.style.display='block'; ok.style.display='none'; 
+    if(last){
+      badge.textContent='GPS ATTIVO - FUORI (non puoi timbrare)'; badge.style.background='#ef4444';
+      blocco.innerHTML='⛔ Sei FUORI dal plesso ('+ (vicino?vicino.n+' '+Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon))+'m':'') +') - Avvicinati per timbrare';
+    } else {
+      badge.textContent='GPS NON ATTIVO - attendi fix'; badge.style.background='#64748b';
+      blocco.innerHTML='⏳ GPS non attivo - attendi posizione o clicca 📍 Aggiorna GPS - Non puoi timbrare fuori dal plesso';
+    }
+  }
 }
 let watchId=null;
 let lastDentroTime=0;
@@ -451,7 +467,8 @@ function attivaGPS(){
   }, {enableHighAccuracy:true, timeout:25000, maximumAge:0});
 }
 
-function modalitaPC(){
+function modalitaPC(){ alert("⚠️ Modalità PC Test disabilitata in V53 - GPS esatto obbligatorio come richiesto! Se sei dentro ma GPS PC non aggancia, attendi fix o usa tablet. Per emergenza contatta amministratore."); return; }
+function modalitaPC_OLD(){
   if(!confirm('Modalità PC Test: permette timbratura anche senza GPS preciso (solo per test su PC in ufficio). Usare solo se sei fisicamente in un plesso!\n\nAttivare?')) return;
   dentro=true;
   vicino=PLESSI[0];
@@ -521,23 +538,43 @@ function resetOrariSettimana(){
 
 let timbratureSalvate=JSON.parse(localStorage.getItem('timbrature_v93')||'[]');
 function timbra(tipo, nomeF=null){
-  if(!dentro){ alert('Avvicinati a un plesso'); return; }
-  const nome=nomeF||document.getElementById('dipendente').value; if(!nome) return;
+  const nome=nomeF||document.getElementById('dipendente').value; if(!nome){ alert('Seleziona dipendente!'); return; }
+  // V53 - GPS ESATTO OBBLIGATORIO: non puoi timbrare fuori
+  let canTimbra = dentro;
+  let isGrace = false;
+  if(!dentro){
+    // Grace period 60 sec: se eri dentro fino a 60 sec fa e GPS ha perso fix breve, permetti ancora
+    if(lastDentroTime && (Date.now() - lastDentroTime < 60000)){
+      canTimbra = true;
+      isGrace = true;
+    }
+  }
+  if(!canTimbra){
+    alert('⛔ NON PUOI TIMBRARE FUORI DAL PLESSO
+
+Posizione esatta obbligatoria come richiesto.
+Avvicinati a un plesso (max 150m, Pietrobono 400m) e attendi GPS DENTRO.
+
+Su PC: clicca 📍 Aggiorna GPS e consenti posizione Windows.');
+    return;
+  }
+  
   const ora=new Date(); const oraStr=ora.toLocaleString('it-IT'); const oraTime=ora.toTimeString().slice(0,5);
   const d=last&&vicino?Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon)):0;
-  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||'', timestamp:Date.now()};
+  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||'', timestamp:Date.now(), gpsGrace: isGrace};
   timbratureSalvate.unshift(entry); 
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   try{ aggiornaLog(); }catch(e){}
   try{ salvaNuovaTimbratura(entry); }catch(e){ console.log("Errore invio cloud", e); }
-  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime+' - 📤 Inviato al cloud!';
+  let graceTxt = isGrace ? ' (GPS grace 60s - eri dentro)' : '';
+  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime+graceTxt+' - 📤 Inviato! Posizione esatta verificata.';
   if(document.getElementById('beepCheck').checked) beep();
-  console.log("✅ Timbratura locale + invio cloud:", entry);
+  console.log("✅ Timbratura GPS esatto:", entry);
 }
 function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(); }
 function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
 function avviaScanner(facingPref){
-  if(!dentro){ alert('Avvicinati a un plesso'); return; }
+  // V53 GPS esatto - blocca scanner se fuori
   const continuo=document.getElementById('continuoCheck').checked;
   const reader=document.getElementById('reader'); 
   reader.style.display='block'; 
@@ -1001,14 +1038,27 @@ function calcolaRitardoPermesso(t){
   return {testo:'', tipo:'', minuti:0};
 }
 
-// Sovrascrivi timbra per mostrare ritardo/permesso
+// Sovrascrivi timbra per mostrare ritardo/permesso - GPS ESATTO V53
 let timbraOriginale = timbra;
 function timbraConTolleranza(tipo, nomeF=null){
-  if(!dentro){ alert('Avvicinati a un plesso'); return; }
-  const nome=nomeF||document.getElementById('dipendente').value; if(!nome) return;
+  const nome=nomeF||document.getElementById('dipendente').value; if(!nome){ alert('Seleziona dipendente!'); return; }
+  // V53 - GPS ESATTO OBBLIGATORIO
+  let canTimbra = dentro;
+  let isGrace = false;
+  if(!dentro){
+    if(lastDentroTime && (Date.now() - lastDentroTime < 60000)){
+      canTimbra = true;
+      isGrace = true;
+    }
+  }
+  if(!canTimbra){
+    alert('⛔ NON PUOI TIMBRARE FUORI DAL PLESSO - Posizione esatta obbligatoria!');
+    return;
+  }
+  
   const ora=new Date(); const oraStr=ora.toLocaleString('it-IT'); const oraTime=ora.toTimeString().slice(0,5);
   const d=last&&vicino?Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon)):0;
-  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||'', timestamp:Date.now()};
+  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||'', timestamp:Date.now(), gpsGrace: isGrace};
   // calcola tolleranza
   let calc = calcolaRitardoPermesso(entry);
   entry.ritardo = calc.testo;
@@ -1018,9 +1068,10 @@ function timbraConTolleranza(tipo, nomeF=null){
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   try{ aggiornaLog(); }catch(e){}
   try{ salvaNuovaTimbratura(entry); }catch(e){ console.log("Errore invio cloud", e); }
-  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime+'<br>'+calc.testo+' - 📤 Inviato!';
+  let graceTxt = isGrace ? ' (GPS grace)' : '';
+  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime+'<br>'+calc.testo+graceTxt+' - 📤 Inviato! GPS esatto OK';
   if(document.getElementById('beepCheck').checked) beep();
-  console.log("✅ Timbratura con tolleranza:", entry);
+  console.log("✅ Timbratura tolleranza GPS esatto:", entry);
 }
 // sostituisci timbra
 timbra = timbraConTolleranza;
