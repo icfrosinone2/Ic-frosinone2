@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V52.2 - Timbrature con Modifica/Cancella MULTI-TABLET</title>
+<title>IC Frosinone 2 - V53 - MULTI-TABLET + PIN nascosto + Scanner ENTRATA/USCITA + Tolleranza + Stampa mensile</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -85,7 +85,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V52.2 - Timbrature con Modifica/Cancella MULTI-TABLET</b>
+<b>✅ V53 - MULTI-TABLET + PIN nascosto + Scanner ENTRATA/USCITA + Tolleranza + Stampa mensile</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -204,6 +204,30 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b" onclick="svuotaGiorno()">🗑️ Svuota giorno</button>
 </div>
 </div>
+
+<!-- TOLLERANZA E STAMPE MENSILI - V53 -->
+<div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:12px; padding:10px; margin:8px 0">
+<b style="font-size:12px">⏱️ Tolleranza entrata/uscita (minuti)</b><br>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px">
+<div><label style="font-size:10px">Entrata ritardo tollerato (min)</label><input id="tollEntrata" type="number" value="15" min="0" max="120" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #f59e0b" onchange="salvaTolleranze()"></div>
+<div><label style="font-size:10px">Uscita anticipo tollerato (min)</label><input id="tollUscita" type="number" value="10" min="0" max="120" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #f59e0b" onchange="salvaTolleranze()"></div>
+</div>
+<small style="font-size:9px; color:#92400e">Se timbri entro la tolleranza, non è ritardo. Es. entrata 07:30 + toll 15 = ok fino 07:45</small>
+</div>
+
+<div style="background:#e0f2fe; border:2.5px solid #0ea5e9; border-radius:12px; padding:10px; margin:8px 0">
+<b style="font-size:12px">🖨️ Stampe mensili - scegli periodo</b><br>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px">
+<div><label style="font-size:10px">Da</label><input id="stampaDa" type="date" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #0ea5e9"></div>
+<div><label style="font-size:10px">A</label><input id="stampaA" type="date" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #0ea5e9"></div>
+</div>
+<div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap">
+<button onclick="stampaMensile()" style="flex:1; background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px; font-weight:800; font-size:11px">🖨️ Stampa mensile selezionato</button>
+<button onclick="impostaMeseCorrente()" style="background:#f1f5f9; border:1.5px solid #cbd5e1; border-radius:8px; padding:8px; font-size:11px">📅 Mese corrente</button>
+<button onclick="impostaUltimoMese()" style="background:#f1f5f9; border:1.5px solid #cbd5e1; border-radius:8px; padding:8px; font-size:11px">📅 Mese scorso</button>
+</div>
+</div>
+
 <div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
 </div>
 
@@ -219,10 +243,12 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
+<div id="elencoProtetto" style="display:none">
 <div style="margin-top:12px">
 <b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:600px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
+</div>
 </div>
 
 <div id="badgeCartaBox" class="badge-carta">
@@ -380,16 +406,25 @@ function timbra(tipo, nomeF=null){
   if(document.getElementById('beepCheck').checked) beep();
   console.log("✅ Timbratura locale + invio cloud:", entry);
 }
-function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(); }
-function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(); }
-function avviaScanner(facingPref){
+
+let tipoScannerSelezionato = 'ENTRATA';
+function avviaScanner(facingPref, tipoPref){
   if(!dentro){ alert('Avvicinati a un plesso'); return; }
+  // chiedi ENTRATA/USCITA se non specificato
+  if(tipoPref){ tipoScannerSelezionato = tipoPref; }
+  else {
+    // se non scelto, chiedi
+    let scelta = confirm('Timbratura da fotocamera:
+OK = ENTRATA 🟢
+Annulla = USCITA 🔴');
+    tipoScannerSelezionato = scelta ? 'ENTRATA' : 'USCITA';
+  }
   const continuo=document.getElementById('continuoCheck').checked;
   const reader=document.getElementById('reader'); 
   reader.style.display='block'; 
   document.getElementById('stopBtn').style.display='block';
   let sw=document.getElementById('switchBtn'); if(sw) sw.style.display='block';
-  document.getElementById('qrResult').innerHTML='📷 Avvio fotocamera anteriore...';
+  document.getElementById('qrResult').innerHTML='📷 Avvio fotocamera ('+tipoScannerSelezionato+')...';
   if(html5Qr){ try{html5Qr.stop();}catch(e){} try{html5Qr.clear();}catch(e){} }
   html5Qr=new Html5Qrcode("reader");
   let cameraConfig = facingPref || {facingMode:"user"};
@@ -398,24 +433,27 @@ function avviaScanner(facingPref){
     const now=Date.now(); 
     if(decoded===ultimoQR && (now-ultimoTempo)<2500) return; 
     ultimoQR=decoded; ultimoTempo=now;
-    document.getElementById('qrResult').innerHTML='✅ Letto: '+decoded.substring(0,60);
+    document.getElementById('qrResult').innerHTML='✅ Letto: '+decoded.substring(0,60)+' -> '+tipoScannerSelezionato;
     if(document.getElementById('beepCheck').checked) beep();
     let nome=decoded.trim(); 
     if(decoded.includes('|')){ const p=decoded.split('|'); nome=(p[1]||p[0]).trim(); }
     nome=nome.replace(/IC2\|/g,'').split('|')[0].trim();
-    timbra('ENTRATA', nome); 
+    timbra(tipoScannerSelezionato, nome); 
     if(!continuo) setTimeout(()=>fermaScanner(), 1500);
   }, ()=>{}).then(()=>{
-    document.getElementById('qrResult').innerHTML='✅ Fotocamera anteriore ATTIVA - inquadra QR grande';
+    document.getElementById('qrResult').innerHTML='✅ Camera '+tipoScannerSelezionato+' ATTIVA - inquadra QR';
   }).catch((err)=>{
     document.getElementById('qrResult').innerHTML='⚠️ Anteriore non disponibile, provo posteriore...';
     if(JSON.stringify(cameraConfig).includes('user')){
-      setTimeout(()=>{ avviaScanner({facingMode:"environment"}); }, 800);
+      setTimeout(()=>{ avviaScanner({facingMode:"environment"}, tipoScannerSelezionato); }, 800);
     } else {
       document.getElementById('qrResult').innerHTML='❌ Nessuna camera: '+err;
     }
   });
 }
+function avviaContinuo(){ document.getElementById('continuoCheck').checked=true; avviaScanner(null, 'ENTRATA'); }
+function avviaSingolo(){ document.getElementById('continuoCheck').checked=false; avviaScanner(null, null); }
+
 function fermaScanner(){ 
   if(html5Qr){ 
     html5Qr.stop().then(()=>{
@@ -628,21 +666,66 @@ async function cancellaDalCloudFirebase(t){
   try{
     let hash = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
     let fbKey = t._firebaseKey || mappaChiaviFirebase[hash];
+    // se chiave non trovata, cercala scaricando tutto il cloud
     if(!fbKey){
-      console.log("⚠️ Cerco chiave Firebase per", t.nome, t.data);
-      // fallback: cerca in cloud per timestamp vicino
+      console.log("🔍 Cerco chiave per", t.nome, t.data);
+      try{
+        let all = await fetchWithFallback("/timbrature.json");
+        if(all && !Array.isArray(all)){
+          for(let [k,v] of Object.entries(all)){
+            if(v && v.data===t.data && v.nome===t.nome && v.tipo===t.tipo && v.plesso===t.plesso && v.ora===t.ora){
+              fbKey = k;
+              console.log("✅ Trovata chiave:", fbKey);
+              break;
+            }
+          }
+        }
+      }catch(e){ console.log("Errore ricerca chiave", e); }
+    }
+    if(!fbKey){
+      console.log("⚠️ Nessuna chiave Firebase trovata, uso cancellazione logica");
+      // cancellazione logica - salva in /cancellate.json per sincronizzare tra tablet
+      try{
+        await fetch(DB_URL + "/cancellate.json", {
+          method:"POST",
+          body: JSON.stringify({hash, data:t.data, nome:t.nome, tipo:t.tipo, plesso:t.plesso, ora:t.ora, timestamp:Date.now()}),
+          headers:{"Content-Type":"application/json"}
+        });
+      }catch(e){}
       return false;
     }
-    console.log("🗑️ DELETE CLOUD REALE:", fbKey);
+    console.log("🗑️ DELETE CLOUD REALE:", fbKey, t.nome);
     for(let base of DB_URLS){
       try{
+        // DELETE
         await fetch(base + "/timbrature/" + fbKey + ".json", {method:"DELETE"});
-      }catch(e){}
+        // anche PUT null per sicurezza Firebase
+        await fetch(base + "/timbrature/" + fbKey + ".json", {method:"PUT", body:"null"});
+        console.log("✅ Cancellato da", base);
+      }catch(e){ console.log("Errore delete", base, e); }
     }
     delete mappaChiaviFirebase[hash];
     return true;
-  }catch(e){ return false; }
+  }catch(e){ console.log("Errore cancellaDalCloud", e); return false; }
 }
+
+async function caricaCancellazioniLogiche(){
+  try{
+    let val = await fetchWithFallback("/cancellate.json");
+    if(val){
+      let arr = Array.isArray(val) ? val : Object.values(val);
+      let cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]');
+      arr.forEach(c=>{
+        let key = (c.data||'') + '|' + (c.nome||'') + '|' + (c.tipo||'') + '|' + (c.plesso||'');
+        let key2 = key + '|' + (c.ora||'');
+        if(!cancellate.includes(key)) cancellate.push(key);
+        if(!cancellate.includes(key2)) cancellate.push(key2);
+      });
+      localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-500)));
+    }
+  }catch(e){}
+}
+
 
 async function cancellaTimbratura(idx){
   if(idx<0 || idx>=timbratureSalvate.length) return;
@@ -737,6 +820,7 @@ async function fetchWithFallback(path){
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
+    await caricaCancellazioniLogiche();
     let val = await fetchWithFallback("/timbrature.json");
     if(val){
       let arr = [];
@@ -860,6 +944,78 @@ window.addEventListener('online', ()=>{
   setTimeout(caricaCondivise, 500);
 });
 
+
+
+// ===== TOLLERANZA E STAMPE MENSILI V53 =====
+function salvaTolleranze(){
+  localStorage.setItem('tolleranza_entrata', document.getElementById('tollEntrata').value);
+  localStorage.setItem('tolleranza_uscita', document.getElementById('tollUscita').value);
+}
+function caricaTolleranze(){
+  try{
+    let te = localStorage.getItem('tolleranza_entrata')||'15';
+    let tu = localStorage.getItem('tolleranza_uscita')||'10';
+    let e = document.getElementById('tollEntrata'); if(e) e.value=te;
+    let u = document.getElementById('tollUscita'); if(u) u.value=tu;
+  }catch(e){}
+}
+function impostaMeseCorrente(){
+  let oggi = new Date();
+  let primo = new Date(oggi.getFullYear(), oggi.getMonth(), 1);
+  let ultimo = new Date(oggi.getFullYear(), oggi.getMonth()+1, 0);
+  document.getElementById('stampaDa').valueAsDate = primo;
+  document.getElementById('stampaA').valueAsDate = ultimo;
+}
+function impostaUltimoMese(){
+  let oggi = new Date();
+  let primo = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
+  let ultimo = new Date(oggi.getFullYear(), oggi.getMonth(), 0);
+  document.getElementById('stampaDa').valueAsDate = primo;
+  document.getElementById('stampaA').valueAsDate = ultimo;
+}
+function stampaMensile(){
+  let daVal = document.getElementById('stampaDa').value;
+  let aVal = document.getElementById('stampaA').value;
+  if(!daVal || !aVal){ alert('Seleziona da e a'); return; }
+  let da = new Date(daVal);
+  let a = new Date(aVal);
+  a.setHours(23,59,59);
+  let nome = document.getElementById('dipendente').value;
+  if(!nome){ alert('Seleziona dipendente'); return; }
+  let filtrate = timbratureSalvate.filter(t=>{
+    if(t.nome!==nome) return false;
+    // prova a parsare data italiana
+    try{
+      let parts = (t.data||'').split(',')[0].split('/');
+      if(parts.length===3){
+        let d = new Date(parts[2], parts[1]-1, parts[0]);
+        return d>=da && d<=a;
+      }
+    }catch(e){}
+    return true;
+  });
+  let tollE = parseInt(localStorage.getItem('tolleranza_entrata')||'15');
+  let tollU = parseInt(localStorage.getItem('tolleranza_uscita')||'10');
+  let html = `<h2>Resoconto mensile ${nome}<br>Dal ${daVal} al ${aVal}</h2>`;
+  html += `<p>Tolleranza: entrata ${tollE}min, uscita ${tollU}min | Tot timbrature: ${filtrate.length}</p>`;
+  html += `<table border=1 cellpadding=4 cellspacing=0 style="width:100%; font-size:11px; border-collapse:collapse"><tr style="background:#0f172a; color:white"><th>Data</th><th>Ora</th><th>Tipo</th><th>Plesso</th><th>Ritardo</th></tr>`;
+  filtrate.slice(0,500).forEach(t=>{
+    let rit = '';
+    if(t.tipo==='ENTRATA' && t.ora){
+      // calcola ritardo se oltre tolleranza (semplice)
+      rit = (t.distanza||'') ? t.distanza+'m' : '';
+    }
+    html+=`<tr><td>${t.data||''}</td><td>${t.ora||''}</td><td>${t.tipo||''}</td><td>${t.plesso||''}</td><td>${rit}</td></tr>`;
+  });
+  html += `</table>`;
+  let printArea = document.getElementById('printArea');
+  printArea.style.display='block';
+  printArea.innerHTML = `<div style="font-family:Arial; padding:20px">${html}<br><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div>`;
+  printArea.scrollIntoView({behavior:'smooth'});
+}
+
+// carica tolleranze al load
+setTimeout(caricaTolleranze, 800);
 
 window.addEventListener('load', ()=>{
   renderPlessiUI();
