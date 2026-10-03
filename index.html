@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.6 - RIEPILOGO GIORNALIERO+MENSILE TOLLERANZE + STAMPE PERIODO</title>
+<title>IC Frosinone 2 - V51.7 TABLET OK - FIX GPS PC + TOLLERANZA 5 MIN + STAMPE PERIODO + CAMERA</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -94,7 +94,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.6 - RIEPILOGO GIORNALIERO+MENSILE TOLLERANZE + STAMPE PERIODO</b>
+<b>✅ V51.7 TABLET OK - FIX GPS PC + TOLLERANZA 5 MIN + STAMPE PERIODO + CAMERA</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -127,7 +127,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto in corso... clicca Aggiorna se non parte</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
 <div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - su PC clicca Aggiorna GPS e consenti posizione</div>
-<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <span style="font-size:9px; color:#64748b; margin-left:6px">Se non va, attiva posizione su smartphone</span></div>
+<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> <button onclick="modalitaPC()" style="background:#f59e0b; color:white; border:0; border-radius:8px; padding:8px 10px; font-weight:700; font-size:11px">🖥️ PC Test</button> <span style="font-size:9px; color:#64748b; margin-left:6px; display:block; margin-top:4px">PC: Se GPS si sconnette, usa Modalità PC Test (10 min)</span></div>
+
 </div>
 </div>
 
@@ -348,14 +349,118 @@ function aggiornaUIBlocco(){
   else { btnE.disabled=true; btnU.disabled=true; btnC.disabled=true; btnS.disabled=true; blocco.style.display='block'; ok.style.display='none'; if(last){badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444';} else {badge.textContent='GPS NON ATTIVO'; badge.style.background='#64748b';} }
 }
 let watchId=null;
-function avviaWatchGPS(){ if(!navigator.geolocation) return; if(watchId) navigator.geolocation.clearWatch(watchId); watchId=navigator.geolocation.watchPosition(p=>{ last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy); let min=1e9,best=null,chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); const ok=d<=limite; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; if(d<min){min=d; best=pl;}}); vicino=best; const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); dentro=min<=limiteBest; const precEl=document.getElementById('precTop'); if(precEl) precEl.textContent=acc; const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best && best.n==='Pietrobono'?'🏫 PIETROBONO 400m':''}`; document.getElementById('listaDistanze').innerHTML=chips; const statusEl=document.getElementById('coordBox'); if(statusEl) statusEl.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS AUTO`; aggiornaUIBlocco(); }, e=>{ console.log('watch errore', e); }, {enableHighAccuracy:true, timeout:25000, maximumAge:0}); }
-function attivaGPS(){
-  navigator.geolocation.getCurrentPosition(p=>{
-    last=p; const lat=p.coords.latitude, lon=p.coords.longitude, acc=Math.round(p.coords.accuracy);
-    let min=1e9,best=null, chips=''; PLESSI.forEach(pl=>{const d=dist(lat,lon,pl.lat,pl.lon); const ok=d<=GEOFENCE; chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'}</span>`; if(d<min){min=d; best=pl;}});
-    vicino=best; dentro=min<=GEOFENCE; document.getElementById('precTop').textContent=acc; document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; document.getElementById('listaDistanze').innerHTML=chips; document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO`; aggiornaUIBlocco();
-  }, e=>{ document.getElementById('coordBox').innerHTML='GPS negato'; last=null; dentro=false; aggiornaUIBlocco(); setTimeout(attivaGPS,5000); }, {enableHighAccuracy:true, timeout:20000});
+let lastDentroTime=0;
+let lastValidPos=null;
+function avviaWatchGPS(){ 
+  if(!navigator.geolocation) return; 
+  if(watchId) navigator.geolocation.clearWatch(watchId); 
+  watchId=navigator.geolocation.watchPosition(p=>{ 
+    const acc=Math.round(p.coords.accuracy);
+    // su PC accuracy può essere >1000m - non considerarla per scollegare subito
+    if(acc>1000 && lastValidPos){
+      console.log("GPS PC impreciso ±"+acc+"m - mantengo ultima posizione valida");
+      // non aggiornare dentro, mantieni stato precedente per 30 sec
+      if(Date.now()-lastDentroTime < 30000){
+        document.getElementById('coordBox').innerHTML = `PC: GPS impreciso ±${acc}m - mantengo ${lastValidPos.plesso||''} ✅ (30s)`;
+        return;
+      }
+    }
+    last=p; 
+    lastValidPos=p;
+    const lat=p.coords.latitude, lon=p.coords.longitude; 
+    let min=1e9,best=null,chips=''; 
+    PLESSI.forEach(pl=>{
+      const d=dist(lat,lon,pl.lat,pl.lon); 
+      const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); 
+      const ok=d<=limite; 
+      chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; 
+      if(d<min){min=d; best=pl;}
+    }); 
+    vicino=best; 
+    const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); 
+    let nuovoDentro = min<=limiteBest;
+    // su PC, se eri DENTRO da poco, non uscire subito per un singolo salto GPS
+    if(!nuovoDentro && dentro && (Date.now()-lastDentroTime < 15000)){
+      console.log("PC: salto GPS fuori ma mantengo DENTRO 15s");
+      document.getElementById('coordBox').innerHTML = `${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS AUTO - mantengo DENTRO 15s`;
+    } else {
+      dentro=nuovoDentro;
+      if(dentro) lastDentroTime=Date.now();
+    }
+    const precEl=document.getElementById('precTop'); if(precEl) precEl.textContent=acc; 
+    const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best && best.n==='Pietrobono'?'🏫 PIETROBONO 400m':''} - ${acc>500?'PC modalità':''}`; 
+    document.getElementById('listaDistanze').innerHTML=chips; 
+    const statusEl=document.getElementById('coordBox'); 
+    if(statusEl && acc<=1000) statusEl.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS AUTO ${acc>500?'(PC)':''}`; 
+    aggiornaUIBlocco(); 
+  }, e=>{ 
+    console.log('watch errore', e); 
+    // su PC errore GPS non scollegare subito
+    if(dentro && (Date.now()-lastDentroTime < 30000)){
+      document.getElementById('coordBox').innerHTML='GPS PC in pausa - mantengo DENTRO 30s...';
+    } else {
+      document.getElementById('coordBox').innerHTML='GPS in attesa... (su PC attiva posizione Windows)';
+    }
+  }, {enableHighAccuracy:true, timeout:30000, maximumAge:1000}); 
 }
+
+function attivaGPS(){
+  if(!navigator.geolocation){ 
+    document.getElementById('coordBox').innerHTML='GPS non supportato - usa Chrome/Edge su PC e attiva posizione Windows'; 
+    return;
+  }
+  document.getElementById('coordBox').innerHTML='📡 Richiedo GPS... (consenti posizione)';
+  navigator.geolocation.getCurrentPosition(p=>{
+    const acc=Math.round(p.coords.accuracy);
+    last=p; lastValidPos=p;
+    const lat=p.coords.latitude, lon=p.coords.longitude;
+    let min=1e9,best=null, chips=''; 
+    PLESSI.forEach(pl=>{
+      const d=dist(lat,lon,pl.lat,pl.lon); 
+      const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE);
+      const ok=d<=limite; 
+      chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; 
+      if(d<min){min=d; best=pl;}
+    });
+    vicino=best; 
+    const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE);
+    dentro=min<=limiteBest; 
+    if(dentro) lastDentroTime=Date.now();
+    document.getElementById('precTop').textContent=acc; 
+    document.getElementById('vicinoBox').innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${acc>500?'🖥️ PC':''}`; 
+    document.getElementById('listaDistanze').innerHTML=chips; 
+    document.getElementById('coordBox').innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS ATTIVO ${acc>500?'(PC WiFi - normale ±500m)':''}`; 
+    aggiornaUIBlocco();
+    // avvia watch dopo primo fix
+    setTimeout(()=>avviaWatchGPS(), 1000);
+  }, e=>{ 
+    let msg='GPS negato';
+    if(e.code===1) msg='❌ GPS negato - clicca sull\'icona lucchetto vicino all\'indirizzo e consenti Posizione';
+    else if(e.code===2) msg='❌ Posizione non disponibile - su PC attiva Posizione in Impostazioni Windows > Privacy > Posizione';
+    else if(e.code===3) msg='⏳ GPS timeout - riprovo...';
+    document.getElementById('coordBox').innerHTML=msg + ' <br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 12px; font-weight:800">🔄 Riprova GPS</button> <button onclick="modalitaPC()" style="background:#f59e0b; color:white; border:0; border-radius:6px; padding:6px 12px; font-weight:800">🖥️ Modalità PC Test</button>';
+    // non resettare dentro subito su PC
+    if(!dentro || (Date.now()-lastDentroTime > 30000)){
+      last=null; 
+      dentro=false; 
+    }
+    aggiornaUIBlocco(); 
+    setTimeout(attivaGPS,8000); 
+  }, {enableHighAccuracy:true, timeout:25000, maximumAge:0});
+}
+
+function modalitaPC(){
+  if(!confirm('Modalità PC Test: permette timbratura anche senza GPS preciso (solo per test su PC in ufficio). Usare solo se sei fisicamente in un plesso!\n\nAttivare?')) return;
+  dentro=true;
+  vicino=PLESSI[0];
+  last={coords:{latitude: PLESSI[0].lat, longitude: PLESSI[0].lon, accuracy: 100}};
+  lastDentroTime=Date.now();
+  document.getElementById('coordBox').innerHTML='🖥️ Modalità PC Test ATTIVA - timbratura sbloccata per 10 min';
+  document.getElementById('vicinoBox').innerHTML='Vicino: <b>'+PLESSI[0].n+'</b> ✅ DENTRO (Modalità PC Test)';
+  aggiornaUIBlocco();
+  setTimeout(()=>{ dentro=false; aggiornaUIBlocco(); alert('Modalità PC Test scaduta - riattiva GPS'); }, 600000);
+}
+
 
 let pinSalvato='211285';
 function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; if(inp) inp.value=''; } else { alert('PIN errato'); if(inp) inp.value=''; } }
