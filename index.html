@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53.2 - Timbrature IC2-Fr - Filtro log dipendente</title>
+<title>IC Frosinone 2 - V53.3 - Timbrature IC2-Fr - PIN per stampa resoconto</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53.2 - Timbrature IC2-Fr</b>
+<b>✅ V53.3 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -475,6 +475,23 @@ function modalitaPC(){
 
 
 let pinSalvato='211285';
+
+function verificaPINStampa(){
+  // Se anagrafica è già sbloccata, ok
+  let lock = document.getElementById('pinLock');
+  if(lock && lock.style.display==='none'){
+    return true; // già sbloccato
+  }
+  // Altrimenti chiedi PIN
+  let pin = prompt('🔒 STAMPA RESOCONTO PROTETTA\n\nInserisci PIN (211285) per stampare resoconto ore:\n\nSolo amministratore può stampare!');
+  if(pin===pinSalvato){
+    return true;
+  } else {
+    alert('⛔ PIN errato - Stampa bloccata!\nSolo con PIN 211285 puoi stampare resoconto.');
+    return false;
+  }
+}
+
 function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; if(inp) inp.value=''; } else { alert('PIN errato'); if(inp) inp.value=''; } }
 function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp) inp.value=''; document.getElementById('pinLock').style.display='flex'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; }
 
@@ -782,8 +799,9 @@ function creaBadgeDa(nome){
   // scroll al badge
   box.scrollIntoView({behavior:'smooth'});
 }
-function stampaResoconto(){ const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
+function stampaResoconto(){ if(!verificaPINStampa()) return; const nome=document.getElementById('dipendente').value; stampaResocontoNome(nome); }
 function stampaResocontoNome(nome){
+  if(!verificaPINStampa()) return;
   const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
   const timbri=timbratureSalvate.filter(t=>t.nome===nome).slice(0,100);
   const printArea=document.getElementById('printArea'); printArea.style.display='block';
@@ -1200,6 +1218,7 @@ aggiornaLog = function(){
 
 // STAMPE MENSILI CON PERIODO
 function stampaMensileConPeriodo(){
+  if(!verificaPINStampa()) return;
   let nome = document.getElementById('dipendente').value;
   if(!nome){ alert('Seleziona dipendente!'); return; }
   let da = document.getElementById('dataDa').value;
