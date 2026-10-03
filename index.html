@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53.5 - Timbrature IC2-Fr - Anagrafiche su tutti i tablet</title>
+<title>IC Frosinone 2 - V53.6 - Timbrature IC2-Fr - Invia 4 dipendenti su tutti</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53.5 - Timbrature IC2-Fr</b>
+<b>✅ V53.6 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -681,19 +681,50 @@ function saveAnag(){
 }
 async function caricaAnagraficheCloud(){
   try{
+    let status = document.getElementById('cloudAnagStatus');
+    if(status) status.innerHTML = '⏳ Carico da cloud...';
     let val = await fetchWithFallback("/anagrafiche.json");
     if(val && Array.isArray(val) && val.length>0){
       console.log('☁️ Anagrafiche cloud caricate:', val.length);
-      // Merge cloud con locale - cloud vince se più recente o più completo
-      if(val.length >= anagrafiche.length){
-        anagrafiche = val;
+      let localeLen = anagrafiche.length;
+      // Se cloud ha dati, usa cloud (più completo)
+      // Se locale ha 4 e cloud 0, NON sovrascrivere
+      if(val.length>0){
+        // Merge intelligente: unisci senza duplicati per nome
+        let map = new Map();
+        anagrafiche.forEach(a=> map.set(a.nome.toLowerCase(), a));
+        val.forEach(a=> map.set(a.nome.toLowerCase(), a));
+        anagrafiche = Array.from(map.values());
+        // Se cloud più lungo, usa merge
+        if(val.length >= localeLen){
+          // se cloud più numeroso, prendi cloud + merge
+          anagrafiche = val;
+          // re-merge locale che non sono in cloud
+          let cloudNames = new Set(val.map(x=>x.nome.toLowerCase()));
+          let extra = JSON.parse(localStorage.getItem('anagrafiche_v95')||'[]').filter(x=> !cloudNames.has(x.nome.toLowerCase()));
+          if(extra.length>0) anagrafiche = [...anagrafiche, ...extra];
+        }
         localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
         localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
         render();
         mostraOrario();
+        if(status) status.innerHTML = '✅ Ricevute '+val.length+' da cloud, ora ne hai '+anagrafiche.length+' totali su questo tablet';
+      } else {
+        if(status) status.innerHTML = '⚠️ Cloud vuoto - clicca Invia per mandare i tuoi 4';
       }
+    } else {
+      let status2 = document.getElementById('cloudAnagStatus');
+      if(status2) status2.innerHTML = '⚠️ Cloud vuoto - hai '+anagrafiche.length+' locali, clicca 📤 Invia per mandarli a tutti';
     }
-  }catch(e){ console.log('Errore carica anag cloud', e); }
+  }catch(e){ console.log('Errore carica anag cloud', e); let s=document.getElementById('cloudAnagStatus'); if(s) s.innerHTML='❌ Errore cloud: '+e; }
+}
+function forzaInvioAnagraficheCloud(){
+  if(anagrafiche.length===0){ alert('Nessuna anagrafica locale!'); return; }
+  if(!confirm('📤 Inviare '+anagrafiche.length+' dipendenti su TUTTI i tablet (cloud)?\n\n'+anagrafiche.map(a=>a.nome).join(', ')+'\n\nConfermi?')) return;
+  salvaAnagraficheCloud();
+  let s=document.getElementById('cloudAnagStatus');
+  if(s) s.innerHTML='✅ Inviate '+anagrafiche.length+' anagrafiche su cloud! Ora vai su altro tablet e clicca 📥 Ricevi';
+  alert('✅ Inviate '+anagrafiche.length+' anagrafiche su cloud!\nOra apri altro tablet e clicca 📥 Ricevi anagrafiche da cloud');
 }
 function render(){
   const sel=document.getElementById('dipendente'); sel.innerHTML=''; anagrafiche.forEach(a=>{const o=document.createElement('option'); const riepilogo=Object.keys(a.orariSettimana||{}).map(g=>{if((a.orariSettimana[g]||[]).length===0) return ''; return g.toUpperCase()+':'+a.orariSettimana[g].map(s=>s.entrata+'-'+s.uscita).join('/')}).filter(x=>x).join(' '); o.text=`${a.nome} - ${a.qualifica||''} - ${a.plesso} (${riepilogo.substring(0,50)})`; o.value=a.nome; sel.appendChild(o);});
