@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53 - Timbrature IC2-Fr</title>
+<title>IC Frosinone 2 - V53.2 - Timbrature IC2-Fr - Filtro log dipendente</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53 - Timbrature IC2-Fr</b>
+<b>✅ V53.2 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -174,6 +174,14 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
 <button onclick="stampaMensileConPeriodo()" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:10px; font-weight:800; font-size:12px">🖨️ Stampa Mensile Periodo</button>
 <button onclick="let d=new Date(); let m=d.getMonth(); let y=d.getFullYear(); let da=new Date(y,m,1); let a=new Date(y,m+1,0); document.getElementById('dataDa').value=da.toISOString().slice(0,10); document.getElementById('dataA').value=a.toISOString().slice(0,10); stampaMensileConPeriodo();" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:10px; font-weight:800; font-size:12px">📅 Mese Corrente</button>
+</div>
+<div style="margin-top:8px; border-top:2px dashed #ef4444; padding-top:8px">
+<b style="font-size:11px; color:#ef4444">🗑️ Gestione timbrature dipendente selezionato</b><br>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
+<button onclick="eliminaTimbratureDipendente()" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:8px; font-weight:800; font-size:10px">🗑️ Elimina TUTTE timbrature dipendente (periodo se selezionato)</button>
+<button onclick="let n=document.getElementById('dipendente').value; if(!n){alert('Seleziona dipendente'); return;} let c=timbratureSalvate.filter(t=>t.nome===n).length; alert('Timbrature di '+n+' su questo tablet: '+c)" style="background:#64748b; color:white; border:0; border-radius:8px; padding:8px; font-weight:800; font-size:10px">🔍 Conta timbrature dipendente</button>
+</div>
+<small style="font-size:9px; color:#64748b">Per eliminare: 1) Seleziona dipendente dal menu grande sopra 2) Opzionale seleziona periodo Da/A 3) Clicca Elimina e scrivi ELIMINA</small>
 </div>
 </div>
 
@@ -1049,27 +1057,49 @@ timbra = timbraConTolleranza;
 
 // Aggiorna aggiornaLog per mostrare ritardo/permesso
 let aggiornaLogOriginale = aggiornaLog;
+
+let filtroLogDipendente = 'TUTTI';
 function aggiornaLogConTolleranza(){
   try{
     const logDiv = document.getElementById('log');
     if(!logDiv) return;
+    // Crea filtro se non esiste
+    let filtroHtml = '<div style="display:flex; gap:6px; align-items:center; margin-bottom:6px; background:#f8fafc; padding:6px; border-radius:8px; border:1px solid #cbd5e1"><span style="font-size:10px; font-weight:800">🔍 Filtra log:</span><select id="filtroLogSelect" onchange="filtroLogDipendente=this.value; aggiornaLog();" style="flex:1; padding:4px; border-radius:6px; border:1px solid #0ea5e9; font-size:11px; font-weight:700"><option value="TUTTI">TUTTI i dipendenti ('+timbratureSalvate.length+')</option>';
+    let nomiUnici = [...new Set(timbratureSalvate.map(t=>t.nome))].sort();
+    nomiUnici.forEach(n=>{
+      let c = timbratureSalvate.filter(t=>t.nome===n).length;
+      let sel = filtroLogDipendente===n ? ' selected' : '';
+      filtroHtml += '<option value="'+n.replace(/"/g,'&quot;')+'"'+sel+'>'+n+' ('+c+')</option>';
+    });
+    filtroHtml += '</select><button onclick="filtroLogDipendente=\'TUTTI\'; document.getElementById(\'filtroLogSelect\').value=\'TUTTI\'; aggiornaLog();" style="background:#64748b; color:white; border:0; border-radius:6px; padding:4px 8px; font-size:10px; font-weight:800">✕ Tutti</button></div>';
+    
+    let filtrate = timbratureSalvate;
+    if(filtroLogDipendente!=='TUTTI'){
+      filtrate = timbratureSalvate.filter(t=>t.nome===filtroLogDipendente);
+    }
+    
     let html = '';
-    timbratureSalvate.slice(0,50).forEach((t,i)=>{
+    filtrate.slice(0,100).forEach((t)=>{
+      let idxReale = timbratureSalvate.indexOf(t);
       const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
       const ora = t.ora || (t.data||'').split(',')[1]||'';
       let ritColore = '#64748b';
       if(t.ritardoTipo==='ritardo') ritColore='#dc2626';
       else if(t.ritardoTipo==='permesso') ritColore='#f59e0b';
       else if(t.ritardoTipo==='ok') ritColore='#16a34a';
-      let ritHtml = t.ritardo ? `<br><span style="font-size:9px; color:${ritColore}; font-weight:800">${t.ritardo}</span>` : '';
-      html += `<div style="border-left:3px solid ${colore}; padding:4px 6px; margin:4px 0; background:white; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center"><div style="flex:1"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ <b>${t.plesso||''}</b> ${t.distanza? '('+t.distanza+'m)':''} <span style="font-size:9px; color:#64748b">${ora}</span>${ritHtml}</div><div style="display:flex; gap:2px"><button class="btn-edit" onclick="modificaTimbratura(${i})" title="Modifica">✏️</button><button class="btn-del" onclick="cancellaTimbraturaLocale(${i})" title="Cancella">🗑️</button></div></div>`;
+      let ritHtml = t.ritardo ? '<br><span style="font-size:9px; color:'+ritColore+'; font-weight:800">'+t.ritardo+'</span>' : '';
+      html += '<div style="border-left:3px solid '+colore+'; padding:4px 6px; margin:4px 0; background:white; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center"><div style="flex:1"><b>'+(t.data||'')+'</b> - <span style="color:'+colore+';font-weight:800">'+(t.tipo||'')+'</span> - '+(t.nome||'')+' @ <b>'+(t.plesso||'')+'</b> '+(t.distanza? '('+t.distanza+'m)':'')+' <span style="font-size:9px; color:#64748b">'+ora+'</span>'+ritHtml+'</div><div style="display:flex; gap:2px"><button class="btn-edit" onclick="modificaTimbratura('+idxReale+')" title="Modifica">✏️</button><button class="btn-del" onclick="cancellaTimbraturaLocale('+idxReale+')" title="Cancella">🗑️</button></div></div>';
     });
-    if(html==='') html = '<div style="padding:8px; color:#64748b">Nessuna timbratura ancora - fai una prova!</div>';
-    else html = '<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:6px; background:#f0fdf4; padding:4px; border-radius:6px">📋 TIMBRATURE (ultime 50) - Tot: '+timbratureSalvate.length+' - Tolleranza 5 min attiva</div>' + html;
-    logDiv.innerHTML = html;
+    if(html==='') html = '<div style="padding:8px; color:#64748b">Nessuna timbratura per '+filtroLogDipendente+'</div>';
+    else {
+      let titolo = filtroLogDipendente==='TUTTI' ? '📋 TIMBRATURE (ultime 50) - Tot: '+timbratureSalvate.length : '📋 '+filtroLogDipendente+' - Tot: '+filtrate.length+' timbrature (su '+timbratureSalvate.length+' totali)';
+      html = '<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:6px; background:#f0fdf4; padding:4px; border-radius:6px">'+titolo+' - Tolleranza 5 min</div>' + html;
+    }
+    logDiv.innerHTML = filtroHtml + html;
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
+
 aggiornaLog = aggiornaLogConTolleranza;
 
 function cancellaTimbraturaLocale(idx){
@@ -1217,20 +1247,113 @@ function stampaMensileConPeriodo(){
   </div>`;
 }
 
+
 function modificaTimbratura(idx){
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
-  let nuovoOra = prompt('Modifica ora (es. 07:35) per '+t.nome+' - '+t.tipo+' @ '+t.plesso+'\nOra attuale: '+t.ora, t.ora);
+  let nuovoOra = prompt('✏️ MODIFICA TIMBRATURA\n\nDipendente: '+t.nome+'\nTipo: '+t.tipo+' @ '+t.plesso+'\nData: '+t.data+'\n\nInserisci nuova ora (es. 07:35):', t.ora);
   if(nuovoOra===null) return;
+  nuovoOra = nuovoOra.trim();
+  if(!nuovoOra.match(/^\d{1,2}:\d{2}$/)){ alert('Formato ora non valido! Usa HH:MM es. 07:35'); return; }
   t.ora = nuovoOra;
   let calc = calcolaRitardoPermesso(t);
   t.ritardo = calc.testo;
   t.ritardoTipo = calc.tipo;
   t.ritardoMinuti = calc.minuti;
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  try{ 
+    // aggiorna anche su cloud se ha timestamp
+    if(t.timestamp) aggiornaTimbraturaCloud(t);
+  }catch(e){ console.log('cloud update errore', e); }
   aggiornaLog();
-  alert('✅ Modificato: '+t.ora+'\n'+calc.testo);
+  alert('✅ Modificato: '+t.nome+' - '+t.tipo+' @ '+nuovoOra+'\n'+calc.testo+'\nSalvato su questo tablet e cloud');
 }
+
+function cancellaTimbratura(idx){
+  if(idx<0 || idx>=timbratureSalvate.length) return;
+  const t = timbratureSalvate[idx];
+  if(!confirm('🗑️ CANCELLARE DEFINITIVAMENTE?\n\n'+t.nome+' - '+t.tipo+'\n'+t.data+' @ '+t.plesso+' '+t.ora+'\n\nVerrà cancellata su TUTTI i tablet (cloud) e su questo tablet.\nConfermi?')) return;
+  // rimuovi da array locale
+  const removed = timbratureSalvate.splice(idx,1)[0];
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  try{ cancellaTimbraturaCloud(removed); }catch(e){}
+  aggiornaLog();
+  alert('🗑️ Cancellata: '+removed.nome+' '+removed.tipo+' @ '+removed.ora);
+}
+
+function eliminaTimbratureDipendente(nomeDip){
+  if(!nomeDip){ nomeDip = document.getElementById('dipendente').value; }
+  if(!nomeDip){ alert('Seleziona un dipendente dal menu a tendina!'); return; }
+  const count = timbratureSalvate.filter(t=>t.nome===nomeDip).length;
+  if(count===0){ alert('Nessuna timbratura trovata per '+nomeDip+' su questo tablet'); return; }
+  let da = document.getElementById('dataDa').value;
+  let a = document.getElementById('dataA').value;
+  let msg = '🗑️ ELIMINARE TUTTE LE TIMBRATURE DI:\n\n'+nomeDip+'\nTrovate: '+count+' su questo tablet';
+  if(da && a){ msg += '\nPeriodo selezionato: '+da+' - '+a+' (verranno filtrate solo quelle nel periodo)'; }
+  msg += '\n\n⚠️ Verranno cancellate su TUTTI i tablet (cloud)!\nConfermi? Scrivi ELIMINA';
+  let conf = prompt(msg);
+  if(conf!=='ELIMINA'){ alert('Annullato - devi scrivere ELIMINA esatto'); return; }
+  
+  // Filtra per periodo se selezionato
+  let daDate=null, aDate=null;
+  if(da && a){ daDate=new Date(da); aDate=new Date(a); }
+  
+  let daCancellare = timbratureSalvate.filter(t=>{
+    if(t.nome!==nomeDip) return false;
+    if(daDate && aDate){
+      try{
+        let parts = (t.data||'').split(',')[0].split('/');
+        if(parts.length!==3) return false;
+        let d = new Date(parts[2], parts[1]-1, parts[0]);
+        return d>=daDate && d<=aDate;
+      }catch(e){ return false; }
+    }
+    return true;
+  });
+  
+  if(!confirm('ULTIMA CONFERMA: Cancellare '+daCancellare.length+' timbrature di '+nomeDip+'?')) return;
+  
+  // Cancella
+  let cancellate=0;
+  timbratureSalvate = timbratureSalvate.filter(t=>{
+    let shouldDel = t.nome===nomeDip;
+    if(shouldDel && daDate && aDate){
+      try{
+        let parts = (t.data||'').split(',')[0].split('/');
+        let d = new Date(parts[2], parts[1]-1, parts[0]);
+        shouldDel = d>=daDate && d<=aDate;
+      }catch(e){ shouldDel=false; }
+    }
+    if(shouldDel){ 
+      try{ cancellaTimbraturaCloud(t); }catch(e){}
+      cancellate++;
+      return false; 
+    }
+    return true;
+  });
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  aggiornaLog();
+  alert('🗑️ Cancellate '+cancellate+' timbrature di '+nomeDip);
+}
+
+function aggiornaTimbraturaCloud(t){
+  // aggiorna su Firebase se esiste
+  try{
+    if(!t.timestamp) return;
+    const path = '/timbrature/'+t.timestamp;
+    fetch(DB_URL+path+'.json', {method:'PATCH', body: JSON.stringify(t)});
+  }catch(e){}
+}
+function cancellaTimbraturaCloud(t){
+  try{
+    if(!t.timestamp) return;
+    // Prova a cancellare su tutti i DB_URL
+    DB_URLS.forEach(base=>{
+      fetch(base+'/timbrature/'+t.timestamp+'.json', {method:'DELETE'});
+    });
+  }catch(e){}
+}
+
 
 window.addEventListener('load', ()=>{
   // SEMPRE nascondi anagrafica all'avvio come richiesto
