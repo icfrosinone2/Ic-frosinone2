@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53.6 - Timbrature IC2-Fr - Invia 4 dipendenti su tutti</title>
+<title>IC Frosinone 2 - V53.7 - Timbrature IC2-Fr - Elenco Modifica visibile</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53.6 - Timbrature IC2-Fr</b>
+<b>✅ V53.7 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -282,10 +282,12 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
-<div id="elencoProtetto" style="display:none; margin-top:12px">
-<b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
-<input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
-<div id="tabellaOrari" style="max-height:600px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
+<div id="elencoProtetto" style="display:none; margin-top:12px; background:#fffbeb; border:3px solid #f59e0b; border-radius:14px; padding:12px">
+<b style="font-size:15px; color:#92400e">📋 Elenco Dipendenti - Modifica / Elimina / Badge - SCORRI QUI SOTTO ⬇️</b><br>
+<small style="font-size:11px">Clicca sui bottoni a destra di ogni dipendente per modificarlo</small>
+<input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:10px; border:2px solid #f59e0b; border-radius:10px; font-size:13px; margin:8px 0; box-sizing:border-box; background:white" oninput="filtraElenco()">
+<div id="tabellaOrari" style="max-height:800px; overflow:auto; font-size:12px; border:2px solid #fbbf24; border-radius:10px; background:white; min-height:100px"></div>
+<div style="margin-top:8px; font-size:10px; color:#92400e; background:white; padding:6px; border-radius:6px">💡 <b>Come modificare:</b> Clicca ✏️ Modifica → si carica sopra → cambia orario/nome → Salva<br><b>Come eliminare:</b> Clicca 🗑️ Elimina → cancella su tutti i tablet<br><b>Badge smarrito:</b> Clicca 🖨️ Badge → ristampa identico</div>
 </div>
 
 <div id="badgeCartaBox" class="badge-carta">
@@ -745,29 +747,40 @@ function render(){
 }
 function filtraElenco(){
   const q=(document.getElementById('cercaDip').value||'').toLowerCase();
-  const cont=document.getElementById('tabellaOrari'); cont.innerHTML='';
-  anagrafiche.filter(a=>a.nome.toLowerCase().includes(q) || (a.qualifica||'').toLowerCase().includes(q)).forEach(a=>{
+  const cont=document.getElementById('tabellaOrari'); 
+  if(!cont) return;
+  cont.innerHTML='';
+  let lista = anagrafiche.filter(a=>a.nome.toLowerCase().includes(q) || (a.qualifica||'').toLowerCase().includes(q));
+  lista.forEach(a=>{
     const riepilogoGiorni=Object.keys(giorniMap).map(g=>{
       const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[];
       if(slots.length===0) return '';
       return `<div style="font-size:9px"><b>${g.toUpperCase()}</b>: ${slots.map(s=>s.entrata+'-'+s.uscita).join(' + ')}</div>`;
     }).join('');
     const div=document.createElement('div');
-    div.style.cssText='display:grid; grid-template-columns:1.3fr 1fr 1.5fr 0.7fr; gap:4px; padding:8px; border-bottom:1.5px solid #e2e8f0; align-items:start; background:white';
+    div.style.cssText='display:grid; grid-template-columns:1.2fr 1fr 0.6fr 0.8fr; gap:6px; padding:10px; border-bottom:2px solid #fde68a; align-items:start; background:white';
+    let safeName = a.nome.replace(/'/g, "\\'");
     div.innerHTML=`
-      <div><b style="font-size:12px">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:2px 6px; border-radius:999px; border:1px solid #7c3aed">${a.qualifica||''}</span><br><span style="font-size:10px">${a.plesso}</span></div>
-      <div style="font-size:10px">${riepilogoGiorni}</div>
-      <div style="font-size:10px; text-align:center"><b>${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">sett.</span></div>
-      <div style="display:grid; gap:4px">
-        <button onclick="creaBadgeDa('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#7c3aed; color:white; border:0; border-radius:6px; padding:5px">🖨️ Badge<br><small>Ristampa se smarrito</small></button>
-        <button onclick="modificaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px">✏️ Modifica</button>
-        <button onclick="eliminaAnag('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#ef4444; color:white; border:0; border-radius:6px; padding:4px">🗑️ Elimina</button>
-        <button onclick="stampaResocontoNome('${a.nome.replace(/'/g,'')}' )" style="font-size:10px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:4px">📊 Ore</button>
+      <div><b style="font-size:13px; color:#0f172a">${a.nome}</b><br><span style="font-size:10px; background:#f5f3ff; padding:3px 8px; border-radius:999px; border:1.5px solid #7c3aed; font-weight:700">${a.qualifica||''}</span><br><span style="font-size:11px; font-weight:700">📍 ${a.plesso}</span></div>
+      <div style="font-size:10px; background:#f8fafc; padding:4px; border-radius:6px">${riepilogoGiorni || '<span style=color:#94a3b8>Orario non impostato</span>'}</div>
+      <div style="font-size:11px; text-align:center; background:#f0fdf4; padding:6px; border-radius:8px; border:1px solid #16a34a"><b style="font-size:13px">${a.totale||''}</b><br><span style="font-size:9px; color:#64748b">a settimana</span></div>
+      <div style="display:grid; gap:5px">
+        <button onclick="creaBadgeDa('${safeName}')" style="font-size:11px; background:#7c3aed; color:white; border:0; border-radius:8px; padding:8px; font-weight:800">🖨️ Badge</button>
+        <button onclick="modificaAnag('${safeName}')" style="font-size:11px; background:#f59e0b; color:white; border:0; border-radius:8px; padding:8px; font-weight:800">✏️ Modifica</button>
+        <button onclick="eliminaAnag('${safeName}')" style="font-size:11px; background:#ef4444; color:white; border:0; border-radius:8px; padding:8px; font-weight:800">🗑️ Elimina</button>
+        <button onclick="stampaResocontoNome('${safeName}')" style="font-size:11px; background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px; font-weight:800">📊 Ore</button>
       </div>
     `;
     cont.appendChild(div);
   });
-  if(cont.innerHTML==='') cont.innerHTML='<div style="text-align:center; padding:12px; color:#64748b">Nessun dipendente trovato</div>';
+  if(cont.innerHTML==='') cont.innerHTML='<div style="text-align:center; padding:20px; color:#64748b; background:#fef3c7; border-radius:8px">Nessun dipendente trovato - ne hai '+anagrafiche.length+' totali</div>';
+  else {
+    // aggiungi contatore
+    let info = document.createElement('div');
+    info.style.cssText='padding:8px; background:#d1fae5; text-align:center; font-weight:800; font-size:12px; color:#065f46; border-radius:8px; margin-bottom:6px';
+    info.innerHTML='✅ Trovati '+lista.length+' dipendenti / Totale '+anagrafiche.length+' - Clicca ✏️ per modificare';
+    cont.prepend(info);
+  }
 }
 function mostraOrario(){
   const nome=document.getElementById('dipendente').value;
@@ -803,14 +816,21 @@ function aggiungiAnagrafica(){
 
 }
 function modificaAnag(nome){
-  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN prima!'); return; }
-  const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
+  if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN prima! PIN 211285'); return; }
+  const a=anagrafiche.find(x=>x.nome===nome); if(!a){ alert('Dipendente non trovato: '+nome); return; }
+  console.log('Modifica', a);
   document.getElementById('nuovaAnagrafica').value=a.nome;
   document.getElementById('plessoAnagrafica').value=a.plesso;
   document.getElementById('qualifica').value=a.qualifica||'Collaboratore scolastico';
   orariSettimana=a.orariSettimana? JSON.parse(JSON.stringify(a.orariSettimana)) : {lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
   selezionaGiorno('lun');
-  window.scrollTo(0, document.getElementById('anagraficaForm').offsetTop);
+  renderSlotsGiorno();
+  aggiornaRiepilogo();
+  // evidenzia
+  let form = document.getElementById('anagraficaForm');
+  if(form){ form.style.border='4px solid #f59e0b'; form.style.background='#fffbeb'; setTimeout(()=>{ form.style.border=''; form.style.background=''; }, 3000); }
+  window.scrollTo({top: form.offsetTop - 20, behavior:'smooth'});
+  alert('✏️ MODIFICA ATTIVA: '+a.nome+'\nOra in alto puoi cambiare orario, plesso, qualifica e poi clicca Salva Anagrafica per aggiornare su TUTTI i tablet!');
 }
 function eliminaAnag(nome){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN!'); return; }
