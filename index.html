@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.7 TABLET OK - FIX GPS PC + TOLLERANZA 5 MIN + STAMPE PERIODO + CAMERA</title>
+<title>IC Frosinone 2 - V51.8 TABLET OK - ANAGRAFICA SEMPRE NASCOSTA + PIN + GPS + TOLLERANZA</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -86,6 +86,10 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .modal-edit-box h3{margin:0 0 10px 0; font-size:14px}
 .modal-edit-box label{font-size:11px; font-weight:700; display:block; margin-top:8px}
 .modal-edit-box input, .modal-edit-box select{width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box; margin-top:2px}
+
+#anagraficaForm{ display:none; }
+#elencoProtetto, #tabellaOrari{ display:none; }
+#pinLock{ display:flex !important; }
 </style>
 
 
@@ -94,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.7 TABLET OK - FIX GPS PC + TOLLERANZA 5 MIN + STAMPE PERIODO + CAMERA</b>
+<b>✅ V51.8 TABLET OK - ANAGRAFICA SEMPRE NASCOSTA + PIN + GPS + TOLLERANZA</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -131,8 +135,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 </div>
 </div>
-
-<div id="bloccoBox"
 
 <div id="bloccoBox" class="red-banner">Avvicinati a un plesso per timbrare.</div>
 <div id="okBox" class="red-banner" style="display:none; background:#16a34a">✅ Sei dentro il plesso - Puoi timbrare anche se fai servizio in un altro plesso</div>
@@ -267,7 +269,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 
-<div style="margin-top:12px">
+<div id="elencoProtetto" style="display:none; margin-top:12px">
 <b style="font-size:13px">📋 Elenco - Modifica / Elimina / Ristampa Badge</b>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px; margin:6px 0; box-sizing:border-box" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:600px; overflow:auto; font-size:11px; border:1px solid #e2e8f0; border-radius:8px"></div>
@@ -666,6 +668,8 @@ function mostraOrario(){
 }
 
 function aggiungiAnagrafica(){
+  // auto-blocca dopo salvataggio per sicurezza
+
   const nome=document.getElementById('nuovaAnagrafica').value.trim();
   const plesso=document.getElementById('plessoAnagrafica').value;
   const qualifica=document.getElementById('qualifica').value;
@@ -676,7 +680,7 @@ function aggiungiAnagrafica(){
   const obj={nome, plesso, qualifica, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
   const idx=anagrafiche.findIndex(a=>a.nome.toLowerCase()===nome.toLowerCase());
   if(idx>=0) anagrafiche[idx]=obj; else anagrafiche.push(obj);
-  saveAnag(); render(); creaBadgeDa(nome); document.getElementById('nuovaAnagrafica').value='';
+  saveAnag(); render(); setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000); // auto nascondi anagrafica creaBadgeDa(nome); document.getElementById('nuovaAnagrafica').value='';
   alert('✅ Salvato '+nome+' - '+qualifica+' - Tot sett '+totale+'\nBadge pronto per ristampa se smarrito!');
 }
 function modificaAnag(nome){
@@ -693,7 +697,7 @@ function eliminaAnag(nome){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN!'); return; }
   if(!confirm('Eliminare definitivamente '+nome+' ?\nIl badge non sarà più valido.')) return;
   anagrafiche=anagrafiche.filter(a=>a.nome!==nome);
-  saveAnag(); render();
+  saveAnag(); render(); setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000); // auto nascondi anagrafica
 }
 
 function handleFotoAnagrafica(event){
@@ -1207,11 +1211,15 @@ function modificaTimbratura(idx){
 }
 
 window.addEventListener('load', ()=>{
+  // SEMPRE nascondi anagrafica all'avvio come richiesto
+  try{ bloccaPIN(); }catch(e){}
   renderPlessiUI();
   if(typeof loadAnag==='function') try{loadAnag();}catch(e){}
   if(typeof resetOrariSettimana==='function') try{resetOrariSettimana();}catch(e){}
   try{ aggiornaLog(); }catch(e){}
   setTimeout(()=>{ try{ caricaCondivise(); }catch(e){} }, 500);
+  // Forza nascosta dopo 500ms anche se altro script la mostra
+  setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 600);
   // GPS AUTO subito + dopo 1 sec + watch + ogni 15 sec
   try{ attivaGPS(); }catch(e){}
   setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 1000);
