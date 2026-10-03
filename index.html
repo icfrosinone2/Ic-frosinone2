@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.1 - GPS OK + Cancella su TUTTI i tablet + PIN nascosto + Scanner scelta</title>
+<title>IC Frosinone 2 - V51.3 - TOLLERANZA FIX - ritardo da 07:36, permesso fino 14:37</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -85,7 +85,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.1 - GPS OK + Cancella su TUTTI i tablet + PIN nascosto + Scanner scelta</b>
+<b>✅ V51.3 - TOLLERANZA FIX - ritardo da 07:36, permesso fino 14:37</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -204,6 +204,26 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b" onclick="svuotaGiorno()">🗑️ Svuota giorno</button>
 </div>
 </div>
+
+<!-- TOLLERANZA 5 MINUTI - V51.2 - NON TOCCA GPS -->
+<div style="background:#fef3c7; border:2.5px solid #f59e0b; border-radius:12px; padding:10px; margin:8px 0">
+<b style="font-size:13px">⏱️ Tolleranza 5 minuti (come da richiesta)</b><br>
+<div style="font-size:11px; margin-top:6px; background:white; padding:8px; border-radius:8px; border:1px solid #fbbf24">
+<b>ENTRATA:</b> Orario 07:30-14:42<br>
+• Timbra entro 07:35 → <span style="color:#16a34a; font-weight:800">✅ OK (tolleranza)</span> - NO ritardo<br>
+• Timbra dalle 07:36 → <span style="color:#dc2626; font-weight:800">⚠️ RITARDO calcolato da 07:36</span><br>
+&nbsp;&nbsp;Es: 07:36 = 1 min, 07:40 = 5 min, 07:45 = 10 min<br><br>
+<b>USCITA:</b><br>
+• Timbra dopo 14:37 → <span style="color:#16a34a; font-weight:800">✅ OK</span> - NO permesso<br>
+• Timbra prima 14:37 → <span style="color:#f59e0b; font-weight:800">⏰ PERMESSO calcolato fino a 14:37</span><br>
+&nbsp;&nbsp;Es: 14:30 = 7 min permesso, 14:20 = 17 min permesso
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
+<div><label style="font-size:10px; font-weight:700">Tolleranza entrata (min)</label><input id="tollEntrata" type="number" value="5" min="0" max="60" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #f59e0b" onchange="localStorage.setItem('tollEntrata', this.value)"></div>
+<div><label style="font-size:10px; font-weight:700">Tolleranza uscita (min)</label><input id="tollUscita" type="number" value="5" min="0" max="60" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #f59e0b" onchange="localStorage.setItem('tollUscita', this.value)"></div>
+</div>
+</div>
+
 <div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
 </div>
 
@@ -622,112 +642,6 @@ function aggiornaLog(){
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
 
-// ===== CANCELLAZIONE MULTI-TABLET - LOGICA CLOUD - NON TOCCA GPS =====
-let indiceModifica = -1;
-
-async function salvaCancellazioneCloud(t){
-  try{
-    let payload = {
-      data: t.data, nome: t.nome, tipo: t.tipo, plesso: t.plesso, ora: t.ora,
-      hash: (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||''),
-      hash2: (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||''),
-      timestamp: Date.now()
-    };
-    // salva su ENTRAMBI i DB per sicurezza
-    for(let base of DB_URLS){
-      try{
-        await fetch(base + "/cancellate.json", {
-          method:"POST",
-          body: JSON.stringify(payload),
-          headers:{"Content-Type":"application/json"}
-        });
-      }catch(e){}
-    }
-    console.log("☁️ Cancellazione salvata su cloud per tutti i tablet");
-  }catch(e){ console.log("Errore salva cancellazione", e); }
-}
-
-async function caricaCancellazioniLogiche(){
-  try{
-    let val = await fetchWithFallback("/cancellate.json");
-    if(val){
-      let arr = Array.isArray(val) ? val : Object.values(val);
-      let cancellate = [];
-      try{ cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]'); }catch(e){}
-      arr.forEach(c=>{
-        if(c.hash && !cancellate.includes(c.hash)) cancellate.push(c.hash);
-        if(c.hash2 && !cancellate.includes(c.hash2)) cancellate.push(c.hash2);
-      });
-      localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-1000)));
-    }
-  }catch(e){}
-}
-
-async function cancellaTimbratura(idx){
-  if(idx<0 || idx>=timbratureSalvate.length) return;
-  const t = timbratureSalvate[idx];
-  if(!confirm('Cancellare questa timbratura su TUTTI i tablet?\n'+(t.data||'')+' - '+t.nome+' - '+t.tipo+' @ '+t.plesso+'\n\nSparirà da Pietrobono e Rinascita in 1-2 secondi!')) return;
-  // 1) salva cancellazione su cloud per tutti i tablet
-  await salvaCancellazioneCloud(t);
-  // 2) aggiungi a lista locale
-  try{
-    let cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]');
-    let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'');
-    let key2 = key + '|' + (t.ora||'');
-    if(!cancellate.includes(key)) cancellate.push(key);
-    if(!cancellate.includes(key2)) cancellate.push(key2);
-    localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-1000)));
-  }catch(e){}
-  timbratureSalvate.splice(idx,1);
-  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
-  aggiornaLog();
-  setTimeout(caricaCondivise, 800);
-}
-
-function modificaTimbratura(idx){
-  if(idx<0 || idx>=timbratureSalvate.length) return;
-  indiceModifica = idx;
-  const t = timbratureSalvate[idx];
-  document.getElementById('editNome').value = t.nome||'';
-  document.getElementById('editTipo').value = t.tipo||'ENTRATA';
-  document.getElementById('editPlesso').value = t.plesso||'';
-  document.getElementById('editData').value = t.data||'';
-  document.getElementById('editOra').value = t.ora||'';
-  document.getElementById('modalEdit').style.display='flex';
-}
-function chiudiModaleEdit(){ document.getElementById('modalEdit').style.display='none'; indiceModifica=-1; }
-async function salvaModificaTimbratura(){
-  if(indiceModifica<0) return;
-  const old = timbratureSalvate[indiceModifica];
-  // cancella vecchia su tutti i tablet
-  await salvaCancellazioneCloud(old);
-  try{
-    let cancellate = JSON.parse(localStorage.getItem('timbrature_cancellate_v42')||'[]');
-    let key = (old.data||'') + '|' + (old.nome||'') + '|' + (old.tipo||'') + '|' + (old.plesso||'');
-    let key2 = key + '|' + (old.ora||'');
-    if(!cancellate.includes(key)) cancellate.push(key);
-    if(!cancellate.includes(key2)) cancellate.push(key2);
-    localStorage.setItem('timbrature_cancellate_v42', JSON.stringify(cancellate.slice(-1000)));
-  }catch(e){}
-  const nuovo = {
-    data: document.getElementById('editData').value || old.data,
-    ora: document.getElementById('editOra').value || old.ora,
-    tipo: document.getElementById('editTipo').value || old.tipo,
-    nome: document.getElementById('editNome').value || old.nome,
-    plesso: document.getElementById('editPlesso').value || old.plesso,
-    distanza: old.distanza||0,
-    giorno: old.giorno||'',
-    timestamp: Date.now()
-  };
-  timbratureSalvate[indiceModifica]=nuovo;
-  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
-  try{ await salvaNuovaTimbratura(nuovo); }catch(e){}
-  chiudiModaleEdit();
-  aggiornaLog();
-  setTimeout(caricaCondivise, 800);
-}
-
-
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
 const DB_URLS = [
   "https://icfrosinone2-default-rtdb.firebaseio.com",
@@ -759,8 +673,7 @@ async function fetchWithFallback(path){
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
-    // prima carica cancellazioni da cloud per multi-tablet
-    await caricaCancellazioniLogiche();
+    // NO Caricamento... per non far lampeggiare - resta fisso
     let val = await fetchWithFallback("/timbrature.json");
     if(val){
       let arr = Array.isArray(val) ? val : Object.values(val);
@@ -875,6 +788,139 @@ window.addEventListener('online', ()=>{
 });
 
 
+
+// ===== TOLLERANZA 5 MINUTI V51.2 - NON TOCCA GPS =====
+function parseOraMin(oraStr){
+  // oraStr "07:35" o "07:35:00" o da timbratura "07:35"
+  try{
+    let p = (oraStr||'').split(':');
+    return parseInt(p[0])*60 + parseInt(p[1]);
+  }catch(e){ return 0; }
+}
+function calcolaRitardoPermesso(t){
+  try{
+    let tollE = parseInt(localStorage.getItem('tollEntrata')||'5');
+    let tollU = parseInt(localStorage.getItem('tollUscita')||'5');
+    let anag = anagrafiche.find(a=>a.nome===t.nome);
+    if(!anag) return {testo:'', tipo:'', minuti:0};
+    let giornoKey = 'lun';
+    try{
+      let parts = (t.data||'').split(',')[0].split('/');
+      if(parts.length===3){
+        let d = new Date(parts[2], parts[1]-1, parts[0]);
+        let map = ['dom','lun','mar','mer','gio','ven','sab'];
+        giornoKey = map[d.getDay()];
+      }
+    }catch(e){}
+    let slots = anag.orariSettimana && anag.orariSettimana[giornoKey] ? anag.orariSettimana[giornoKey] : [];
+    if(slots.length===0) return {testo:'', tipo:'', minuti:0};
+    let entrataPrevista = slots[0].entrata;
+    let uscitaPrevista = slots[slots.length-1].uscita;
+    let oraTimbr = parseOraMin(t.ora);
+    
+    if(t.tipo==='ENTRATA'){
+      let oraEntr = parseOraMin(entrataPrevista);
+      let limiteTolleranza = oraEntr + tollE; // es 07:30 +5 = 07:35
+      // calcolo ritardo deve COMINCIARE alle 07:36
+      if(oraTimbr <= limiteTolleranza){
+        return {testo:'✅ OK entro tolleranza (fino a '+ (Math.floor(limiteTolleranza/60)).toString().padStart(2,'0') +':'+ String(limiteTolleranza%60).padStart(2,'0') +')', tipo:'ok', minuti:0};
+      } else {
+        let ritardoEffettivo = oraTimbr - limiteTolleranza; // da 07:36 in poi, es 07:36 = 1 min, 07:40 = 5 min
+        let ritardoTotale = oraTimbr - oraEntr;
+        return {testo:'⚠️ RITARDO '+ritardoEffettivo+' min (timbro '+t.ora+' - tolleranza fino a '+ (Math.floor(limiteTolleranza/60)).toString().padStart(2,'0') +':'+ String(limiteTolleranza%60).padStart(2,'0') +' - previsto '+entrataPrevista+')', tipo:'ritardo', minuti:ritardoEffettivo, totale:ritardoTotale};
+      }
+    } else if(t.tipo==='USCITA'){
+      let oraUsc = parseOraMin(uscitaPrevista);
+      let limitePermesso = oraUsc - tollU; // es 14:42 -5 = 14:37
+      // permesso fino alle 14:37
+      if(oraTimbr >= limitePermesso){
+        return {testo:'✅ OK entro tolleranza (da '+ (Math.floor(limitePermesso/60)).toString().padStart(2,'0') +':'+ String(limitePermesso%60).padStart(2,'0') +' in poi)', tipo:'ok', minuti:0};
+      } else {
+        let permessoEffettivo = limitePermesso - oraTimbr; // fino alle 14:37, es 14:30 = 7 min
+        let permessoTotale = oraUsc - oraTimbr;
+        return {testo:'⏰ PERMESSO '+permessoEffettivo+' min (uscito '+t.ora+' - permesso fino a '+ (Math.floor(limitePermesso/60)).toString().padStart(2,'0') +':'+ String(limitePermesso%60).padStart(2,'0') +' - previsto '+uscitaPrevista+')', tipo:'permesso', minuti:permessoEffettivo, totale:permessoTotale};
+      }
+    }
+  }catch(e){ console.log("Errore tolleranza", e); }
+  return {testo:'', tipo:'', minuti:0};
+}
+
+// Sovrascrivi timbra per mostrare ritardo/permesso
+let timbraOriginale = timbra;
+function timbraConTolleranza(tipo, nomeF=null){
+  if(!dentro){ alert('Avvicinati a un plesso'); return; }
+  const nome=nomeF||document.getElementById('dipendente').value; if(!nome) return;
+  const ora=new Date(); const oraStr=ora.toLocaleString('it-IT'); const oraTime=ora.toTimeString().slice(0,5);
+  const d=last&&vicino?Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon)):0;
+  const entry={data:oraStr, ora:oraTime, tipo, nome, plesso:vicino?vicino.n:'', distanza:d, giorno:giorniMap[Object.keys(giorniMap)[new Date().getDay()===0?6:new Date().getDay()-1]]||'', timestamp:Date.now()};
+  // calcola tolleranza
+  let calc = calcolaRitardoPermesso(entry);
+  entry.ritardo = calc.testo;
+  entry.ritardoMinuti = calc.minuti;
+  entry.ritardoTipo = calc.tipo;
+  timbratureSalvate.unshift(entry); 
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  try{ aggiornaLog(); }catch(e){}
+  try{ salvaNuovaTimbratura(entry); }catch(e){ console.log("Errore invio cloud", e); }
+  document.getElementById('ultimoScansionato').innerHTML='✅ <b>'+nome+'</b> - '+tipo+' @ '+(vicino?vicino.n:'')+' '+oraTime+'<br>'+calc.testo+' - 📤 Inviato!';
+  if(document.getElementById('beepCheck').checked) beep();
+  console.log("✅ Timbratura con tolleranza:", entry);
+}
+// sostituisci timbra
+timbra = timbraConTolleranza;
+
+// Aggiorna aggiornaLog per mostrare ritardo/permesso
+let aggiornaLogOriginale = aggiornaLog;
+function aggiornaLogConTolleranza(){
+  try{
+    const logDiv = document.getElementById('log');
+    if(!logDiv) return;
+    let html = '';
+    timbratureSalvate.slice(0,50).forEach((t,i)=>{
+      const colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      const ora = t.ora || (t.data||'').split(',')[1]||'';
+      let ritColore = '#64748b';
+      if(t.ritardoTipo==='ritardo') ritColore='#dc2626';
+      else if(t.ritardoTipo==='permesso') ritColore='#f59e0b';
+      else if(t.ritardoTipo==='ok') ritColore='#16a34a';
+      let ritHtml = t.ritardo ? `<br><span style="font-size:9px; color:${ritColore}; font-weight:800">${t.ritardo}</span>` : '';
+      html += `<div style="border-left:3px solid ${colore}; padding:4px 6px; margin:4px 0; background:white; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center"><div style="flex:1"><b>${t.data||''}</b> - <span style="color:${colore};font-weight:800">${t.tipo||''}</span> - ${t.nome||''} @ <b>${t.plesso||''}</b> ${t.distanza? '('+t.distanza+'m)':''} <span style="font-size:9px; color:#64748b">${ora}</span>${ritHtml}</div><div style="display:flex; gap:2px"><button class="btn-edit" onclick="modificaTimbratura(${i})" title="Modifica">✏️</button><button class="btn-del" onclick="cancellaTimbraturaLocale(${i})" title="Cancella">🗑️</button></div></div>`;
+    });
+    if(html==='') html = '<div style="padding:8px; color:#64748b">Nessuna timbratura ancora - fai una prova!</div>';
+    else html = '<div style="font-size:10px; color:#16a34a; font-weight:800; margin-bottom:6px; background:#f0fdf4; padding:4px; border-radius:6px">📋 TIMBRATURE (ultime 50) - Tot: '+timbratureSalvate.length+' - Tolleranza 5 min attiva</div>' + html;
+    logDiv.innerHTML = html;
+    try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
+  }catch(e){ console.log("aggiornaLog errore", e); }
+}
+aggiornaLog = aggiornaLogConTolleranza;
+
+function cancellaTimbraturaLocale(idx){
+  if(idx<0 || idx>=timbratureSalvate.length) return;
+  if(!confirm('Cancellare questa timbratura?')) return;
+  timbratureSalvate.splice(idx,1);
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  aggiornaLog();
+}
+
+// per compatibilità con vecchia funzione
+function cancellaTimbratura(idx){ cancellaTimbraturaLocale(idx); }
+
+// modificaTimbratura semplice
+function modificaTimbratura(idx){
+  if(idx<0 || idx>=timbratureSalvate.length) return;
+  const t = timbratureSalvate[idx];
+  let nuovoOra = prompt('Modifica ora (es. 07:35) per '+t.nome+' - '+t.tipo+' @ '+t.plesso+'\nOra attuale: '+t.ora, t.ora);
+  if(nuovoOra===null) return;
+  t.ora = nuovoOra;
+  let calc = calcolaRitardoPermesso(t);
+  t.ritardo = calc.testo;
+  t.ritardoTipo = calc.tipo;
+  t.ritardoMinuti = calc.minuti;
+  localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
+  aggiornaLog();
+  alert('✅ Modificato: '+t.ora+'\n'+calc.testo);
+}
+
 window.addEventListener('load', ()=>{
   renderPlessiUI();
   if(typeof loadAnag==='function') try{loadAnag();}catch(e){}
@@ -894,7 +940,7 @@ window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('ba
 </script>
 
 
-<!-- MODALE MODIFICA V51.1 MULTI-TABLET - NON TOCCA GPS -->
+<!-- MODALE V51.1 - NON USATO, modifica via prompt -->
 <div id="modalEdit" class="modal-edit" onclick="if(event.target===this) chiudiModaleEdit()">
   <div class="modal-edit-box">
     <h3>✏️ Modifica Timbratura - Tutti i tablet</h3>
