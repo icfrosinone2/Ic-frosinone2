@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53.4 - Timbrature IC2-Fr - PIN su stampa e cancellazione</title>
+<title>IC Frosinone 2 - V53.5 - Timbrature IC2-Fr - Anagrafiche su tutti i tablet</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53.4 - Timbrature IC2-Fr</b>
+<b>✅ V53.5 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -671,8 +671,30 @@ function loadAnag(){
   try{const s=localStorage.getItem('anagrafiche_v95')||localStorage.getItem('anagrafiche_v90'); if(s) anagrafiche=JSON.parse(s);}catch(e){}
   if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
   render();
+  // Carica da cloud e aggiorna tutti i tablet
+  setTimeout(()=>{ try{ caricaAnagraficheCloud(); }catch(e){} }, 1000);
 }
-function saveAnag(){localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));}
+function saveAnag(){
+  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); 
+  localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
+  try{ salvaAnagraficheCloud(); }catch(e){ console.log('Errore cloud anag', e); }
+}
+async function caricaAnagraficheCloud(){
+  try{
+    let val = await fetchWithFallback("/anagrafiche.json");
+    if(val && Array.isArray(val) && val.length>0){
+      console.log('☁️ Anagrafiche cloud caricate:', val.length);
+      // Merge cloud con locale - cloud vince se più recente o più completo
+      if(val.length >= anagrafiche.length){
+        anagrafiche = val;
+        localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+        localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
+        render();
+        mostraOrario();
+      }
+    }
+  }catch(e){ console.log('Errore carica anag cloud', e); }
+}
 function render(){
   const sel=document.getElementById('dipendente'); sel.innerHTML=''; anagrafiche.forEach(a=>{const o=document.createElement('option'); const riepilogo=Object.keys(a.orariSettimana||{}).map(g=>{if((a.orariSettimana[g]||[]).length===0) return ''; return g.toUpperCase()+':'+a.orariSettimana[g].map(s=>s.entrata+'-'+s.uscita).join('/')}).filter(x=>x).join(' '); o.text=`${a.nome} - ${a.qualifica||''} - ${a.plesso} (${riepilogo.substring(0,50)})`; o.value=a.nome; sel.appendChild(o);});
   sel.onchange=mostraOrario;
@@ -731,8 +753,12 @@ function aggiungiAnagrafica(){
   const obj={nome, plesso, qualifica, orariSettimana:JSON.parse(JSON.stringify(orariSettimana)), totale, tipo:qualifica};
   const idx=anagrafiche.findIndex(a=>a.nome.toLowerCase()===nome.toLowerCase());
   if(idx>=0) anagrafiche[idx]=obj; else anagrafiche.push(obj);
-  saveAnag(); render(); setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000); // auto nascondi anagrafica creaBadgeDa(nome); document.getElementById('nuovaAnagrafica').value='';
-  alert('✅ Salvato '+nome+' - '+qualifica+' - Tot sett '+totale+'\nBadge pronto per ristampa se smarrito!');
+  saveAnag(); render(); 
+  try{ creaBadgeDa(nome); }catch(e){}
+  document.getElementById('nuovaAnagrafica').value='';
+  alert('✅ Salvato '+nome+' - '+qualifica+' - Tot sett '+totale+'\n☁️ Salvato su TUTTI i tablet (cloud)!\nBadge pronto per ristampa se smarrito!');
+  setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000);
+
 }
 function modificaAnag(nome){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN prima!'); return; }
@@ -746,8 +772,14 @@ function modificaAnag(nome){
 }
 function eliminaAnag(nome){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN!'); return; }
-  if(!confirm('Eliminare definitivamente '+nome+' ?\nIl badge non sarà più valido.')) return;
+  if(!confirm('Eliminare definitivamente '+nome+' ?\nIl badge non sarà più valido.\nVerrà eliminato su TUTTI i tablet!')) return;
   anagrafiche=anagrafiche.filter(a=>a.nome!==nome);
+  // elimina anche foto
+  try{
+    let fotos=JSON.parse(localStorage.getItem('foto_badge_v95_foto')||'{}');
+    delete fotos[nome];
+    localStorage.setItem('foto_badge_v95_foto', JSON.stringify(fotos));
+  }catch(e){}
   saveAnag(); render(); setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000); // auto nascondi anagrafica
 }
 
@@ -948,12 +980,19 @@ async function salvaNuovaTimbratura(t){
 
 async function salvaAnagraficheCloud(){
   try{
-    await fetch(DB_URL + "/anagrafiche.json", {
-      method: "PUT",
-      body: JSON.stringify(anagrafiche),
-      headers: {"Content-Type":"application/json"}
-    });
-  }catch(e){}
+    console.log('☁️ Salvo anagrafiche su cloud:', anagrafiche.length);
+    for(let base of DB_URLS){
+      try{
+        let res = await fetch(base + "/anagrafiche.json", {
+          method: "PUT",
+          body: JSON.stringify(anagrafiche),
+          headers: {"Content-Type":"application/json"}
+        });
+        console.log('☁️ Anagrafiche salvate su', base, res.status);
+        if(res.ok){ DB_URL=base; break; }
+      }catch(e){ console.log('Errore save anag su', base, e); }
+    }
+  }catch(e){ console.log('Errore salvaAnagraficheCloud', e); }
 }
 
 
@@ -974,6 +1013,7 @@ function avviaAutoSync(){
   syncInterval = setInterval(async ()=>{
     syncCount++;
     await caricaCondivise();
+    if(syncCount % 7 === 0){ try{ await caricaAnagraficheCloud(); }catch(e){} }
     // badge fisso, no lampeggio
   }, 1500); // ogni 1.5 sec per tempo reale
   console.log("☁️ Auto-sync avviato ogni 1.5s");
@@ -1398,7 +1438,7 @@ window.addEventListener('load', ()=>{
   if(typeof loadAnag==='function') try{loadAnag();}catch(e){}
   if(typeof resetOrariSettimana==='function') try{resetOrariSettimana();}catch(e){}
   try{ aggiornaLog(); }catch(e){}
-  setTimeout(()=>{ try{ caricaCondivise(); }catch(e){} }, 500);
+  setTimeout(()=>{ try{ caricaCondivise(); }catch(e){} try{ caricaAnagraficheCloud(); }catch(e){} }, 500);
   // Forza nascosta dopo 500ms anche se altro script la mostra
   setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 600);
   // GPS AUTO subito + dopo 1 sec + watch + ogni 15 sec
