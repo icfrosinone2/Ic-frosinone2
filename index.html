@@ -270,6 +270,11 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <small style="font-size:11px; color:#0c4a6e; font-weight:600">1) Scrivi nome 2) Carica foto 3) Salva!</small>
 </div>
 <button class="btn btn-green" style="margin-top:10px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue Foto QR Grande</button>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px">
+<button class="btn btn-small" style="background:#0ea5e9; color:white; padding:10px" onclick="forzaInvioAnagraficheCloud()">📤 Invia 4 dipendenti a TUTTI i tablet (cloud)</button>
+<button class="btn btn-small" style="background:#16a34a; color:white; padding:10px" onclick="caricaAnagraficheCloud()">📥 Ricevi anagrafiche da cloud</button>
+</div>
+<div id="cloudAnagStatus" style="font-size:11px; color:#0369a1; margin-top:6px; background:#f0f9ff; padding:6px; border-radius:6px; border:1px solid #7dd3fc">Hai <span id="countLocal">0</span> dipendenti locali - clicca Invia per mandarli su tutti i tablet</div>
 <button class="btn" style="background:#f1f5f9; color:#334155; font-size:11px; border:1px solid #cbd5e1; margin-top:4px" onclick="bloccaPIN()">🔒 Blocca</button>
 <div style="margin-top:8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px; font-size:10px">
 <b>💡 Badge smarrito? Come ridarlo:</b><br>
@@ -731,6 +736,12 @@ function render(){
   sel.onchange=mostraOrario;
   filtraElenco();
   mostraOrario();
+  try{
+    let cnt=document.getElementById('countLocal');
+    if(cnt) cnt.textContent=anagrafiche.length;
+    let status=document.getElementById('cloudAnagStatus');
+    if(status && anagrafiche.length>0) status.innerHTML='✅ Hai '+anagrafiche.length+' dipendenti locali: '+anagrafiche.map(a=>a.nome).join(', ')+' <br>Clicca 📤 Invia per mandarli su tutti i tablet';
+  }catch(e){}
 }
 function filtraElenco(){
   const q=(document.getElementById('cercaDip').value||'').toLowerCase();
@@ -1501,4 +1512,4 @@ window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('ba
   </div>
 </div>
 </body>
-</html
+</html>
