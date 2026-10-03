@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53.3 - Timbrature IC2-Fr - PIN per stampa resoconto</title>
+<title>IC Frosinone 2 - V53.4 - Timbrature IC2-Fr - PIN su stampa e cancellazione</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -98,7 +98,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53.3 - Timbrature IC2-Fr</b>
+<b>✅ V53.4 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -477,17 +477,30 @@ function modalitaPC(){
 let pinSalvato='211285';
 
 function verificaPINStampa(){
-  // Se anagrafica è già sbloccata, ok
+  // Se anagrafica è già sbloccata, ok (hai già inserito PIN)
   let lock = document.getElementById('pinLock');
   if(lock && lock.style.display==='none'){
-    return true; // già sbloccato
+    return true;
   }
-  // Altrimenti chiedi PIN
-  let pin = prompt('🔒 STAMPA RESOCONTO PROTETTA\n\nInserisci PIN (211285) per stampare resoconto ore:\n\nSolo amministratore può stampare!');
+  // Altrimenti chiedi PIN SENZA suggerirlo
+  let pin = prompt('🔒 OPERAZIONE PROTETTA\n\nInserisci PIN amministratore per continuare:');
   if(pin===pinSalvato){
     return true;
   } else {
-    alert('⛔ PIN errato - Stampa bloccata!\nSolo con PIN 211285 puoi stampare resoconto.');
+    if(pin!==null) alert('⛔ PIN errato - Operazione bloccata!');
+    return false;
+  }
+}
+function verificaPINOperazione(testo){
+  let lock = document.getElementById('pinLock');
+  if(lock && lock.style.display==='none'){
+    return true;
+  }
+  let pin = prompt('🔒 '+testo+'\n\nInserisci PIN amministratore:');
+  if(pin===pinSalvato){
+    return true;
+  } else {
+    if(pin!==null) alert('⛔ PIN errato!');
     return false;
   }
 }
@@ -1121,6 +1134,7 @@ function aggiornaLogConTolleranza(){
 aggiornaLog = aggiornaLogConTolleranza;
 
 function cancellaTimbraturaLocale(idx){
+  if(!verificaPINOperazione('CANCELLAZIONE TIMBRATURA PROTETTA')) return;
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
   if(!confirm('Cancellare questa timbratura?\n'+t.data+' - '+t.nome+' - '+t.tipo)) return;
@@ -1268,6 +1282,7 @@ function stampaMensileConPeriodo(){
 
 
 function modificaTimbratura(idx){
+  if(!verificaPINOperazione('MODIFICA TIMBRATURA PROTETTA')) return;
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
   let nuovoOra = prompt('✏️ MODIFICA TIMBRATURA\n\nDipendente: '+t.nome+'\nTipo: '+t.tipo+' @ '+t.plesso+'\nData: '+t.data+'\n\nInserisci nuova ora (es. 07:35):', t.ora);
@@ -1289,6 +1304,7 @@ function modificaTimbratura(idx){
 }
 
 function cancellaTimbratura(idx){
+  if(!verificaPINOperazione('CANCELLAZIONE TIMBRATURA PROTETTA')) return;
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
   if(!confirm('🗑️ CANCELLARE DEFINITIVAMENTE?\n\n'+t.nome+' - '+t.tipo+'\n'+t.data+' @ '+t.plesso+' '+t.ora+'\n\nVerrà cancellata su TUTTI i tablet (cloud) e su questo tablet.\nConfermi?')) return;
@@ -1301,6 +1317,7 @@ function cancellaTimbratura(idx){
 }
 
 function eliminaTimbratureDipendente(nomeDip){
+  if(!verificaPINOperazione('ELIMINAZIONE TUTTE LE TIMBRATURE PROTETTA - Solo amministratore')) return;
   if(!nomeDip){ nomeDip = document.getElementById('dipendente').value; }
   if(!nomeDip){ alert('Seleziona un dipendente dal menu a tendina!'); return; }
   const count = timbratureSalvate.filter(t=>t.nome===nomeDip).length;
