@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V51.5 - FIX CANCELLA/MODIFICA + GPS + TOLLERANZA + CAMERA</title>
+<title>IC Frosinone 2 - V51.6 - RIEPILOGO GIORNALIERO+MENSILE TOLLERANZE + STAMPE PERIODO</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -94,7 +94,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V51.5 - FIX CANCELLA/MODIFICA + GPS + TOLLERANZA + CAMERA</b>
+<b>✅ V51.6 - RIEPILOGO GIORNALIERO+MENSILE TOLLERANZE + STAMPE PERIODO</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -160,6 +160,21 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <div style="text-align:center; margin-top:8px">
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
+</div>
+
+<div style="background:#fefce8; border:2.5px solid #eab308; border-radius:12px; padding:10px; margin-top:8px">
+<b style="font-size:13px">🖨️ Stampe Mensili con Periodo (come richiesto)</b>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
+<div><label style="font-size:10px; font-weight:700">Da data</label><input id="dataDa" type="date" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #eab308"></div>
+<div><label style="font-size:10px; font-weight:700">A data</label><input id="dataA" type="date" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #eab308"></div>
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
+<button onclick="stampaMensileConPeriodo()" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:10px; font-weight:800; font-size:12px">🖨️ Stampa Mensile Periodo</button>
+<button onclick="let d=new Date(); let m=d.getMonth(); let y=d.getFullYear(); let da=new Date(y,m,1); let a=new Date(y,m+1,0); document.getElementById('dataDa').value=da.toISOString().slice(0,10); document.getElementById('dataA').value=a.toISOString().slice(0,10); stampaMensileConPeriodo();" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:10px; font-weight:800; font-size:12px">📅 Mese Corrente</button>
+</div>
+</div>
+
+<div style="text-align:center; margin-top:8px">
 </div>
 </div>
 <div id="log" style="max-height:600px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:8px; padding:6px" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
@@ -233,6 +248,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div><label style="font-size:10px; font-weight:700">Tolleranza entrata (min)</label><input id="tollEntrata" type="number" value="5" min="0" max="60" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #f59e0b" onchange="localStorage.setItem('tollEntrata', this.value)"></div>
 <div><label style="font-size:10px; font-weight:700">Tolleranza uscita (min)</label><input id="tollUscita" type="number" value="5" min="0" max="60" style="width:100%; padding:6px; border-radius:6px; border:1.5px solid #f59e0b" onchange="localStorage.setItem('tollUscita', this.value)"></div>
 </div>
+<div id="riepilogoTolleranze" style="background:#f0f9ff; border:2.5px solid #0ea5e9; border-radius:12px; padding:10px; margin:8px 0"></div>
 </div>
 
 <div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
@@ -951,6 +967,125 @@ function cancellaTimbraturaLocale(idx){
 function cancellaTimbratura(idx){ cancellaTimbraturaLocale(idx); }
 
 // modificaTimbratura semplice
+
+// ===== RIEPILOGO GIORNALIERO + MENSILE TOLLERANZE V51.6 =====
+function calcolaRiepilogoGiornaliero(){
+  // raggruppa per data e nome
+  let oggi = new Date();
+  let oggiStr = oggi.toLocaleDateString('it-IT'); // gg/mm/aaaa
+  let stats = {};
+  // oggi
+  let ritOggi = 0, permOggi = 0, countOggi=0;
+  // mese corrente
+  let mese = oggi.getMonth()+1, anno = oggi.getFullYear();
+  let ritMese=0, permMese=0, countMese=0;
+  
+  timbratureSalvate.forEach(t=>{
+    try{
+      let parts = (t.data||'').split(',')[0].split('/');
+      if(parts.length!==3) return;
+      let g = parseInt(parts[0]), m = parseInt(parts[1]), a = parseInt(parts[2]);
+      // oggi
+      if(t.data.includes(oggiStr)){
+        if(t.ritardoTipo==='ritardo') ritOggi += (t.ritardoMinuti||0);
+        if(t.ritardoTipo==='permesso') permOggi += (t.ritardoMinuti||0);
+        countOggi++;
+      }
+      // mese corrente
+      if(m===mese && a===anno){
+        if(t.ritardoTipo==='ritardo') ritMese += (t.ritardoMinuti||0);
+        if(t.ritardoTipo==='permesso') permMese += (t.ritardoMinuti||0);
+        countMese++;
+      }
+    }catch(e){}
+  });
+  return {ritOggi, permOggi, countOggi, ritMese, permMese, countMese, mese, anno};
+}
+
+function aggiornaBoxRiepilogoTolleranze(){
+  try{
+    let r = calcolaRiepilogoGiornaliero();
+    let box = document.getElementById('riepilogoTolleranze');
+    if(!box) return;
+    let oggi = new Date().toLocaleDateString('it-IT');
+    box.innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+        <div style="background:white; border:2px solid #0ea5e9; border-radius:10px; padding:8px; text-align:center">
+          <b style="font-size:11px">📅 OGGI ${oggi}</b><br>
+          <span style="font-size:10px">Timbrature: ${r.countOggi}</span><br>
+          <span style="color:#dc2626; font-weight:800; font-size:11px">⚠️ Ritardi: ${r.ritOggi} min</span><br>
+          <span style="color:#f59e0b; font-weight:800; font-size:11px">⏰ Permessi: ${r.permOggi} min</span>
+        </div>
+        <div style="background:white; border:2px solid #16a34a; border-radius:10px; padding:8px; text-align:center">
+          <b style="font-size:11px">📆 MESE ${String(r.mese).padStart(2,'0')}/${r.anno}</b><br>
+          <span style="font-size:10px">Timbrature: ${r.countMese}</span><br>
+          <span style="color:#dc2626; font-weight:800; font-size:11px">⚠️ Ritardi: ${r.ritMese} min</span><br>
+          <span style="color:#f59e0b; font-weight:800; font-size:11px">⏰ Permessi: ${r.permMese} min</span>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:10px; background:#fffbeb; padding:6px; border-radius:6px; border:1px solid #fbbf24">
+        ℹ️ <b>Conteggio:</b> Ritardo = da 07:36 in poi (es 07:36=1min). Permesso = fino a 14:37 (es 14:30=7min). Tolleranza 5 min esclusa dal conteggio.
+      </div>
+    `;
+  }catch(e){ console.log("Errore riepilogo tolleranze", e); }
+}
+
+// Wrapper per aggiornare anche box tolleranze quando aggiorna log
+let aggiornaLogConTollOld = aggiornaLog;
+aggiornaLog = function(){
+  aggiornaLogConTollOld();
+  try{ aggiornaBoxRiepilogoTolleranze(); }catch(e){}
+};
+
+// STAMPE MENSILI CON PERIODO
+function stampaMensileConPeriodo(){
+  let nome = document.getElementById('dipendente').value;
+  if(!nome){ alert('Seleziona dipendente!'); return; }
+  let da = document.getElementById('dataDa').value;
+  let a = document.getElementById('dataA').value;
+  if(!da || !a){ alert('Seleziona periodo DA e A!'); return; }
+  let daDate = new Date(da);
+  let aDate = new Date(a);
+  // filtra timbrature per nome e periodo
+  let filtrate = timbratureSalvate.filter(t=>{
+    if(t.nome!==nome) return false;
+    try{
+      let parts = (t.data||'').split(',')[0].split('/');
+      if(parts.length!==3) return false;
+      let d = new Date(parts[2], parts[1]-1, parts[0]);
+      return d>=daDate && d<=aDate;
+    }catch(e){ return false; }
+  });
+  filtrate.sort((x,y)=>(x.timestamp||0)-(y.timestamp||0));
+  let totRit=0, totPerm=0;
+  filtrate.forEach(t=>{
+    if(t.ritardoTipo==='ritardo') totRit+=(t.ritardoMinuti||0);
+    if(t.ritardoTipo==='permesso') totPerm+=(t.ritardoMinuti||0);
+  });
+  let anag = anagrafiche.find(x=>x.nome===nome);
+  let orario = anag ? JSON.stringify(anag.orariSettimana) : '';
+  // crea stampa
+  let printArea = document.getElementById('printArea');
+  if(!printArea){
+    printArea = document.createElement('div');
+    printArea.id='printArea';
+    document.body.appendChild(printArea);
+  }
+  printArea.style.display='block';
+  printArea.style.position='fixed';
+  printArea.style.top='0'; printArea.style.left='0'; printArea.style.width='100%'; printArea.style.height='100%'; printArea.style.background='white'; printArea.style.zIndex='10000'; printArea.style.overflow='auto';
+  let righe = filtrate.map(t=>`<tr><td style="border:1px solid #ccc; padding:4px; font-size:11px">${t.data}</td><td style="border:1px solid #ccc; padding:4px; font-size:11px">${t.tipo}</td><td style="border:1px solid #ccc; padding:4px; font-size:11px">${t.ora}</td><td style="border:1px solid #ccc; padding:4px; font-size:11px">${t.plesso}</td><td style="border:1px solid #ccc; padding:4px; font-size:10px">${t.ritardo||''}</td></tr>`).join('');
+  if(!righe) righe='<tr><td colspan=5 style="border:1px solid #ccc; padding:10px; text-align:center">Nessuna timbratura nel periodo</td></tr>';
+  printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:900px; margin:0 auto">
+    <h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Mensile - ${nome}</h2>
+    <p style="text-align:center; font-size:12px">Periodo: <b>${da} - ${a}</b> | Plesso: <b>${anag?anag.plesso:''}</b><br>
+    Totale ritardi: <b style="color:#dc2626">${totRit} min</b> | Totale permessi: <b style="color:#f59e0b">${totPerm} min</b> | Timbrature: <b>${filtrate.length}</b><br>
+    Stampato il ${new Date().toLocaleString('it-IT')} - Tolleranza 5 min (ritardo da 07:36, permesso fino 14:37)</p>
+    <table style="width:100%; border-collapse:collapse; margin-top:10px"><tr style="background:#0f172a; color:white"><th>Data</th><th>Tipo</th><th>Ora</th><th>Plesso</th><th>Note ritardo/permesso</th></tr>${righe}</table>
+    <div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:12px 24px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800; font-size:14px">🖨️ STAMPA QUESTO RESOCONTO</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:12px 24px; background:#64748b; color:white; border:0; border-radius:8px; font-weight:800">❌ Chiudi</button></div>
+  </div>`;
+}
+
 function modificaTimbratura(idx){
   if(idx<0 || idx>=timbratureSalvate.length) return;
   const t = timbratureSalvate[idx];
