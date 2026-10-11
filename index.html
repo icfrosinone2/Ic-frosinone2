@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V55 - FIX Elenco Visibile - - Timbrature IC2-Fr - Elenco Modifica visibile</title>
+<title>IC Frosinone 2 - V56 - FIX Box Giallo Nominativi - - Timbrature IC2-Fr - Elenco Modifica visibile</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -91,7 +91,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V55 - Timbrature IC2-Fr - Elenco SEMPRE VISIBILE</b></b>
+<b>✅ V56 - Timbrature IC2-Fr - Elenco SEMPRE VISIBILE</b></b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -706,20 +706,30 @@ function render(){
 function filtraElenco(){
   try{
     const cont=document.getElementById('tabellaOrari');
-    if(!cont){ console.error('tabellaOrari mancante'); return; }
+    if(!cont){ console.error('V56 tabellaOrari mancante'); return; }
     cont.innerHTML='';
+    console.log('V56 filtraElenco anagrafiche:', anagrafiche.length, anagrafiche.map(a=>a.nome));
+    
+    // DEBUG visivo sempre
+    let debugDiv=document.createElement('div');
+    debugDiv.style.cssText='padding:8px; background:#e0f2fe; border:2px solid #0ea5e9; border-radius:8px; margin-bottom:10px; font-size:11px; font-family:monospace';
+    debugDiv.innerHTML='🔧 DEBUG V56: anagrafiche.length='+anagrafiche.length+' | localStorage v95='+((localStorage.getItem('anagrafiche_v95')||'').length)+' chars | v90='+((localStorage.getItem('anagrafiche_v90')||'').length)+' chars<br>Nomine: '+(anagrafiche.map(a=>a.nome).join(', ')||'NESSUNO')+'<br><button onclick="forzaRicaricaElenco()" style="padding:6px 10px; background:#0ea5e9; color:white; border:0; border-radius:6px; font-weight:800; margin-top:4px">🔄 Ricarica elenco</button> <button onclick="caricaAnagraficheCloud()" style="padding:6px 10px; background:#16a34a; color:white; border:0; border-radius:6px; font-weight:800">📥 Ricevi da cloud</button>';
+    cont.appendChild(debugDiv);
+    
     if(!anagrafiche || anagrafiche.length===0){
-      cont.innerHTML='<div style="text-align:center; padding:24px; background:#fee2e2; border-radius:14px; font-weight:900; border:3px solid #ef4444; font-size:14px">⚠️ Nessun dipendente su questo tablet<br><br><button onclick="caricaAnagraficheCloud()" style="padding:12px 20px; background:#16a34a; color:white; border:0; border-radius:10px; font-weight:900; font-size:14px">📥 Ricevi anagrafiche da cloud</button><br><br>oppure aggiungi nuova anagrafica sopra</div>';
+      let emptyDiv=document.createElement('div');
+      emptyDiv.style.cssText='text-align:center; padding:24px; background:#fee2e2; border-radius:14px; font-weight:900; border:3px solid #ef4444; font-size:14px';
+      emptyDiv.innerHTML='⚠️ Nessun dipendente su questo tablet<br><br><button onclick="caricaAnagraficheCloud()" style="padding:14px 22px; background:#16a34a; color:white; border:0; border-radius:12px; font-weight:900; font-size:16px; box-shadow:0 4px 8px rgba(0,0,0,0.2)">📥 RICEVI 5 DA CLOUD</button><br><br><small style="font-size:11px">Se hai già 5 su altro tablet, prima clicca 📤 Invia su quel tablet, poi 📥 Ricevi qui</small><br><br><button onclick="forzaRicaricaElenco()" style="padding:10px 16px; background:#0ea5e9; color:white; border:0; border-radius:10px; font-weight:800">🔄 Ricarica locale</button>';
+      cont.appendChild(emptyDiv);
       let cnt=document.getElementById('countLocal'); if(cnt) cnt.textContent='0';
       return;
     }
-    // Header verde sempre visibile
+    
     let header=document.createElement('div');
     header.style.cssText='padding:14px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; text-align:center; font-weight:900; font-size:16px; border-radius:12px; margin-bottom:12px; border:3px solid #065f46; box-shadow:0 4px 8px rgba(0,0,0,0.2)';
-    header.innerHTML='✅ '+anagrafiche.length+' DIPENDENTI - V55<br><small style="font-size:11px; opacity:0.9">Clicca ✏️ per modificare orario o nome</small>';
+    header.innerHTML='✅ '+anagrafiche.length+' DIPENDENTI - V56<br><small style="font-size:11px; opacity:0.9">Se non vedi nomi sotto, clicca 🔄 Ricarica</small>';
     cont.appendChild(header);
     
-    // Filtro opzionale - se c'è testo filtra, altrimenti mostra tutti
     let qEl=document.getElementById('cercaDip');
     let q = qEl ? (qEl.value||'').toLowerCase().trim() : '';
     let lista = [];
@@ -736,7 +746,6 @@ function filtraElenco(){
       noRes.style.cssText='padding:12px; background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; text-align:center; font-weight:800; margin-bottom:10px';
       noRes.innerHTML='🔍 Nessun risultato per "'+q+'" su '+anagrafiche.length+' dipendenti<br><button onclick="document.getElementById(\'cercaDip\').value=\'\'; filtraElenco()" style="margin-top:8px; padding:8px 14px; background:#f59e0b; color:white; border:0; border-radius:8px; font-weight:900">❌ Mostra tutti</button>';
       cont.appendChild(noRes);
-      // mostra comunque tutti sotto
       lista=[]; anagrafiche.forEach((a,idx)=> lista.push({a,idx}));
     }
     
@@ -763,12 +772,13 @@ function filtraElenco(){
     });
     let cnt=document.getElementById('countLocal'); if(cnt) cnt.textContent=anagrafiche.length;
   }catch(e){
-    console.error('filtraElenco V55 errore', e);
+    console.error('filtraElenco V56 errore', e);
     let c=document.getElementById('tabellaOrari');
-    if(c) c.innerHTML='<div style="background:red; color:white; padding:14px; border-radius:10px">❌ Errore elenco: '+e.message+'<br>Anagrafiche caricate: '+(anagrafiche?anagrafiche.length:0)+'</div>';
+    if(c) c.innerHTML='<div style="background:red; color:white; padding:14px; border-radius:10px">❌ Errore elenco V56: '+e.message+'<br>Stack: '+e.stack+'<br>Anagrafiche: '+(anagrafiche?anagrafiche.length:0)+'</div>';
   }
 }
-function modificaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; modificaAnag(a.nome); setTimeout(()=>window.scrollTo({top:0, behavior:'smooth'}), 200); }catch(e){ alert('Errore modifica: '+e.message); } }
+function modificaAnagByIdx(idx)
+{ try{ let a=anagrafiche[idx]; if(!a) return; modificaAnag(a.nome); setTimeout(()=>window.scrollTo({top:0, behavior:'smooth'}), 200); }catch(e){ alert('Errore modifica: '+e.message); } }
 function eliminaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; eliminaAnag(a.nome); }catch(e){ alert('Errore elimina: '+e.message); } }
 function creaBadgeByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; creaBadgeDa(a.nome); }catch(e){ console.log(e); } }
 function stampaResocontoByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; stampaResocontoNome(a.nome); }catch(e){} }
