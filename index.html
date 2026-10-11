@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V53.7 - Timbrature IC2-Fr - Elenco Modifica visibile</title>
+<title>IC Frosinone 2 - V55 - FIX Elenco Visibile - - Timbrature IC2-Fr - Elenco Modifica visibile</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -91,7 +91,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V53.7 - Timbrature IC2-Fr</b>
+<b>✅ V55 - Timbrature IC2-Fr - Elenco SEMPRE VISIBILE</b></b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -244,7 +244,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
 </div>
 <div style="margin-top:8px; background:#f0f9ff; border:2px solid #7dd3fc; border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-<label style="background:#0ea5e9; color:white; padding:10px 16px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer">📸 Carica Foto per Badge<input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="handleFotoAnagrafica(event)"></label>
+<label style="background:#0ea5e9; color:white; padding:10px 16px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer">📸 Carica Foto per Badge<input type="file" id="fotoInput" accept="image/*" style="width:100%; padding:12px; border:2px solid #f59e0b; border-radius:10px; font-size:14px" onchange="handleFotoAnagrafica(event)"></label>
 <small style="font-size:11px; color:#0c4a6e; font-weight:600">1) Scrivi nome 2) Carica foto 3) Salva!</small>
 </div>
 <button class="btn btn-green" style="margin-top:10px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue Foto QR Grande</button>
@@ -268,7 +268,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 <div id="badgeCartaBox" class="badge-carta">
 <div class="badge-carta-left">
-<img id="badgeFoto" class="badge-foto" src="" style="display:none">
+<img id="badgeFoto" class="badge-foto" src="" style="width:100%; padding:12px; border:2px solid #f59e0b; border-radius:10px; font-size:14px">
 <div id="badgeFotoPlaceholder" class="badge-foto-placeholder">👤</div>
 <div id="bNomeCarta" style="font-size:13px; font-weight:900; margin-top:10px; line-height:1.1; color:#0c4a6e">Nome</div>
 <div id="bQualificaCarta" style="font-size:9px; background:white; color:#334155; padding:4px 10px; border-radius:999px; margin-top:8px; font-weight:700; border:1.5px solid #bae6fd">Qualifica</div>
@@ -299,7 +299,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 </div>
-<div id="printArea" style="display:none"></div>
+<div id="printArea" style="width:100%; padding:12px; border:2px solid #f59e0b; border-radius:10px; font-size:14px"></div>
 <script>
 const GEOFENCE=150;
 const GEOFENCE_PIETROBONO=400; // solo Pietrobono 400m per GPS ballerino, altre 150m
@@ -705,45 +705,72 @@ function render(){
 }
 function filtraElenco(){
   try{
-    const cont=document.getElementById('tabellaOrari'); 
-    if(!cont) return;
+    const cont=document.getElementById('tabellaOrari');
+    if(!cont){ console.error('tabellaOrari mancante'); return; }
     cont.innerHTML='';
-    if(anagrafiche.length===0){
-      cont.innerHTML='<div style="text-align:center; padding:20px; background:#fee2e2; border-radius:12px; font-weight:800; border:3px solid red">⚠️ Nessun dipendente<br>Clicca 📥 Ricevi anagrafiche da cloud<br>oppure aggiungi sopra</div>';
+    if(!anagrafiche || anagrafiche.length===0){
+      cont.innerHTML='<div style="text-align:center; padding:24px; background:#fee2e2; border-radius:14px; font-weight:900; border:3px solid #ef4444; font-size:14px">⚠️ Nessun dipendente su questo tablet<br><br><button onclick="caricaAnagraficheCloud()" style="padding:12px 20px; background:#16a34a; color:white; border:0; border-radius:10px; font-weight:900; font-size:14px">📥 Ricevi anagrafiche da cloud</button><br><br>oppure aggiungi nuova anagrafica sopra</div>';
+      let cnt=document.getElementById('countLocal'); if(cnt) cnt.textContent='0';
       return;
     }
+    // Header verde sempre visibile
     let header=document.createElement('div');
-    header.style.cssText='padding:14px; background:#16a34a; color:white; text-align:center; font-weight:900; font-size:16px; border-radius:12px; margin-bottom:12px; border:3px solid #065f46';
-    header.innerHTML='✅ '+anagrafiche.length+' DIPENDENTI TOTALI - Clicca ✏️ per modificare';
+    header.style.cssText='padding:14px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; text-align:center; font-weight:900; font-size:16px; border-radius:12px; margin-bottom:12px; border:3px solid #065f46; box-shadow:0 4px 8px rgba(0,0,0,0.2)';
+    header.innerHTML='✅ '+anagrafiche.length+' DIPENDENTI - V55<br><small style="font-size:11px; opacity:0.9">Clicca ✏️ per modificare orario o nome</small>';
     cont.appendChild(header);
+    
+    // Filtro opzionale - se c'è testo filtra, altrimenti mostra tutti
+    let qEl=document.getElementById('cercaDip');
+    let q = qEl ? (qEl.value||'').toLowerCase().trim() : '';
+    let lista = [];
     anagrafiche.forEach((a, idx)=>{
+      if(q==='') lista.push({a, idx});
+      else {
+        let hay = ((a.nome||'')+' '+(a.qualifica||'')+' '+(a.plesso||'')).toLowerCase();
+        if(hay.includes(q)) lista.push({a, idx});
+      }
+    });
+    
+    if(q!=='' && lista.length===0){
+      let noRes=document.createElement('div');
+      noRes.style.cssText='padding:12px; background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; text-align:center; font-weight:800; margin-bottom:10px';
+      noRes.innerHTML='🔍 Nessun risultato per "'+q+'" su '+anagrafiche.length+' dipendenti<br><button onclick="document.getElementById(\'cercaDip\').value=\'\'; filtraElenco()" style="margin-top:8px; padding:8px 14px; background:#f59e0b; color:white; border:0; border-radius:8px; font-weight:900">❌ Mostra tutti</button>';
+      cont.appendChild(noRes);
+      // mostra comunque tutti sotto
+      lista=[]; anagrafiche.forEach((a,idx)=> lista.push({a,idx}));
+    }
+    
+    lista.forEach(({a, idx})=>{
       const div=document.createElement('div');
-      div.style.cssText='display:grid; grid-template-columns:1.2fr 0.8fr; gap:8px; padding:14px; border:3px solid #16a34a; background:white; border-radius:14px; margin-bottom:10px; box-shadow:0 3px 6px rgba(0,0,0,0.15)';
+      div.style.cssText='display:grid; grid-template-columns:1.2fr 0.8fr; gap:10px; padding:14px; border:3px solid #16a34a; background:white; border-radius:14px; margin-bottom:12px; box-shadow:0 3px 8px rgba(0,0,0,0.12)';
       div.innerHTML=`
         <div>
-          <b style="font-size:16px; color:#0f172a">👤 ${a.nome||'Senza nome'}</b><br>
-          <span style="font-size:12px; background:#ede9fe; padding:5px 12px; border-radius:999px; border:2px solid #7c3aed; font-weight:800; display:inline-block; margin-top:8px">💼 ${a.qualifica||''}</span><br>
-          <span style="font-size:12px; font-weight:900; display:inline-block; margin-top:8px; background:#fef3c7; padding:5px 12px; border-radius:8px; border:2px solid #f59e0b">📍 ${a.plesso||''}</span><br>
-          <span style="font-size:13px; font-weight:900; color:#065f46; background:#dcfce7; padding:5px 12px; border-radius:8px; display:inline-block; margin-top:8px; border:2px solid #16a34a">⏰ ${a.totale||''} a settimana</span>
+          <b style="font-size:16px; color:#0f172a; display:block; margin-bottom:6px">👤 ${ (a.nome||'Senza nome') }</b>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px">
+            <span style="font-size:11px; background:#ede9fe; padding:5px 10px; border-radius:999px; border:2px solid #7c3aed; font-weight:800">💼 ${a.qualifica||''}</span>
+            <span style="font-size:11px; background:#fef3c7; padding:5px 10px; border-radius:999px; border:2px solid #f59e0b; font-weight:800">📍 ${a.plesso||''}</span>
+          </div>
+          <div style="margin-top:8px"><span style="font-size:12px; font-weight:900; color:#065f46; background:#dcfce7; padding:6px 12px; border-radius:8px; border:2px solid #16a34a; display:inline-block">⏰ ${a.totale||''} a settimana</span></div>
         </div>
         <div style="display:grid; gap:8px">
-          <button onclick="modificaAnagByIdx(${idx})" style="font-size:15px; background:#f59e0b; color:white; border:0; border-radius:12px; padding:14px; font-weight:900; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.2)">✏️ MODIFICA</button>
+          <button onclick="modificaAnagByIdx(${idx})" style="font-size:15px; background:linear-gradient(135deg,#f59e0b,#fbbf24); color:white; border:0; border-radius:12px; padding:14px; font-weight:900; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.2)">✏️ MODIFICA</button>
           <button onclick="eliminaAnagByIdx(${idx})" style="font-size:14px; background:#ef4444; color:white; border:0; border-radius:12px; padding:12px; font-weight:900; cursor:pointer">🗑️ ELIMINA</button>
-          <button onclick="creaBadgeByIdx(${idx})" style="font-size:14px; background:#7c3aed; color:white; border:0; border-radius:12px; padding:12px; font-weight:900; cursor:pointer">🖨️ BADGE</button>
-          <button onclick="stampaResocontoByIdx(${idx})" style="font-size:13px; background:#0ea5e9; color:white; border:0; border-radius:12px; padding:10px; font-weight:800; cursor:pointer">📊 ORE</button>
+          <button onclick="creaBadgeByIdx(${idx})" style="font-size:13px; background:#7c3aed; color:white; border:0; border-radius:12px; padding:10px; font-weight:800; cursor:pointer">🖨️ BADGE</button>
+          <button onclick="stampaResocontoByIdx(${idx})" style="font-size:12px; background:#0ea5e9; color:white; border:0; border-radius:12px; padding:8px; font-weight:700; cursor:pointer">📊 ORE</button>
         </div>
       `;
       cont.appendChild(div);
     });
     let cnt=document.getElementById('countLocal'); if(cnt) cnt.textContent=anagrafiche.length;
-  }catch(e){ 
-    let c=document.getElementById('tabellaOrari'); 
-    if(c) c.innerHTML='<div style=color:white; background:red; padding:12px>❌ Errore: '+e+'</div>'; 
+  }catch(e){
+    console.error('filtraElenco V55 errore', e);
+    let c=document.getElementById('tabellaOrari');
+    if(c) c.innerHTML='<div style="background:red; color:white; padding:14px; border-radius:10px">❌ Errore elenco: '+e.message+'<br>Anagrafiche caricate: '+(anagrafiche?anagrafiche.length:0)+'</div>';
   }
 }
-function modificaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; modificaAnag(a.nome); window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ alert('Errore '+e); } }
-function eliminaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; eliminaAnag(a.nome); }catch(e){ alert('Errore '+e); } }
-function creaBadgeByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; creaBadgeDa(a.nome); }catch(e){} }
+function modificaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; modificaAnag(a.nome); setTimeout(()=>window.scrollTo({top:0, behavior:'smooth'}), 200); }catch(e){ alert('Errore modifica: '+e.message); } }
+function eliminaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; eliminaAnag(a.nome); }catch(e){ alert('Errore elimina: '+e.message); } }
+function creaBadgeByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; creaBadgeDa(a.nome); }catch(e){ console.log(e); } }
 function stampaResocontoByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; stampaResocontoNome(a.nome); }catch(e){} }
 function mostraOrario(){
   const nome=document.getElementById('dipendente').value;
