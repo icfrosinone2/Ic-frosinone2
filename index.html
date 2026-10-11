@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V57 - FIX Elenco DEFINITIVO - Elenco Sempre Visibile</title>
+<title>IC Frosinone 2 - V58 - Elenco GIGANTE Visibile - FIX DEFINITIVO</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -49,7 +49,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .day-panel{background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:8px; margin:6px 0}
 .slot-row{display:grid; grid-template-columns:1fr 1fr auto; gap:6px; align-items:end; background:white; border:1px solid #bfdbfe; border-radius:8px; padding:6px; margin:4px 0}
 .badge-ris{border:2px solid #7c3aed; border-radius:12px; padding:10px; width:86mm; min-height:54mm; background:white; text-align:center; margin:10px auto; display:none; flex-direction:column; align-items:center; justify-content:center}
-
 /* BADGE TENUE CHIARO - NERO TOLTO + QR GRANDE + CAM ANTERIORE */
 .badge-carta{width:60mm; height:90mm; border-radius:10px; border:1.5px solid #0ea5e9; background:white; display:none; flex-direction:column; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); margin:10px auto; position:relative; opacity:1}
 .badge-carta-left{width:100%; height:58%; background:#f0f9ff !important; background-color:#f0f9ff !important; color:#0c4a6e !important; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border-bottom:2px solid #bae6fd}
@@ -69,7 +68,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
   #qrcodeCarta canvas, #qrcodeCarta img{ width:70px !important; height:70px !important; image-rendering:pixelated !important; display:block !important; }
   @page{ size:A4; margin:10mm; }
 }
-
 /* V52 - MODIFICA/CANCELLA MULTI-TABLET - NON TOCCA GPS */
 .btn-edit{background:#f59e0b; color:white; border:0; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:800; cursor:pointer; margin-left:4px}
 .btn-del{background:#ef4444; color:white; border:0; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:800; cursor:pointer; margin-left:4px}
@@ -78,7 +76,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .modal-edit-box h3{margin:0 0 10px 0; font-size:14px}
 .modal-edit-box label{font-size:11px; font-weight:700; display:block; margin-top:8px}
 .modal-edit-box input, .modal-edit-box select{width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box; margin-top:2px}
-
 .btn-edit{background:#f59e0b; color:white; border:0; border-radius:6px; padding:4px 8px; font-size:11px; font-weight:800; cursor:pointer; margin-left:4px}
 .btn-del{background:#ef4444; color:white; border:0; border-radius:6px; padding:4px 8px; font-size:11px; font-weight:800; cursor:pointer; margin-left:4px}
 .modal-edit{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:9999}
@@ -86,19 +83,15 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .modal-edit-box h3{margin:0 0 10px 0; font-size:14px}
 .modal-edit-box label{font-size:11px; font-weight:700; display:block; margin-top:8px}
 .modal-edit-box input, .modal-edit-box select{width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box; margin-top:2px}
-
 #anagraficaForm{ display:none; }
 #elencoProtetto, #tabellaOrari{ display:none; }
 #pinLock{ display:flex !important; }
 </style>
-
-
 </head>
 <body>
-
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V57 - Timbrature IC2-Fr - Elenco DEFINITIVO</b>
+<b>✅ V58 - Timbrature IC2-Fr - Elenco DEFINITIVO</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -106,9 +99,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="margin-top:4px; font-size:11px; color:#64748b">creato da<br><b style="color:#7c3aed; font-size:12px">Eleonora N.</b></div>
 </div>
 </div>
-
 <div id="statusBadge" style="text-align:center; padding:8px; border-radius:10px; border:2px solid #16a34a;background:#dcfce7;color:#166534;margin-bottom:8px; font-weight:800; font-size:12px">☁️ Condiviso attivo</div>
-
 <div class="box-combinato">
 <div class="left-plessi">
 <div style="display:flex; justify-content:space-between; align-items:center">
@@ -132,13 +123,10 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="listaDistanze" style="margin-top:6px; text-align:center"></div>
 <div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - su PC clicca Aggiorna GPS e consenti posizione</div>
 <div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> </div>
-
 </div>
 </div>
-
 <div id="bloccoBox" class="red-banner">Avvicinati a un plesso per timbrare.</div>
 <div id="okBox" class="red-banner" style="display:none; background:#16a34a">✅ Sei dentro il plesso - Puoi timbrare anche se fai servizio in un altro plesso</div>
-
 <div class="bottom-grid">
 <div class="card-timbra">
 <b style="font-size:15px">📷 Scanner + Timbratura</b>
@@ -151,7 +139,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="reader" style="width:100%; max-width:420px; margin:8px auto; border-radius:12px; overflow:hidden; display:none; border:3px solid #7c3aed"></div>
 <div id="qrResult" style="font-size:13px; text-align:center; font-weight:800; padding:4px"></div>
 <div id="ultimoScansionato" style="font-size:12px; background:#f0fdf4; padding:8px; border-radius:8px; text-align:center; border:2px solid #16a34a; font-weight:700">Nessuna scansione</div>
-
 <div style="border:2.5px solid #0ea5e9; border-radius:12px; padding:10px; background:linear-gradient(135deg,#f0f9ff,#f0fdf4); margin-top:10px">
 <b style="font-size:15px">📋 Timbratura manuale - GRANDE</b>
 <select id="dipendente" class="select-big" style="margin-top:6px"><option>⏳ Caricamento...</option></select>
@@ -164,7 +151,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div style="text-align:center; margin-top:8px">
 <button class="btn btn-small" style="background:#7c3aed; color:white" onclick="stampaResoconto()">🖨️ Stampa resoconto ore</button>
 </div>
-
 <div style="background:#fefce8; border:2.5px solid #eab308; border-radius:12px; padding:10px; margin-top:8px">
 <b style="font-size:13px">🖨️ Stampe Mensili con Periodo (come richiesto)</b>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">
@@ -184,25 +170,21 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <small style="font-size:9px; color:#64748b">Per eliminare: 1) Seleziona dipendente dal menu grande sopra 2) Opzionale seleziona periodo Da/A 3) Clicca Elimina e scrivi ELIMINA</small>
 </div>
 </div>
-
 <div style="text-align:center; margin-top:8px">
 </div>
 </div>
 <div id="log" style="max-height:600px; overflow-y:auto; border:1px solid #cbd5e1; border-radius:8px; padding:6px" style="font-size:10px; background:#f8fafc; padding:6px; margin-top:6px; max-height:110px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px">Log...</div>
 </div>
-
 <div class="card-white">
 <div style="display:flex; justify-content:space-between; align-items:center">
 <b style="font-size:15px">👤 Anagrafica</b>
 <span style="font-size:10px; background:#fffbeb; padding:3px 8px; border-radius:999px; border:1.5px solid #f59e0b">🔒 PIN</span>
 </div>
-
 <div id="pinLock" class="pin-box" style="margin-top:8px">
 <div style="flex:1; text-align:left"><b style="font-size:12px">🔒 Area protetta</b><br><small style="font-size:10px">Inserisci PIN</small></div>
 <input id="pinInput" type="password" name="pin_no_save" autocomplete="new-password" autocorrect="off" spellcheck="false" placeholder="PIN" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box">
 <button class="btn btn-green btn-small" style="padding:8px 12px" onclick="sbloccaPIN()">🔓</button>
 </div>
-
 <div id="anagraficaForm" style="display:none; margin-top:8px">
 <input id="nuovaAnagrafica" placeholder="Nome Cognome * es. Naddei Eleonora" style="width:100%; padding:10px; border:2px solid #0ea5e9; border-radius:10px; font-size:14px; font-weight:700; box-sizing:border-box">
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
@@ -216,7 +198,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </select>
 <select id="plessoAnagrafica" style="padding:9px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:12px"><option>Pietrobono</option><option selected>Rinascita</option><option>XXIII</option><option>Verdi</option><option>Pinocchio</option><option>Spinelli</option><option>Casa Test - Viale Portogallo 4</option></select>
 </div>
-
 <!-- ORARIO SETTIMANALE GIORNALIERO DIVERSO -->
 <div style="background:#fff7ed; border:2.5px solid #f97316; border-radius:12px; padding:10px; margin:8px 0">
 <b style="font-size:13px">📅 Orario settimanale - diverso per ogni giorno</b><br>
@@ -241,7 +222,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <button class="btn btn-small" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b" onclick="svuotaGiorno()">🗑️ Svuota giorno</button>
 </div>
 </div>
-
 <!-- TOLLERANZA 5 MINUTI - V51.2 - NON TOCCA GPS -->
 <div style="background:#fef3c7; border:2.5px solid #f59e0b; border-radius:12px; padding:10px; margin:8px 0">
 <b style="font-size:13px">⏱️ Tolleranza 5 minuti (come da richiesta)</b><br>
@@ -261,10 +241,8 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <div id="riepilogoTolleranze" style="background:#f0f9ff; border:2.5px solid #0ea5e9; border-radius:12px; padding:10px; margin:8px 0"></div>
 </div>
-
 <div id="riepilogoSettimana" style="background:#d1fae5; border:2px solid #16a34a; border-radius:8px; padding:8px; margin-top:8px; font-size:11px; font-weight:700"></div>
 </div>
-
 <div style="margin-top:8px; background:#f0f9ff; border:2px solid #7dd3fc; border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
 <label style="background:#0ea5e9; color:white; padding:10px 16px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer">📸 Carica Foto per Badge<input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="handleFotoAnagrafica(event)"></label>
 <small style="font-size:11px; color:#0c4a6e; font-weight:600">1) Scrivi nome 2) Carica foto 3) Salva!</small>
@@ -281,7 +259,6 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b>🖨️ Ristampa</b> sul nome. Si ristampa identico con stesso QR. Non serve rifare anagrafica!
 </div>
 </div>
-
 <div id="elencoProtetto" style="display:none; margin-top:12px; background:#fffbeb; border:3px solid #f59e0b; border-radius:14px; padding:12px">
 <b style="font-size:15px; color:#92400e">📋 Elenco Dipendenti - Modifica / Elimina / Badge - SCORRI QUI SOTTO ⬇️</b><br>
 <small style="font-size:11px">Clicca sui bottoni a destra di ogni dipendente per modificarlo</small>
@@ -289,7 +266,6 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <div id="tabellaOrari" style="max-height:800px; overflow:auto; font-size:12px; border:2px solid #fbbf24; border-radius:10px; background:white; min-height:100px"></div>
 <div style="margin-top:8px; font-size:10px; color:#92400e; background:white; padding:6px; border-radius:6px">💡 <b>Come modificare:</b> Clicca ✏️ Modifica → si carica sopra → cambia orario/nome → Salva<br><b>Come eliminare:</b> Clicca 🗑️ Elimina → cancella su tutti i tablet<br><b>Badge smarrito:</b> Clicca 🖨️ Badge → ristampa identico</div>
 </div>
-
 <div id="badgeCartaBox" class="badge-carta">
 <div class="badge-carta-left">
 <img id="badgeFoto" class="badge-foto" src="" style="display:none">
@@ -323,9 +299,7 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 </div>
 </div>
 </div>
-
 <div id="printArea" style="display:none"></div>
-
 <script>
 const GEOFENCE=150;
 const GEOFENCE_PIETROBONO=400; // solo Pietrobono 400m per GPS ballerino, altre 150m
@@ -345,7 +319,6 @@ function aggiungiCasaManuale(){ let lat=41.6345, lon=13.3350; if(last){lat=last.
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); attivaGPS(); }
 function dist(a,b,c,d){const R=6371e3,toRad=x=>x*Math.PI/180,dLat=toRad(c-a),dLon=toRad(d-b),aa=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));}
 let last=null, vicino=null, html5Qr=null, ultimoQR='', ultimoTempo=0, dentro=false;
-
 function renderPlessiUI(){
   const grid=document.getElementById('gridPlessi'); grid.innerHTML='';
   PLESSI.forEach(pl=>{
@@ -356,9 +329,6 @@ function renderPlessiUI(){
   const sel=document.getElementById('plessoAnagrafica'); const cur=sel.value; sel.innerHTML=''; PLESSI.forEach(pl=>{const o=document.createElement('option'); o.value=pl.n; o.text=pl.n; sel.appendChild(o);}); if(cur) sel.value=cur;
   const btnR=document.getElementById('btnRimuoviCasa'); const statusC=document.getElementById('casaStatus'); if(customPlesso){ if(btnR) btnR.style.display='inline-block'; if(statusC) statusC.innerHTML='✅ Casa Test attiva: '+customPlesso.n; } else { if(btnR) btnR.style.display='none'; if(statusC) statusC.innerHTML=''; }
 }
-
-
-
 function beep(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); o.frequency.value=880; o.connect(ctx.destination); o.start(); setTimeout(()=>o.stop(),150);}catch(e){} }
 function aggiornaUIBlocco(){
   const btnE=document.getElementById('btnEntrata'), btnU=document.getElementById('btnUscita'), btnC=document.getElementById('btnContinuo'), btnS=document.getElementById('btnSingolo');
@@ -431,7 +401,6 @@ function avviaWatchGPS(){
     if(box) box.innerHTML='GPS watch errore - riprovo... '+e.message;
   }, {enableHighAccuracy:true, timeout:30000, maximumAge:2000}); 
 }
-
 function attivaGPS(){
   if(!navigator.geolocation){ 
     const box=document.getElementById('coordBox');
@@ -473,16 +442,11 @@ function attivaGPS(){
     setTimeout(attivaGPS,5000); 
   }, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
 }
-
 function modalitaPC(){ 
   // V53 GPS esatto - non bypassa, solo info
   alert("GPS esatto obbligatorio - Se sei dentro ma GPS non aggancia, clicca 📍 Aggiorna GPS e consenti posizione. Su tablet attiva GPS nelle impostazioni.");
 }
-
-
-
 let pinSalvato='211285';
-
 function verificaPINStampa(){
   // Se anagrafica è già sbloccata, ok (hai già inserito PIN)
   let lock = document.getElementById('pinLock');
@@ -511,15 +475,12 @@ function verificaPINOperazione(testo){
     return false;
   }
 }
-
 function sbloccaPIN(){ const inp=document.getElementById('pinInput'); const pin=(inp.value||'').trim(); if(inp) inp.value=''; if(pin===pinSalvato){ document.getElementById('pinLock').style.display='none'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='block'; const e=document.getElementById('elencoProtetto'); if(e) e.style.display='block'; if(inp) inp.value=''; } else { alert('PIN errato'); if(inp) inp.value=''; } }
 function bloccaPIN(){ const inp=document.getElementById('pinInput'); if(inp) inp.value=''; document.getElementById('pinLock').style.display='flex'; const f=document.getElementById('anagraficaForm'); if(f) f.style.display='none'; const el=document.getElementById('elencoProtetto'); if(el) el.style.display='none'; }
-
 // ORARIO SETTIMANALE
 const giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
 let orariSettimana={lun:[], mar:[], mer:[], gio:[], ven:[], sab:[], dom:[]};
 let giornoSelezionato='lun';
-
 function selezionaGiorno(g){
   giornoSelezionato=g;
   document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
@@ -565,7 +526,6 @@ function resetOrariSettimana(){
   ['lun','mar','mer','gio','ven'].forEach(g=>{ orariSettimana[g]=[{entrata:'07:30', uscita:'13:30'}, {entrata:'14:00', uscita:'15:40'}]; });
   selezionaGiorno('lun');
 }
-
 let timbratureSalvate=JSON.parse(localStorage.getItem('timbrature_v93')||'[]');
 function timbra(tipo, nomeF=null){
   const nome=nomeF||document.getElementById('dipendente').value; if(!nome){ alert('Seleziona dipendente!'); return; }
@@ -671,8 +631,6 @@ function switchCamera(){
     avviaScanner({facingMode: currentFacing});
   }
 }
-
-
 let anagrafiche=[];
 function loadAnag(){
   try{
@@ -685,7 +643,6 @@ function loadAnag(){
   }
   try{ render(); filtraElenco(); }catch(e){ console.log('V57 render dopo loadAnag errore', e); }
 }
-
 function saveAnag(){
   localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche)); 
   localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
@@ -766,13 +723,11 @@ function render(){
     console.log('V57 render ok');
   }catch(e){ console.error('V57 render errore', e); }
 }
-
 function saveAnag(){
   localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
   localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
   try{ salvaAnagraficheCloud(); }catch(e){ console.log('Errore cloud anag', e); }
 }
-
 async function caricaAnagraficheCloud(){
   try{
     let status=document.getElementById('cloudAnagStatus');
@@ -786,7 +741,7 @@ async function caricaAnagraficheCloud(){
       localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
       localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
       render();
-      if(status) status.innerHTML='✅ V57 Ricevute '+val.length+' da cloud, ora ne hai '+anagrafiche.length+' totali: '+anagrafiche.map(a=>a.nome).join(', ');
+      if(status) status.innerHTML='✅ V58 Ricevute '+val.length+' da cloud, ora ne hai '+anagrafiche.length+' totali: '+anagrafiche.map(a=>a.nome).join(', ');
     }else{
       if(status) status.innerHTML='⚠️ V57 Cloud vuoto (val='+JSON.stringify(val)+') - Hai '+anagrafiche.length+' locali. Clicca Invia su altro tablet dove hai 5.';
       render();
@@ -798,93 +753,84 @@ async function caricaAnagraficheCloud(){
     render();
   }
 }
-
 function forzaRicaricaElenco(){
   try{ loadAnag(); }catch(e){}
   render();
-  alert('V57 Ricaricato: '+anagrafiche.length+' dipendenti: '+anagrafiche.map(a=>a.nome).join(', '));
+  alert('V58 Ricaricato: '+anagrafiche.length+' dipendenti: '+anagrafiche.map(a=>a.nome).join(', '));
 }
-
 function filtraElenco(){
-  console.log('V57 filtraElenco CHIAMATA, anagrafiche:', anagrafiche.length);
+  console.log('V58 filtraElenco CHIAMATA, anagrafiche:', anagrafiche.length, anagrafiche.map(a=>a.nome));
   const cont=document.getElementById('tabellaOrari');
   if(!cont){
-    console.error('V57 tabellaOrari NON TROVATO!');
+    console.error('V58 tabellaOrari NON TROVATO!');
+    alert('ERRORE V58: tabellaOrari non trovato!');
     return;
   }
-  // Pulisci
+  // Rendi il contenitore GIGANTE e visibile - togli max-height e scroll
+  cont.style.maxHeight='none';
+  cont.style.height='auto';
+  cont.style.overflow='visible';
+  cont.style.border='5px solid #ef4444';
+  cont.style.background='#fff';
+  cont.style.minHeight='300px';
   cont.innerHTML='';
   
-  // SEMPRE mostra debug azzurro in V57
+  // Box debug GIGANTE
   const debug=document.createElement('div');
-  debug.style.cssText='padding:10px; background:#e0f2fe; border:3px solid #0ea5e9; border-radius:10px; margin-bottom:12px; font-size:12px; font-weight:700; color:#0c4a6e';
-  debug.innerHTML='🔧 V57 DEBUG: hai '+anagrafiche.length+' dipendenti in memoria<br>Nomi: '+(anagrafiche.map(a=>a.nome).join(', ')||'NESSUNO')+'<br><button onclick="forzaRicaricaElenco()" style="margin-top:6px; padding:8px 12px; background:#0ea5e9; color:white; border:0; border-radius:8px; font-weight:900">🔄 Ricarica</button> <button onclick="caricaAnagraficheCloud()" style="padding:8px 12px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:900">📥 Ricevi da cloud</button>';
+  debug.style.cssText='padding:16px; background:#0ea5e9; color:white; border-radius:12px; margin-bottom:16px; font-size:16px; font-weight:900; text-align:center; border:4px solid #075985';
+  debug.innerHTML='🔧 V58 - HAI '+anagrafiche.length+' DIPENDENTI<br><small style="font-size:13px">'+(anagrafiche.map(a=>a.nome).join(', ')||'NESSUNO - clicca Ricevi')+'</small><br><button onclick="forzaRicaricaElenco()" style="margin-top:10px; padding:12px 18px; background:white; color:#0ea5e9; border:0; border-radius:10px; font-weight:900; font-size:14px">🔄 RICARICA ELENCO</button> <button onclick="caricaAnagraficheCloud()" style="padding:12px 18px; background:#16a34a; color:white; border:0; border-radius:10px; font-weight:900">📥 RICEVI 5 DA CLOUD</button>';
   cont.appendChild(debug);
-
   if(!anagrafiche || anagrafiche.length===0){
     const empty=document.createElement('div');
-    empty.style.cssText='text-align:center; padding:24px; background:#fee2e2; border-radius:14px; font-weight:900; border:3px solid #ef4444; font-size:15px; color:#7f1d1d';
-    empty.innerHTML='⚠️ Nessun dipendente in questo tablet<br><br><button onclick="caricaAnagraficheCloud()" style="padding:14px 22px; background:#16a34a; color:white; border:0; border-radius:12px; font-weight:900; font-size:16px">📥 RICEVI 5 DA CLOUD</button><br><br><small>Clicca qui per scaricare i 5 dal cloud</small>';
+    empty.style.cssText='text-align:center; padding:30px; background:#fee2e2; border-radius:14px; font-weight:900; border:4px solid #ef4444; font-size:18px; color:#7f1d1d';
+    empty.innerHTML='⚠️ NESSUN DIPENDENTE<br><br><button onclick="caricaAnagraficheCloud()" style="padding:18px 28px; background:#16a34a; color:white; border:0; border-radius:14px; font-weight:900; font-size:20px">📥 RICEVI 5 DA CLOUD ORA</button>';
     cont.appendChild(empty);
-    let cnt=document.getElementById('countLocal'); if(cnt) cnt.textContent='0';
     return;
   }
-
+  // Header verde GIGANTE
   const header=document.createElement('div');
-  header.style.cssText='padding:14px; background:#16a34a; color:white; text-align:center; font-weight:900; font-size:16px; border-radius:12px; margin-bottom:12px; border:3px solid #065f46';
-  header.textContent='✅ '+anagrafiche.length+' DIPENDENTI - V57 - Scorri e clicca MODIFICA';
+  header.style.cssText='padding:18px; background:linear-gradient(135deg,#16a34a,#22c55e); color:white; text-align:center; font-weight:900; font-size:20px; border-radius:14px; margin-bottom:16px; border:4px solid #065f46; box-shadow:0 6px 12px rgba(0,0,0,0.3)';
+  header.innerHTML='✅ ECCO I TUOI '+anagrafiche.length+' DIPENDENTI - V58<br><small style="font-size:14px">👇 Scorri giù, a destra ci sono i bottoni ✏️ MODIFICA</small>';
   cont.appendChild(header);
-
-  // Filtro opzionale
-  let qEl=document.getElementById('cercaDip');
-  let q=qEl ? (qEl.value||'').toLowerCase().trim() : '';
-  let lista=[];
+  // Lista GIGANTE
   anagrafiche.forEach((a,idx)=>{
-    if(q==='') lista.push({a,idx});
-    else{
-      let hay=((a.nome||'')+' '+(a.qualifica||'')+' '+(a.plesso||'')).toLowerCase();
-      if(hay.includes(q)) lista.push({a,idx});
-    }
-  });
-
-  if(q!=='' && lista.length===0){
-    const noRes=document.createElement('div');
-    noRes.style.cssText='padding:12px; background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; text-align:center; font-weight:800; margin-bottom:10px';
-    noRes.innerHTML='🔍 Nessun risultato per "'+q+'"<br><button onclick="document.getElementById(\'cercaDip\').value=\'\'; filtraElenco()" style="margin-top:8px; padding:8px 14px; background:#f59e0b; color:white; border:0; border-radius:8px; font-weight:900">❌ Mostra tutti</button>';
-    cont.appendChild(noRes);
-    lista=[]; anagrafiche.forEach((a,idx)=> lista.push({a,idx}));
-  }
-
-  lista.forEach(({a,idx})=>{
     const div=document.createElement('div');
-    div.style.cssText='display:grid; grid-template-columns:1.2fr 0.8fr; gap:10px; padding:14px; border:3px solid #16a34a; background:white; border-radius:14px; margin-bottom:12px';
+    div.style.cssText='display:grid; grid-template-columns:1fr 140px; gap:12px; padding:18px; border:4px solid #16a34a; background:linear-gradient(135deg,#ffffff,#f0fdf4); border-radius:16px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.15)';
     div.innerHTML=`
       <div>
-        <b style="font-size:16px">👤 ${a.nome||'Senza nome'}</b><br>
-        <span style="font-size:11px; background:#ede9fe; padding:4px 8px; border-radius:999px; border:1px solid #7c3aed; font-weight:700">💼 ${a.qualifica||''}</span><br>
-        <span style="font-size:11px; background:#fef3c7; padding:4px 8px; border-radius:999px; border:1px solid #f59e0b; font-weight:700">📍 ${a.plesso||''}</span><br>
-        <span style="font-size:12px; font-weight:800; color:#065f46; background:#dcfce7; padding:4px 8px; border-radius:6px; border:1px solid #16a34a">⏰ ${a.totale||''}</span>
+        <b style="font-size:20px; color:#0f172a; display:block">👤 ${a.nome||'Senza nome'}</b>
+        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:8px">
+          <span style="font-size:13px; background:#ede9fe; padding:6px 12px; border-radius:999px; border:2px solid #7c3aed; font-weight:800">💼 ${a.qualifica||''}</span>
+          <span style="font-size:13px; background:#fef3c7; padding:6px 12px; border-radius:999px; border:2px solid #f59e0b; font-weight:800">📍 ${a.plesso||''}</span>
+        </div>
+        <div style="margin-top:10px"><span style="font-size:14px; font-weight:900; color:#065f46; background:#dcfce7; padding:8px 14px; border-radius:10px; border:2px solid #16a34a">⏰ ${a.totale||''} a settimana</span></div>
       </div>
-      <div style="display:grid; gap:6px">
-        <button onclick="modificaAnagByIdx(${idx})" style="font-size:14px; background:#f59e0b; color:white; border:0; border-radius:10px; padding:12px; font-weight:900">✏️ MODIFICA</button>
-        <button onclick="eliminaAnagByIdx(${idx})" style="font-size:13px; background:#ef4444; color:white; border:0; border-radius:10px; padding:10px; font-weight:900">🗑️ ELIMINA</button>
-        <button onclick="creaBadgeByIdx(${idx})" style="font-size:12px; background:#7c3aed; color:white; border:0; border-radius:10px; padding:8px; font-weight:800">🖨️ BADGE</button>
-        <button onclick="stampaResocontoByIdx(${idx})" style="font-size:11px; background:#0ea5e9; color:white; border:0; border-radius:10px; padding:6px; font-weight:700">📊 ORE</button>
+      <div style="display:grid; gap:8px">
+        <button onclick="modificaAnagByIdx(${idx})" style="font-size:16px; background:linear-gradient(135deg,#f59e0b,#fbbf24); color:white; border:0; border-radius:12px; padding:16px; font-weight:900; box-shadow:0 4px 8px rgba(0,0,0,0.2)">✏️ MODIFICA</button>
+        <button onclick="eliminaAnagByIdx(${idx})" style="font-size:14px; background:#ef4444; color:white; border:0; border-radius:12px; padding:12px; font-weight:900">🗑️ ELIMINA</button>
+        <button onclick="creaBadgeByIdx(${idx})" style="font-size:13px; background:#7c3aed; color:white; border:0; border-radius:12px; padding:10px; font-weight:800">🖨️ BADGE</button>
       </div>
     `;
     cont.appendChild(div);
   });
-  let cnt=document.getElementById('countLocal'); if(cnt) cnt.textContent=anagrafiche.length;
+  // Aggiorna anche un elenco fuori dal box giallo in alto - duplicato per essere sicuro
+  let extraCont=document.getElementById('elencoExtraV58');
+  if(!extraCont){
+    extraCont=document.createElement('div');
+    extraCont.id='elencoExtraV58';
+    extraCont.style.cssText='margin:16px 0; padding:16px; background:white; border:5px solid #ef4444; border-radius:16px';
+    let anagCard=document.querySelector('.card-white');
+    if(anagCard && anagCard.parentNode) anagCard.parentNode.insertBefore(extraCont, anagCard.nextSibling);
+    else document.body.prepend(extraCont);
+  }
+  extraCont.innerHTML='<div style="text-align:center; font-weight:900; font-size:18px; color:#ef4444; margin-bottom:12px">📋 ELENCO RAPIDO V58 - '+anagrafiche.length+' DIPENDENTI</div>'+anagrafiche.map((a,idx)=>'<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:2px solid #16a34a; border-radius:10px; margin-bottom:8px; background:#f0fdf4"><b>👤 '+a.nome+'</b><button onclick="modificaAnagByIdx('+idx+')" style="padding:8px 14px; background:#f59e0b; color:white; border:0; border-radius:8px; font-weight:900">✏️ MODIFICA</button></div>').join('');
 }
-
-function modificaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; modificaAnag(a.nome); setTimeout(()=>window.scrollTo({top:0, behavior:'smooth'}),200); }catch(e){ alert('Errore: '+e.message); } }
+function modificaAnagByIdx(idx)
+{ try{ let a=anagrafiche[idx]; if(!a) return; modificaAnag(a.nome); setTimeout(()=>window.scrollTo({top:0, behavior:'smooth'}),200); }catch(e){ alert('Errore: '+e.message); } }
 function eliminaAnagByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; eliminaAnag(a.nome); }catch(e){} }
 function creaBadgeByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; creaBadgeDa(a.nome); }catch(e){} }
 function stampaResocontoByIdx(idx){ try{ let a=anagrafiche[idx]; if(!a) return; stampaResocontoNome(a.nome); }catch(e){} }
-
 function mostraOrario(){
-
-
   const nome=document.getElementById('dipendente').value;
   const a=anagrafiche.find(x=>x.nome===nome);
   if(!a) return;
@@ -896,10 +842,8 @@ function mostraOrario(){
   document.getElementById('orarioPrevisto').innerHTML=`Dipendente: <b>${a.nome}</b> - ${a.qualifica||''} - ${a.plesso}`;
   document.getElementById('orarioGiornoBox').innerHTML=`📅 Oggi ${giorniMap[gKey]}: <b>${txtOggi}</b> ${totOggi?` = ${h}h${String(m).padStart(2,'0')}`:''} | Sett: ${a.totale||''}`;
 }
-
 function aggiungiAnagrafica(){
   // auto-blocca dopo salvataggio per sicurezza
-
   const nome=document.getElementById('nuovaAnagrafica').value.trim();
   const plesso=document.getElementById('plessoAnagrafica').value;
   const qualifica=document.getElementById('qualifica').value;
@@ -915,7 +859,6 @@ function aggiungiAnagrafica(){
   document.getElementById('nuovaAnagrafica').value='';
   alert('✅ Salvato '+nome+' - '+qualifica+' - Tot sett '+totale+'\n☁️ Salvato su TUTTI i tablet (cloud)!\nBadge pronto per ristampa se smarrito!');
   setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000);
-
 }
 function modificaAnag(nome){
   if(document.getElementById('pinLock').style.display!=='none'){ alert('Sblocca con PIN prima! PIN 211285'); return; }
@@ -946,7 +889,6 @@ function eliminaAnag(nome){
   }catch(e){}
   saveAnag(); render(); setTimeout(()=>{ try{ bloccaPIN(); }catch(e){} }, 2000); // auto nascondi anagrafica
 }
-
 function handleFotoAnagrafica(event){
   const nome=document.getElementById('nuovaAnagrafica').value.trim(); 
   if(!nome){ alert('⚠️ Prima scrivi il nome!'); document.getElementById('nuovaAnagrafica').focus(); return; }
@@ -962,7 +904,6 @@ function handleFotoAnagrafica(event){
 }
 function stampaBadgeCarta(){ const box=document.getElementById('badgeCartaBox'); if(!box || box.style.display==='none'){ alert('Prima clicca Badge!'); return; } window.print(); }
 function creaBadgeDa(nome){
-
   const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
   const boxVecchio=document.getElementById('badgeBox'); if(boxVecchio) boxVecchio.style.display='none';
   const box=document.getElementById('badgeCartaBox');
@@ -1023,10 +964,6 @@ function stampaResocontoNome(nome){
   }).join('');
   printArea.innerHTML=`<div style="font-family:Arial; padding:20px; max-width:800px; margin:0 auto; border:2px solid #333"><h2 style="text-align:center; margin:0">Istituto Comprensivo Frosinone 2°<br>Resoconto Orario Settimanale - ${a.nome}</h2><p style="text-align:center; font-size:12px">Qualifica: <b>${a.qualifica||''}</b> | Plesso: <b>${a.plesso}</b> | Totale settimanale: <b>${a.totale||''}</b><br>Stampato da Eleonora N. il ${new Date().toLocaleString('it-IT')}</p><table style="width:100%; border-collapse:collapse; font-size:12px"><tr style="background:#0f172a; color:white"><th>Giorno</th><th>Orario giornaliero (può essere diverso)</th><th>Ore giorno</th></tr>${tabOrari}</table><h3 style="margin-top:15px; font-size:13px">Timbrature recenti</h3><table style="width:100%; border-collapse:collapse; font-size:11px"><tr style="background:#334155; color:white"><th>Data/Ora</th><th>Tipo</th><th>Plesso timbratura</th><th>Note</th></tr>${timbri.map(t=>`<tr><td style="border:1px solid #ccc; padding:3px">${t.data}</td><td style="border:1px solid #ccc; padding:3px">${t.tipo}</td><td style="border:1px solid #ccc; padding:3px">${t.plesso}</td><td style="border:1px solid #ccc; padding:3px">${t.ritardo||''}</td></tr>`).join('') || '<tr><td colspan=4 style="border:1px solid #ccc; padding:6px; text-align:center">Nessuna timbratura</td></tr>'}</table><div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:10px 20px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800">🖨️ STAMPA</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:10px 20px; background:#64748b; color:white; border:0; border-radius:8px">Chiudi</button></div></div>`;
 }
-
-
-
-
 // ===== LOG CONDIVISO + MODIFICA/CANCELLA MULTI-TABLET V51.1 - NON TOCCA GPS =====
 function aggiornaLog(){
   try{
@@ -1045,14 +982,12 @@ function aggiornaLog(){
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
 function renderGestioneTimbrature(){ aggiornaLog(); }
-
 // ===== CLOUD CONDIVISO VERO - REST API - PIETROBONO ↔ RINASCITA =====
 const DB_URLS = [
   "https://icfrosinone2-default-rtdb.firebaseio.com",
   "https://icfrosinone2-default-rtdb.europe-west1.firebasedatabase.app"
 ];
 let DB_URL = DB_URLS[0];
-
 async function fetchWithFallback(path){
   for(let base of DB_URLS){
     try{
@@ -1073,7 +1008,6 @@ async function fetchWithFallback(path){
   }
   return null;
 }
-
 async function caricaCondivise(){
   try{
     const badge = document.getElementById('statusBadge');
@@ -1117,7 +1051,6 @@ async function caricaCondivise(){
     aggiornaLog();
   }
 }
-
 async function salvaNuovaTimbratura(t){
   try{
     if(!t.timestamp) t.timestamp = Date.now();
@@ -1141,7 +1074,6 @@ async function salvaNuovaTimbratura(t){
     // errore silenzioso
   }
 }
-
 async function salvaAnagraficheCloud(){
   try{
     console.log('☁️ Salvo anagrafiche su cloud:', anagrafiche.length);
@@ -1158,8 +1090,6 @@ async function salvaAnagraficheCloud(){
     }
   }catch(e){ console.log('Errore salvaAnagraficheCloud', e); }
 }
-
-
 async function testCloud(){
   const badge = document.getElementById('statusBadge');
   if(badge) badge.innerHTML = "🧪 Test cloud in corso...";
@@ -1168,7 +1098,6 @@ async function testCloud(){
   await salvaNuovaTimbratura(testEntry);
   setTimeout(caricaCondivise, 1000);
 }
-
 // ===== AUTO-SYNC TEMPO REALE OGNI 1.5 SECONDI =====
 let syncInterval = null;
 let syncCount = 0;
@@ -1182,9 +1111,7 @@ function avviaAutoSync(){
   }, 1500); // ogni 1.5 sec per tempo reale
   console.log("☁️ Auto-sync avviato ogni 1.5s");
 }
-
 setTimeout(()=>{ caricaCondivise(); avviaAutoSync(); }, 800);
-
 // Ricarica quando torni sulla pagina (tablet in standby)
 document.addEventListener('visibilitychange', ()=>{
   if(!document.hidden){
@@ -1192,15 +1119,11 @@ document.addEventListener('visibilitychange', ()=>{
     caricaCondivise();
   }
 });
-
 // Ricarica quando riprende connessione
 window.addEventListener('online', ()=>{
   console.log("☁️ Connessione tornata - ricarico cloud");
   setTimeout(caricaCondivise, 500);
 });
-
-
-
 // ===== TOLLERANZA 5 MINUTI V51.2 - NON TOCCA GPS =====
 function parseOraMin(oraStr){
   // oraStr "07:35" o "07:35:00" o da timbratura "07:35"
@@ -1256,7 +1179,6 @@ function calcolaRitardoPermesso(t){
   }catch(e){ console.log("Errore tolleranza", e); }
   return {testo:'', tipo:'', minuti:0};
 }
-
 // Sovrascrivi timbra per mostrare ritardo/permesso - GPS ESATTO V53
 let timbraOriginale = timbra;
 function timbraConTolleranza(tipo, nomeF=null){
@@ -1289,10 +1211,8 @@ function timbraConTolleranza(tipo, nomeF=null){
   if(document.getElementById('beepCheck').checked) beep();
 }
 timbra = timbraConTolleranza;
-
 // Aggiorna aggiornaLog per mostrare ritardo/permesso
 let aggiornaLogOriginale = aggiornaLog;
-
 let filtroLogDipendente = 'TUTTI';
 function aggiornaLogConTolleranza(){
   try{
@@ -1334,9 +1254,7 @@ function aggiornaLogConTolleranza(){
     try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500))); }catch(e){}
   }catch(e){ console.log("aggiornaLog errore", e); }
 }
-
 aggiornaLog = aggiornaLogConTolleranza;
-
 function cancellaTimbraturaLocale(idx){
   if(!verificaPINOperazione('CANCELLAZIONE TIMBRATURA PROTETTA')) return;
   if(idx<0 || idx>=timbratureSalvate.length) return;
@@ -1356,15 +1274,10 @@ function cancellaTimbraturaLocale(idx){
   aggiornaLog();
   console.log("🗑️ Cancellata localmente e aggiunta a lista cancellate");
 }
-
 // Fix anche caricaCondivise per filtrare cancellate - già esiste in V51 ma assicuriamoci
-
-
 // per compatibilità con vecchia funzione
 function cancellaTimbratura(idx){ cancellaTimbraturaLocale(idx); }
-
 // modificaTimbratura semplice
-
 // ===== RIEPILOGO GIORNALIERO + MENSILE TOLLERANZE V51.6 =====
 function calcolaRiepilogoGiornaliero(){
   // raggruppa per data e nome
@@ -1398,7 +1311,6 @@ function calcolaRiepilogoGiornaliero(){
   });
   return {ritOggi, permOggi, countOggi, ritMese, permMese, countMese, mese, anno};
 }
-
 function aggiornaBoxRiepilogoTolleranze(){
   try{
     let r = calcolaRiepilogoGiornaliero();
@@ -1426,14 +1338,12 @@ function aggiornaBoxRiepilogoTolleranze(){
     `;
   }catch(e){ console.log("Errore riepilogo tolleranze", e); }
 }
-
 // Wrapper per aggiornare anche box tolleranze quando aggiorna log
 let aggiornaLogConTollOld = aggiornaLog;
 aggiornaLog = function(){
   aggiornaLogConTollOld();
   try{ aggiornaBoxRiepilogoTolleranze(); }catch(e){}
 };
-
 // STAMPE MENSILI CON PERIODO
 function stampaMensileConPeriodo(){
   if(!verificaPINStampa()) return;
@@ -1483,8 +1393,6 @@ function stampaMensileConPeriodo(){
     <div style="text-align:center; margin-top:15px"><button onclick="window.print()" style="padding:12px 24px; background:#16a34a; color:white; border:0; border-radius:8px; font-weight:800; font-size:14px">🖨️ STAMPA QUESTO RESOCONTO</button> <button onclick="document.getElementById('printArea').style.display='none'" style="padding:12px 24px; background:#64748b; color:white; border:0; border-radius:8px; font-weight:800">❌ Chiudi</button></div>
   </div>`;
 }
-
-
 function modificaTimbratura(idx){
   if(!verificaPINOperazione('MODIFICA TIMBRATURA PROTETTA')) return;
   if(idx<0 || idx>=timbratureSalvate.length) return;
@@ -1506,7 +1414,6 @@ function modificaTimbratura(idx){
   aggiornaLog();
   alert('✅ Modificato: '+t.nome+' - '+t.tipo+' @ '+nuovoOra+'\n'+calc.testo+'\nSalvato su questo tablet e cloud');
 }
-
 function cancellaTimbratura(idx){
   if(!verificaPINOperazione('CANCELLAZIONE TIMBRATURA PROTETTA')) return;
   if(idx<0 || idx>=timbratureSalvate.length) return;
@@ -1519,7 +1426,6 @@ function cancellaTimbratura(idx){
   aggiornaLog();
   alert('🗑️ Cancellata: '+removed.nome+' '+removed.tipo+' @ '+removed.ora);
 }
-
 function eliminaTimbratureDipendente(nomeDip){
   if(!verificaPINOperazione('ELIMINAZIONE TUTTE LE TIMBRATURE PROTETTA - Solo amministratore')) return;
   if(!nomeDip){ nomeDip = document.getElementById('dipendente').value; }
@@ -1575,7 +1481,6 @@ function eliminaTimbratureDipendente(nomeDip){
   aggiornaLog();
   alert('🗑️ Cancellate '+cancellate+' timbrature di '+nomeDip);
 }
-
 function aggiornaTimbraturaCloud(t){
   // aggiorna su Firebase se esiste
   try{
@@ -1593,8 +1498,6 @@ function cancellaTimbraturaCloud(t){
     });
   }catch(e){}
 }
-
-
 window.addEventListener('load', ()=>{
   // SEMPRE nascondi anagrafica all'avvio come richiesto
   try{ bloccaPIN(); }catch(e){}
@@ -1616,8 +1519,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 window.addEventListener('beforeprint', ()=>{ const b=document.getElementById('badgeCartaBox'); if(b){ b.style.display='flex'; } });
 </script>
-
-
 <!-- MODALE V51.1 - NON USATO, modifica via prompt -->
 <div id="modalEdit" class="modal-edit" onclick="if(event.target===this) chiudiModaleEdit()">
   <div class="modal-edit-box">
