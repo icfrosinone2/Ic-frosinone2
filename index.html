@@ -126,7 +126,9 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .modal-edit-box input, .modal-edit-box select{width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:13px; box-sizing:border-box; margin-top:2px}
 
 #anagraficaForm{ display:none; }
-#elencoProtetto, #tabellaOrari{ display:none; }
+#elencoProtetto{ display:none; }
+#tabellaOrari{ display:block !important; min-height:200px; }
+#tabellaOrari{ display:block; }
 #pinLock{ display:flex !important; }
 </style>
 
@@ -335,29 +337,23 @@ I badge restano salvati! Vai in <b>Elenco sotto</b> → clicca <b>Badge</b> o <b
 <small style="font-size:11px">Clicca sui bottoni a destra di ogni dipendente per modificarlo</small>
 <input id="cercaDip" placeholder="🔍 Cerca dipendente..." style="width:100%; padding:10px; border:2px solid #f59e0b; border-radius:10px; font-size:13px; margin:8px 0; box-sizing:border-box; background:white" oninput="filtraElenco()">
 <div id="tabellaOrari" style="max-height:800px; overflow:auto; font-size:12px; border:2px solid #fbbf24; border-radius:10px; background:white; min-height:100px"></div>
+
+<div style="margin-top:14px; background:#fff7ed; border:2px solid #fb923c; border-radius:12px; padding:12px">
+<b style="font-size:13px; color:#9a3412">📊 RESOCONTO ORE - DARE / AVERE (Protetto - serve PIN)</b><br>
+<small style="font-size:10px; color:#7c2d12">Calcola ore dovute vs lavorate da timbrature - scegli periodo</small>
+<div style="display:flex; gap:8px; margin:8px 0; flex-wrap:wrap">
+<div style="flex:1; min-width:130px"><label style="font-size:10px; font-weight:800">Da data</label><input id="dataDaDareAvere" type="date" style="width:100%; padding:8px; border:2px solid #fb923c; border-radius:8px; font-size:12px"></div>
+<div style="flex:1; min-width:130px"><label style="font-size:10px; font-weight:800">A data</label><input id="dataADareAvere" type="date" style="width:100%; padding:8px; border:2px solid #fb923c; border-radius:8px; font-size:12px"></div>
+</div>
+<button class="btn" style="background:#ea580c; color:white; width:100%; padding:11px; font-weight:900; border-radius:10px; font-size:12px" onclick="generaResocontoDareAvere()">📊 Calcola DARE / AVERE - Tutti i 32</button>
+<small style="font-size:9px; color:#9a3412; display:block; margin-top:5px">DARE=ore mancanti rosso • AVERE=straordinario verde • Se vuoto calcola mese corrente</small>
+</div>
+
 <div style="margin-top:8px; font-size:10px; color:#92400e; background:white; padding:6px; border-radius:6px">💡 <b>Come modificare:</b> Clicca ✏️ Modifica → si carica sopra → cambia orario/nome → Salva<br><b>Come eliminare:</b> Clicca 🗑️ Elimina → cancella su tutti i tablet<br><b>Badge smarrito:</b> Clicca 🖨️ Badge → ristampa identico</div>
 </div>
 
 
-<div style="margin-top:12px; background:#fffbeb; border:3px solid #f59e0b; border-radius:14px; padding:12px">
-<b style="font-size:14px; color:#92400e">📊 RESOCONTO ORE - DARE / AVERE (Conteggio mensile)</b><br>
-<small style="font-size:11px; color:#78350f">Calcola ore dovute vs ore timbrate reali - per ogni dipendente in ordine A-Z</small>
-<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px; align-items:end">
-<div><label style="font-size:10px; font-weight:700">Da data</label><input id="dataDaDareAvere" type="date" style="width:100%; padding:8px; border:2px solid #f59e0b; border-radius:8px"></div>
-<div><label style="font-size:10px; font-weight:700">A data</label><input id="dataADareAvere" type="date" style="width:100%; padding:8px; border:2px solid #f59e0b; border-radius:8px"></div>
-<button class="btn btn-small" style="background:#f59e0b; color:white; padding:10px; font-weight:900; border-radius:8px" onclick="generaResocontoDareAvere()">📊 Calcola DARE / AVERE - Tutti i 32</button>
-</div>
-<small style="font-size:9px; color:#92400e">Se non metti date, calcola il mese corrente in automatico. DARE = ore mancanti, AVERE = straordinario</small>
-</div>
-
-
-<div id="badgeCartaBox" class="badge-carta">
-<div class="badge-carta-left">
-<img id="badgeFoto" class="badge-foto" src="" style="display:none">
-<div id="badgeFotoPlaceholder" class="badge-foto-placeholder">👤</div>
-<div id="bNomeCarta" style="font-size:13px; font-weight:900; margin-top:10px; line-height:1.1; color:#0c4a6e">Nome</div>
-<div id="bQualificaCarta" style="font-size:9px; background:white; color:#334155; padding:4px 10px; border-radius:999px; margin-top:8px; font-weight:700; border:1.5px solid #bae6fd">Qualifica</div>
-</div>
+<!-- resoconto rimosso -->
 <div class="badge-carta-right">
 <div style="display:flex; justify-content:space-between; align-items:flex-start">
 <div style="font-size:9px; color:#0369a1; font-weight:800; line-height:1.2">IC FROSINONE 2°<br><span style="color:#475569; font-size:8px">BADGE PERSONALE</span><br><span style="color:#000; font-size:8px; font-weight:900">QR GRANDE 84x84 - TENUE</span></div>
