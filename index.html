@@ -139,7 +139,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V61 - 32 Dip. - 14:42 GIUSTO - Timbrature IC2-Fr</b>
+<b>✅ V61-FIX - 32 Dip - 14:42 - Timbrature IC2-Fr</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right">
@@ -724,6 +724,17 @@ function switchCamera(){
 
 let anagrafiche=[];
 function loadAnag(){
+  if(typeof FORZA_LISTA_DA_HTML !== 'undefined' && FORZA_LISTA_DA_HTML && typeof LISTA_COMPLETA_DIPENDENTI_V59 !== 'undefined' && LISTA_COMPLETA_DIPENDENTI_V59.length>0){
+    anagrafiche = JSON.parse(JSON.stringify(LISTA_COMPLETA_DIPENDENTI_V59));
+    localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+    localStorage.setItem('anagrafiche_v90', JSON.stringify(anagrafiche));
+    try{ saveAnag(); }catch(e){}
+    console.log('V61 loadAnag FORZATA 32 dip');
+    try{ render(); }catch(e){}
+    try{ filtraElenco(); mostraOrario(); }catch(e){}
+    return;
+  }
+
   try{const s=localStorage.getItem('anagrafiche_v95')||localStorage.getItem('anagrafiche_v90'); if(s) anagrafiche=JSON.parse(s);}catch(e){}
   if(anagrafiche.length===0){ anagrafiche=[{nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico Supplente Breve", orariSettimana:{lun:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mar:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], mer:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], gio:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], ven:[{entrata:"07:30", uscita:"13:30"}, {entrata:"14:00", uscita:"15:40"}], sab:[], dom:[]}, totale:"36h00m"}]; }
   render();
@@ -736,6 +747,15 @@ function saveAnag(){
   try{ salvaAnagraficheCloud(); }catch(e){ console.log('Errore cloud anag', e); }
 }
 async function caricaAnagraficheCloud(){
+  if(typeof FORZA_LISTA_DA_HTML !== 'undefined' && FORZA_LISTA_DA_HTML && typeof LISTA_COMPLETA_DIPENDENTI_V59 !== 'undefined' && LISTA_COMPLETA_DIPENDENTI_V59.length>0){
+    console.log('V61 FORZA_LISTA_DA_HTML attiva - NON sovrascrivo da cloud, uso lista HTML 32 dip');
+    anagrafiche = JSON.parse(JSON.stringify(LISTA_COMPLETA_DIPENDENTI_V59));
+    localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+    try{ saveAnag(); }catch(e){}
+    try{ render(); filtraElenco(); }catch(e){}
+    return;
+  }
+
   try{
     let status = document.getElementById('cloudAnagStatus');
     if(status) status.innerHTML = '⏳ Carico da cloud...';
