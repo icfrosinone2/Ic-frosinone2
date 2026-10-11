@@ -1797,6 +1797,27 @@ function generaResocontoDareAvere(){
 }
 
 
+
+function forzaFiltraElenco(){
+  try{
+    var cont=document.getElementById('tabellaOrari');
+    if(!cont) return;
+    if(cont.innerHTML.trim()===''){
+      var html = '<div style="background:#fee2e2;padding:12px;border-radius:8px">⚠️ Nessun dato - anagrafiche: '+(typeof anagrafiche!=='undefined'?anagrafiche.length:'undef')+' - provo ricostruzione forzata</div>';
+      html += '<div style="padding:8px">';
+      if(typeof anagrafiche!=='undefined'){
+        for(var i=0;i<anagrafiche.length;i++){
+          html += '<div style="border:1px solid #ccc;padding:6px;margin:4px">'+anagrafiche[i].nome+' - '+anagrafiche[i].plesso+'</div>';
+        }
+      }
+      html += '</div>';
+      cont.innerHTML = html;
+    }
+  }catch(e){ console.error(e); }
+}
+setTimeout(forzaFiltraElenco, 1500);
+
+
 window.addEventListener('load', ()=>{
   // SEMPRE nascondi anagrafica all'avvio come richiesto
   try{ bloccaPIN(); }catch(e){}
