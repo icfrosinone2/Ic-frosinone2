@@ -309,9 +309,19 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 </div>
 <button class="btn btn-green" style="margin-top:10px" onclick="aggiungiAnagrafica()">➕ Salva Anagrafica + Badge Tenue Foto QR Grande</button>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px">
-<button class="btn btn-small" style="background:#0ea5e9; color:white; padding:10px" onclick="forzaInvioAnagraficheCloud()">📤 Invia 4 dipendenti a TUTTI i tablet (cloud)</button>
-<button class="btn btn-small" style="background:#16a34a; color:white; padding:10px" onclick="caricaAnagraficheCloud()">📥 Ricevi anagrafiche da cloud</button>
+<button class="btn btn-small" style="background:#0ea5e9; color:white; padding:10px" onclick="forzaInvioAnagraficheCloud()">📤 Invia TUTTI a cloud</button>
+<button class="btn btn-small" style="background:#16a34a; color:white; padding:10px" onclick="caricaAnagraficheCloud()">📥 Ricevi da cloud</button>
 </div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px">
+<button class="btn btn-small" style="background:#7c3aed; color:white; padding:10px" onclick="importaExcel()">📥 Importa da Excel (lista intera)</button>
+<button class="btn btn-small" style="background:#f97316; color:white; padding:10px" onclick="esportaExcel()">📤 Esporta in Excel</button>
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; border:3px solid #7c3aed; border-radius:12px; padding:8px; background:#f5f3ff">
+<button class="btn btn-small" style="background:#7c3aed; color:white; padding:12px; font-size:12px; font-weight:900; border-radius:10px" onclick="generaSchedeDipendenti()">📇 Schede Tutti i 32 Dipendenti</button>
+<button class="btn btn-small" style="background:#0ea5e9; color:white; padding:12px; font-size:12px; font-weight:900; border-radius:10px" onclick="generaSchedeConQR()">📇 Badge QR Tutti i 32</button>
+</div>
+<div style="text-align:center; margin-top:4px"><small style="font-size:10px; color:#7c3aed; font-weight:700">NUOVO V62: Schede + Badge QR per tutti e 32!</small></div>
+
 <div id="cloudAnagStatus" style="font-size:11px; color:#0369a1; margin-top:6px; background:#f0f9ff; padding:6px; border-radius:6px; border:1px solid #7dd3fc">Hai <span id="countLocal">0</span> dipendenti locali - clicca Invia per mandarli su tutti i tablet</div>
 <button class="btn" style="background:#f1f5f9; color:#334155; font-size:11px; border:1px solid #cbd5e1; margin-top:4px" onclick="bloccaPIN()">🔒 Blocca</button>
 <div style="margin-top:8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px; font-size:10px">
