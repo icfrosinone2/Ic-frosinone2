@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V104 - 32 Dip - FIX GPS + LOG + PIN + EDIT - FINALE - EDIT/DELETE - PIN SICURO - QR FIX - RESOCONTO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V105 - FIX PIN + ANAGRAFICA - GPS OK - FINALE - EDIT/DELETE - PIN SICURO - QR FIX - RESOCONTO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -113,7 +113,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div class="card-white">
 <b>👤 Anagrafica - Area protetta</b>
 <div style="background:#fffbeb; border:2px solid #fbbf24; border-radius:10px; padding:8px; margin:6px 0; display:flex; gap:6px">
-<input id="pinAnag" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="PIN (211285)" style="flex:1; padding:8px; border:2px solid #fbbf24; border-radius:8px" onkeydown="if(event.key==='Enter') sbloccaAnag()">
+<input id="pinAnag" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Inserisci PIN" style="flex:1; padding:8px; border:2px solid #fbbf24; border-radius:8px" onkeydown="if(event.key==='Enter') sbloccaAnag()">
 <button onclick="sbloccaAnag()" style="background:#f59e0b; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800">🔓 Sblocca</button>
 <button onclick="bloccaPIN()" style="background:#64748b; color:white; border:0; border-radius:8px; padding:8px 12px">🔒</button>
 </div>
@@ -204,6 +204,7 @@ function aggiungiCasaDaGPS(){ if(!last){ alert('Aspetta GPS ATTIVO - clicca Aggi
 function rimuoviCasa(){ if(!confirm('Rimuovere Casa Test?')) return; localStorage.removeItem('plesso_casa_v94'); customPlesso=null; PLESSI=[...PLESSI_BASE]; renderPlessiUI(); attivaGPS(); }
 function dist(a,b,c,d){const R=6371e3,toRad=x=>x*Math.PI/180,dLat=toRad(c-a),dLon=toRad(d-b),aa=Math.sin(dLat/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));}
 let last=null, vicino=null, html5Qr=null, ultimoQR='', ultimoTempo=0, dentro=false, watchId=null, lastDentroTime=0, lastValidPos=null;
+let pinSalvato='211285';
 let anagrafiche=[]; let timbratureSalvate=JSON.parse(localStorage.getItem('timbrature_v93')||'[]');
 let giorniMap={lun:'Lunedì', mar:'Martedì', mer:'Mercoledì', gio:'Giovedì', ven:'Venerdì', sab:'Sabato', dom:'Domenica'};
 let currentFacing='environment';
