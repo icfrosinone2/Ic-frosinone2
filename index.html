@@ -41,7 +41,7 @@ console.log('V62 LISTA 32 DIP + SCHEDE:', LISTA_COMPLETA_DIPENDENTI_V59.length);
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V68 - 32 Dip - Schede + DARE AVERE - FIX ELENCO</title>
+<title>IC Frosinone 2 - V66 - 32 Dip - Schede + DARE AVERE - FIX ELENCO</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -138,7 +138,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V68 - 32 Dip - FIX QR REALI - BADGE</b>
+<b>✅ V66 - 32 Dip - FIX QR SCANNER HD - GPS FIX</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; margin-left:auto; padding-right:6px">
@@ -1694,19 +1694,17 @@ function generaSchedeConQR(){
     var w = window.open('', '_blank');
     if(!w){ alert('Sblocca popup!'); return; }
     var cardsHtml = '';
-    var qrData = [];
     for(var i=0;i<anagrafiche.length;i++){
       var a = anagrafiche[i];
-      qrData.push(a.nome);
       var fotoKey = 'foto_'+a.nome.toLowerCase().replace(/\s+/g,'_');
       var fotoSrc = localStorage.getItem(fotoKey) || '';
       var fotoTag = fotoSrc ? '<img src="'+fotoSrc+'" style="width:60px;height:74px;object-fit:cover;border-radius:8px;border:2px solid #0ea5e9">' : '<div style="width:60px;height:74px;background:#e0f2fe;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid #bae6fd">👤</div>';
-      cardsHtml += '<div style="width:90mm;height:60mm;border:2.5px solid #0ea5e9;border-radius:12px;overflow:hidden;display:flex;background:white;page-break-inside:avoid;margin:2mm;float:left"><div style="width:35%;background:#f0f9ff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px;border-right:2px solid #bae6fd">'+fotoTag+'<div style="font-size:9px;font-weight:900;margin-top:4px;color:#0c4a6e;text-align:center">'+a.nome+'</div></div><div style="width:65%;padding:5px 7px;display:flex;flex-direction:column;justify-content:space-between"><div><div style="font-size:8px;color:#0369a1;font-weight:800">IC FROSINONE 2 • BADGE QR</div><div style="font-size:8px;background:white;border:1px solid #bae6fd;padding:2px 6px;border-radius:999px;display:inline-block;margin-top:2px">'+(a.qualifica||'')+'</div><div style="font-size:9px;font-weight:800;color:#0c4a6e;margin-top:3px">🏫 '+a.plesso+'</div><div style="font-size:7px;color:#475569">'+(a.totale||'36h00m')+'</div></div><div style="display:flex;justify-content:space-between;align-items:center"><div id="qr-'+i+'" style="width:52px;height:52px;background:white;border:1.5px solid #000;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden"></div><div style="font-size:6px;color:#94a3b8;text-align:right">#'+(i+1)+'<br>2026</div></div></div></div>';
+      cardsHtml += '<div style="width:90mm;height:60mm;border:2.5px solid #0ea5e9;border-radius:12px;overflow:hidden;display:flex;background:white;page-break-inside:avoid;margin:2mm;float:left"><div style="width:35%;background:#f0f9ff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px;border-right:2px solid #bae6fd">'+fotoTag+'<div style="font-size:9px;font-weight:900;margin-top:4px;color:#0c4a6e;text-align:center">'+a.nome+'</div></div><div style="width:65%;padding:5px 7px;display:flex;flex-direction:column;justify-content:space-between"><div><div style="font-size:8px;color:#0369a1;font-weight:800">IC FROSINONE 2 • BADGE QR</div><div style="font-size:8px;background:white;border:1px solid #bae6fd;padding:2px 6px;border-radius:999px;display:inline-block;margin-top:2px">'+(a.qualifica||'')+'</div><div style="font-size:9px;font-weight:800;color:#0c4a6e;margin-top:3px">🏫 '+a.plesso+'</div><div style="font-size:7px;color:#475569">07:30-14:42 • '+a.totale+'</div></div><div style="display:flex;justify-content:space-between;align-items:center"><div style="width:52px;height:52px;background:white;border:1.5px solid #000;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px">QR</div><div style="font-size:6px;color:#94a3b8;text-align:right">#'+(i+1)+'<br>2026</div></div></div></div>';
     }
-    var full = '<!DOCTYPE html><html><head><meta charset=\'utf-8\'><title>Badge QR - '+anagrafiche.length+' dip</title><script src=\'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js\'></script><style>body{font-family:system-ui;margin:0;padding:8mm;background:#f8fafc}.header{text-align:center;margin-bottom:10px}.grid{display:block;overflow:hidden}@media print{body{padding:4mm;background:white}.no-print{display:none}@page{size:A4 landscape;margin:6mm}}.btn{background:#0ea5e9;color:white;border:0;padding:10px 20px;border-radius:10px;font-weight:800;cursor:pointer}</style></head><body><div class=\'header no-print\'><h3 style=\'margin:0;color:#0c4a6e\'>📇 Badge con QR - '+anagrafiche.length+' dipendenti - QR REALI</h3><button class=\'btn\' onclick=\'window.print()\'>🖨️ STAMPA BADGE QR</button><button class=\'btn\' style=\'background:#64748b;margin-left:6px\' onclick=\'window.close()\'>Chiudi</button><br><small style=color:#16a34a>✅ QR generati con nome - leggibili da app</small></div><div class=\'grid\'>'+cardsHtml+'</div><script>var qrData = '+JSON.stringify(qrData)+'; setTimeout(function(){ for(var i=0;i<qrData.length;i++){ try{ var el=document.getElementById(\'qr-\'+i); if(el){ el.innerHTML=\'\'; new QRCode(el, {text: qrData[i], width:52, height:52, colorDark:\'#000000\', colorLight:\'#ffffff\', correctLevel: QRCode.CorrectLevel.H}); } }catch(e){ console.log(\'QR err\',i,e); } } }, 600);</script></body></html>';
+    var full = '<!DOCTYPE html><html><head><meta charset=\'utf-8\'><title>Badge QR - '+anagrafiche.length+' dip</title><style>body{font-family:system-ui;margin:0;padding:8mm;background:#f8fafc}.header{text-align:center;margin-bottom:10px}.grid{display:block;overflow:hidden}@media print{body{padding:4mm;background:white}.no-print{display:none}@page{size:A4 landscape;margin:6mm}}.btn{background:#0ea5e9;color:white;border:0;padding:10px 20px;border-radius:10px;font-weight:800;cursor:pointer}</style></head><body><div class=\'header no-print\'><h3 style=\'margin:0;color:#0c4a6e\'>📇 Badge con QR - '+anagrafiche.length+' dipendenti</h3><button class=\'btn\' onclick=\'window.print()\'>🖨️ STAMPA BADGE QR</button><button class=\'btn\' style=\'background:#64748b;margin-left:6px\' onclick=\'window.close()\'>Chiudi</button></div><div class=\'grid\'>'+cardsHtml+'</div></body></html>';
     w.document.write(full);
     w.document.close();
-  }catch(e){ alert('Errore: '+e.message); console.error(e); }
+  }catch(e){ alert('Errore: '+e.message); }
 }
 
 function calcolaOreLavorateDaTimbrature(nome, daDate, aDate){
