@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V107 - FIX SBLOCCO ANAGRAFICA - PIN NASCOSTO - GPS OK</title>
+<title>IC Frosinone 2 - V108 - FIX SBLOCCO ANAGRAFICA - PIN NASCOSTO - GPS OK</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V107 - FIX SBLOCCO DEFINITIVO - PIN + ANAGRAFICA OK - GPS OK - FINALE - EDIT/DELETE - PIN SICURO - QR FIX - RESOCONTO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V108 - ORARIO SERVIZIO + RESOCONTO PERIODO - FINALE - PIN + ANAGRAFICA OK - GPS OK - FINALE - EDIT/DELETE - PIN SICURO - QR FIX - RESOCONTO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -471,16 +471,20 @@ function eliminaAnagrafica(nome){
 }
 
 function modificaAnagrafica(nome){
-  const a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  const nuovoNome = prompt('Modifica nome:', a.nome);
-  if(!nuovoNome) return;
-  const nuovoPlesso = prompt('Modifica plesso (Pietrobono, Rinascita, XXIII, Verdi, Pinocchio, Spinelli):', a.plesso);
-  const nuovaQual = prompt('Modifica qualifica:', a.qualifica);
-  const nuovoTot = prompt('Modifica totale ore (es: 36h00m):', a.totale);
+  var a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
+  var nuovoNome = prompt('Modifica nome:', a.nome);
+  if(nuovoNome===null) return;
+  var nuovoPlesso = prompt('Modifica plesso (Pietrobono, Rinascita, XXIII, Verdi, Pinocchio, Spinelli):', a.plesso);
+  var nuovaQual = prompt('Modifica qualifica:', a.qualifica);
+  var nuovoTot = prompt('Modifica totale ore (es: 36h00m):', a.totale);
   if(nuovoNome) a.nome=nuovoNome.trim();
   if(nuovoPlesso) a.plesso=nuovoPlesso.trim();
   if(nuovaQual) a.qualifica=nuovaQual.trim();
   if(nuovoTot) a.totale=nuovoTot.trim();
+  if(confirm('Vuoi modificare anche ORARIO DI SERVIZIO per '+a.nome+'?')){
+    modificaOrarioServizio(a.nome);
+    return;
+  }
   anagrafiche.sort((a,b)=>a.nome.localeCompare(b.nome));
   localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
   try{ salvaAnagraficheCloud(); }catch(e){}
@@ -488,32 +492,47 @@ function modificaAnagrafica(nome){
   alert('✅ Modificato: '+a.nome);
 }
 
-async function salvaAnagraficheCloud(){
-  try{
-    console.log('☁️ Salvo anagrafiche su cloud:', anagrafiche.length);
-    for(let base of DB_URLS){
-      try{
-        let res = await fetch(base + "/anagrafiche.json", {
-          method: "PUT",
-          body: JSON.stringify(anagrafiche),
-          headers: {"Content-Type":"application/json"}
-        });
-        if(res.ok){ DB_URL=base; break; }
-      }catch(e){}
-    }
-  }catch(e){}
+function modificaOrarioServizio(nome){
+  var a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
+  if(!a.orariSettimana) a.orariSettimana={lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[]};
+  var htmlForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Orario Servizio - '+a.nome+'</title><style>body{font-family:system-ui; padding:12px; background:#f8fafc} .day{border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin:8px 0; background:white} label{font-weight:700; font-size:13px} input{padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; width:80px} .btn{background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-gray{background:#64748b}</style></head><body>';
+  htmlForm += '<h2>⏰ Orario di Servizio - '+a.nome+'<br><small>'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></h2>';
+  htmlForm += '<p style="font-size:12px; color:#64748b">Inserisci orario per ogni giorno. Lascia vuoto se libero. Formato HH:MM (es: 07:30 - 14:42). Per doppio turno usa virgola: 07:30-12:00, 14:00-18:00</p>';
+  var giorni = [{id:'lun', nome:'Lunedì'}, {id:'mar', nome:'Martedì'}, {id:'mer', nome:'Mercoledì'}, {id:'gio', nome:'Giovedì'}, {id:'ven', nome:'Venerdì'}, {id:'sab', nome:'Sabato'}, {id:'dom', nome:'Domenica'}];
+  giorni.forEach(function(g){
+    var slots = a.orariSettimana[g.id] || [];
+    var txt = slots.map(function(s){ return s.entrata+'-'+s.uscita; }).join(', ');
+    htmlForm += '<div class="day"><label>'+g.nome+':</label><br><input id="orario-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="width:90%; margin-top:4px"></div>';
+  });
+  htmlForm += '<div style="text-align:center; margin-top:12px"><button class="btn" onclick="salvaOrari()">💾 Salva Orari</button><button class="btn btn-gray" onclick="window.close()">Annulla</button></div>';
+  htmlForm += '<script>function salvaOrari(){ var orari={}; var giorni=["lun","mar","mer","gio","ven","sab","dom"]; var ok=true; giorni.forEach(function(g){ var val=document.getElementById("orario-"+g).value.trim(); if(!val){ orari[g]=[]; } else { try{ var parts=val.split(","); var slots=[]; parts.forEach(function(p){ var pp=p.trim().split("-"); if(pp.length===2){ slots.push({entrata:pp[0].trim(), uscita:pp[1].trim()}); } }); orari[g]=slots; }catch(e){ alert("Errore formato giorno "+g+": "+val); ok=false; } } }); if(!ok) return; if(window.opener && window.opener.salvaOrariDaForm){ window.opener.salvaOrariDaForm("'+a.nome.replace(/'/g, "\'")+'", orari); } window.close(); }<\/script></body></html>';
+  var w=window.open('', '_blank', 'width=500,height=700'); w.document.write(htmlForm); w.document.close();
 }
 
-
-// BADGE
-function creaBadgeDa(nome){
-  const a=anagrafiche.find(x=>x.nome===nome) || {nome, plesso:'Rinascita', qualifica:'Collaboratore scolastico', orariSettimana:{lun:[{entrata:'07:30', uscita:'13:30'}]}};
-  const box=document.getElementById('badgeCartaBox'); if(!box) return;
-  box.style.display='flex';
-  document.getElementById('bNomeCarta').innerText=a.nome;
-  document.getElementById('bQualificaCarta').innerText=a.qualifica||'';
-  document.getElementById('bPlessoCarta').innerText=a.plesso;
-  const riepilogoBreve=Object.keys(giorniMap).map(g=>{ const slots=a.orariSettimana&&a.orariSettimana[g]?a.orariSettimana[g]:[]; if(slots.length===0) return ''; return g.toUpperCase()+':'+slots.map(s=>s.entrata+'-'+s.uscita).join('/'); }).filter(x=>x).join(' ');
+function salvaOrariDaForm(nome, orari){
+  var a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
+  a.orariSettimana=orari;
+  // Ricalcola totale approssimativo
+  try{
+    var totMin=0;
+    Object.values(orari).forEach(function(slots){
+      slots.forEach(function(s){
+        var e=s.entrata.split(':'); var u=s.uscita.split(':');
+        var minE=parseInt(e[0])*60+parseInt(e[1]); var minU=parseInt(u[0])*60+parseInt(u[1]);
+        var diff=minU-minE; if(diff<0) diff+=24*60;
+        totMin+=diff;
+      });
+    });
+    var ore=Math.floor(totMin/60); var min=totMin%60;
+    a.totale=ore+'h'+(min<10?'0'+min:min)+'m';
+  }catch(e){}
+  anagrafiche.sort((a,b)=>a.nome.localeCompare(b.nome));
+  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+  try{ salvaAnagraficheCloud(); }catch(e){}
+  render(); filtraElenco(); mostraOrario();
+  alert('✅ Orario salvato per '+nome+' - Totale: '+a.totale);
+}
+).filter(x=>x).join(' ');
   document.getElementById('bOrarioCarta').innerText=riepilogoBreve.substring(0,140)+' ('+(a.totale||'')+')';
   document.getElementById('bIdCarta').innerText='IC2|'+a.nome+'|'+a.plesso;
   const qrCarta=document.getElementById('qrcodeCarta'); qrCarta.innerHTML='';
@@ -544,28 +563,74 @@ function generaSchedeConQR(){
 
 function generaResocontoDareAvere(){
   try{
-    if(timbratureSalvate.length===0){ alert('Nessuna timbratura per resoconto'); return; }
-    // Raggruppa per dipendente
-    let perDip = {};
-    timbratureSalvate.forEach(t=>{
+    // Chiedi periodo
+    var oggi = new Date();
+    var primoGiorno = new Date(oggi.getFullYear(), oggi.getMonth(), 1).toISOString().slice(0,10);
+    var ultimoGiorno = oggi.toISOString().slice(0,10);
+    var dal = prompt('Resoconto DAL giorno (YYYY-MM-DD) - lascia vuoto per tutto:', primoGiorno);
+    if(dal===null) return;
+    var al = prompt('Resoconto AL giorno (YYYY-MM-DD) - lascia vuoto per oggi:', ultimoGiorno);
+    if(al===null) return;
+    
+    var filtrate = timbratureSalvate;
+    if(dal){
+      var dalTime = new Date(dal).getTime();
+      filtrate = filtrate.filter(function(t){ 
+        try{ 
+          var d = t.data.split(',')[0].split('/'); // formato italiano GG/MM/AAAA
+          if(d.length===3){ var dt = new Date(d[2], d[1]-1, d[0]).getTime(); return dt >= dalTime; }
+          return (t.timestamp||0) >= dalTime;
+        }catch(e){ return true; }
+      });
+    }
+    if(al){
+      var alTime = new Date(al).getTime() + 24*60*60*1000 - 1;
+      filtrate = filtrate.filter(function(t){ 
+        try{ 
+          var d = t.data.split(',')[0].split('/'); 
+          if(d.length===3){ var dt = new Date(d[2], d[1]-1, d[0]).getTime(); return dt <= alTime; }
+          return (t.timestamp||0) <= alTime;
+        }catch(e){ return true; }
+      });
+    }
+    
+    if(filtrate.length===0){ alert('Nessuna timbratura nel periodo '+dal+' - '+al); return; }
+    
+    var perDip = {};
+    filtrate.forEach(function(t){
       if(!perDip[t.nome]) perDip[t.nome]=[];
       perDip[t.nome].push(t);
     });
-    let htmlRes = '<!DOCTYPE html><html><head><meta charset=\'utf-8\'><title>Resoconto Ore</title><style>body{font-family:system-ui; padding:12px} table{width:100%; border-collapse:collapse} th,td{border:1px solid #cbd5e1; padding:6px; font-size:12px} th{background:#0ea5e9; color:white}</style></head><body><h2>📊 Resoconto Ore - IC Frosinone 2 - '+new Date().toLocaleDateString('it-IT')+'</h2><table><tr><th>Dipendente</th><th>Entrate</th><th>Uscite</th><th>Ore totali (stima)</th><th>Plessi</th></tr>';
-    Object.keys(perDip).sort().forEach(nome=>{
-      let list=perDip[nome];
-      let ent=list.filter(x=>x.tipo==='ENTRATA').length;
-      let usc=list.filter(x=>x.tipo==='USCITA').length;
-      let plessi=[...new Set(list.map(x=>x.plesso))].join(', ');
-      // Calcola ore approssimate: appaiando entrata/uscita stesso giorno
-      let ore=0;
-      // Semplice: conta coppie
-      htmlRes+=`<tr><td><b>${nome}</b></td><td>${ent}</td><td>${usc}</td><td>${Math.min(ent,usc)*7}h circa</td><td>${plessi}</td></tr>`;
+    
+    var htmlRes = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resoconto Ore</title><style>body{font-family:system-ui; padding:12px} table{width:100%; border-collapse:collapse} th,td{border:1px solid #cbd5e1; padding:6px; font-size:11px} th{background:#0ea5e9; color:white} .tot{background:#dcfce7; font-weight:800}</style></head><body>';
+    htmlRes += '<h2>📊 Resoconto Ore - IC Frosinone 2</h2>';
+    htmlRes += '<p><b>Periodo:</b> '+(dal||'inizio')+' → '+(al||'oggi')+' - <b>Timbrature:</b> '+filtrate.length+'</p>';
+    htmlRes += '<table><tr><th>Dipendente</th><th>Entrate</th><th>Uscite</th><th>Giorni</th><th>Ore stimate</th><th>Plessi</th><th>Dettaglio</th></tr>';
+    Object.keys(perDip).sort().forEach(function(nome){
+      var list=perDip[nome];
+      var ent=list.filter(function(x){ return x.tipo==='ENTRATA'; }).length;
+      var usc=list.filter(function(x){ return x.tipo==='USCITA'; }).length;
+      var giorniUnici = {};
+      list.forEach(function(t){ var gg=t.data.split(',')[0]; giorniUnici[gg]=1; });
+      var numGiorni=Object.keys(giorniUnici).length;
+      var plessi=[];
+      list.forEach(function(t){ if(plessi.indexOf(t.plesso)<0) plessi.push(t.plesso); });
+      var dettaglio = list.slice(0,10).map(function(t){ return t.data+' '+t.tipo+' @'+t.plesso; }).join('<br>');
+      if(list.length>10) dettaglio += '<br>... e altre '+(list.length-10);
+      htmlRes += '<tr><td><b>'+nome+'</b></td><td>'+ent+'</td><td>'+usc+'</td><td>'+numGiorni+'</td><td>'+(Math.min(ent,usc)*7)+'h circa</td><td>'+plessi.join(', ')+'</td><td style="font-size:9px">'+dettaglio+'</td></tr>';
     });
-    htmlRes+='</table><br><button onclick=\'window.print()\' style=\'background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800\'>🖨️ Stampa</button> <button onclick=\'window.close()\' style=\'background:#64748b; color:white; border:0; padding:10px 20px; border-radius:8px\'>Chiudi</button><p style=\'font-size:11px; color:#64748b\'>Basato su log timbrature: '+timbratureSalvate.length+' timbrature totali. Per dettaglio preciso, usa esportazione Excel.</p></body></html>';
-    let w=window.open('', '_blank'); w.document.write(htmlRes); w.document.close();
-  }catch(e){ alert('Errore resoconto: '+e.message); }
+    htmlRes += '</table><br>';
+    htmlRes += '<div style="margin-top:10px"><button onclick="window.print()" style="background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800">🖨️ Stampa Resoconto</button> ';
+    htmlRes += '<button onclick="esportaExcel()" style="background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800">📊 Esporta Excel</button> ';
+    htmlRes += '<button onclick="window.close()" style="background:#64748b; color:white; border:0; padding:10px 20px; border-radius:8px">Chiudi</button></div>';
+    htmlRes += '<p style="font-size:11px; color:#64748b; margin-top:12px">Basato su '+filtrate.length+' timbrature filtrate su '+timbratureSalvate.length+' totali. Ore stimate: 7h per coppia Entrata/Uscita. Per calcolo preciso timbra Entrata e Uscita stesso giorno.</p>';
+    htmlRes += '<script>function esportaExcel(){ var csv="Dipendente,Data,Ora,Tipo,Plesso,Distanza\n"; var dati='+JSON.stringify(filtrate).replace(/</g, '\u003c')+'; dati.forEach(function(t){ csv+= "\""+t.nome+"\",\""+t.data+"\",\""+t.ora+"\",\""+t.tipo+"\",\""+t.plesso+"\","+ (t.distanza||"") +"\n"; }); var blob=new Blob([csv], {type:"text/csv"}); var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download="resoconto_'+(dal||'inizio')+'_'+(al||'oggi')+'.csv"; a.click(); }<\/script>';
+    htmlRes += '</body></html>';
+    var w=window.open('', '_blank'); w.document.write(htmlRes); w.document.close();
+  }catch(e){ alert('Errore resoconto: '+e.message+'
+'+e.stack); }
 }
+
 
 
 // ===== CLOUD CONDIVISO - RIPRISTINATO PER LOG SU TUTTI I TABLET =====
