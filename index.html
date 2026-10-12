@@ -333,7 +333,6 @@ function fermaScanner(){
   if(html5Qr){ try{ html5Qr.stop().then(()=>{ document.getElementById('reader').style.display='none'; document.getElementById('stopBtn').style.display='none'; document.getElementById('switchBtn').style.display='none'; }); }catch(e){} }
   else { document.getElementById('reader').style.display='none'; }
 }
-let currentFacing='environment';
 function switchCamera(){ currentFacing = currentFacing==='environment' ? 'user' : 'environment'; avviaScanner({facingMode: currentFacing}); }
 
 // TIMBRATURE
