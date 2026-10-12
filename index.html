@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V101 FINALE - LOG CONDIVISO - 32 Dip</title>
+<title>IC Frosinone 2 - V102 - TUTTI 150m - 32 Dip</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V101 - 32 Dip - FINALE SEMPLICE - LOG CONDIVISO RIPARATO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V102 - 32 Dip - TUTTI 150m - NO 400m Pietrobono - LOG CONDIVISO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -196,7 +196,7 @@ PLESSI_BASE=[
  {n:'Pinocchio', lat:41.6404, lon:13.3501, cls:'pinocchio', maps:'https://maps.app.goo.gl/v2sHzUAjFGAFwMav5?g_st=ac', icon:'🥺'},
  {n:'Spinelli', lat:41.613259, lon:13.336852, cls:'spinelli', maps:'https://maps.google.com/?q=41.613259,13.336852', icon:'⭐'}
 ];
-const GEOFENCE=150; const GEOFENCE_PIETROBONO=400;
+const GEOFENCE=150; const GEOFENCE_PIETROBONO=150; // TOLTO 400m - ora tutti 150m uguali
 let PLESSI=[...PLESSI_BASE];
 let customPlesso=JSON.parse(localStorage.getItem('plesso_casa_v94')||'null');
 if(customPlesso){ PLESSI=[...PLESSI_BASE, customPlesso]; }
@@ -234,7 +234,7 @@ function aggiornaUIBlocco(){
     } else {
       if(btnE) btnE.disabled=true; if(btnU) btnU.disabled=true; if(btnC) btnC.disabled=true; if(btnS) btnS.disabled=true;
       blocco.style.display='block'; ok.style.display='none'; 
-      if(last){ badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444'; blocco.innerHTML='⛔ Sei FUORI dal plesso ('+ (vicino?vicino.n+' '+Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon))+'m':'') +') - Avvicinati (150m, Pietrobono 400m)'; }
+      if(last){ badge.textContent='GPS ATTIVO - FUORI'; badge.style.background='#ef4444'; blocco.innerHTML='⛔ Sei FUORI dal plesso ('+ (vicino?vicino.n+' '+Math.round(dist(last.coords.latitude,last.coords.longitude,vicino.lat,vicino.lon))+'m':'') +') - Avvicinati (150m per tutti i plessi)'; }
       else { badge.textContent='GPS NON ATTIVO - attendi'; badge.style.background='#64748b'; blocco.innerHTML='⏳ GPS non attivo - clicca 📍 Aggiorna GPS - Consenti posizione nel browser'; }
     }
   }
@@ -248,17 +248,17 @@ function avviaWatchGPS(){
     let min=1e9,best=null,chips=''; 
     PLESSI.forEach(pl=>{
       const d=dist(lat,lon,pl.lat,pl.lon); 
-      const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); 
+      const limite=GEOFENCE; 
       const ok=d<=limite; 
-      chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; 
+      chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ''</span>`; 
       if(d<min){min=d; best=pl;}
     }); 
     vicino=best; 
-    const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE); 
+    const limiteBest=GEOFENCE; 
     let nuovoDentro = min<=limiteBest;
     if(!nuovoDentro && dentro && (Date.now()-lastDentroTime < 15000)){} else { dentro=nuovoDentro; if(dentro) lastDentroTime=Date.now(); }
     const precEl=document.getElementById('precTop'); if(precEl) precEl.textContent=acc; 
-    const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'} ${best && best.n==='Pietrobono'?'🏫 400m':''}`; 
+    const vicinoEl=document.getElementById('vicinoBox'); if(vicinoEl) vicinoEl.innerHTML=`Vicino: <b>${best.n}</b> a ${Math.round(min)}m ${dentro?'✅ DENTRO':'⛔ FUORI'}`; 
     document.getElementById('listaDistanze').innerHTML=chips; 
     const statusEl=document.getElementById('coordBox'); if(statusEl) statusEl.innerHTML=`${lat.toFixed(5)}, ${lon.toFixed(5)} | ±${acc}m | GPS AUTO`; 
     aggiornaUIBlocco(); 
@@ -278,13 +278,13 @@ function attivaGPS(){
       let min=1e9,best=null, chips=''; 
       PLESSI.forEach(pl=>{
         const d=dist(lat,lon,pl.lat,pl.lon); 
-        const limite=(pl.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE);
+        const limite=GEOFENCE;
         const ok=d<=limite; 
-        chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ${pl.n==='Pietrobono'?'(400m)':''}</span>`; 
+        chips+=`<span class=chip-dist style="${ok?'background:#d1fae5; border-color:#16a34a':''}">${pl.n} ${Math.round(d)}m ${ok?'✅':'⛔'} ''</span>`; 
         if(d<min){min=d; best=pl;}
       });
       vicino=best; 
-      const limiteBest=(best && best.n==='Pietrobono'?GEOFENCE_PIETROBONO:GEOFENCE);
+      const limiteBest=GEOFENCE;
       dentro=min<=limiteBest; 
       if(dentro) lastDentroTime=Date.now();
       const prec=document.getElementById('precTop'); if(prec) prec.textContent=acc; 
@@ -337,7 +337,7 @@ function switchCamera(){ currentFacing = currentFacing==='environment' ? 'user' 
 
 // TIMBRATURE
 function timbra(tipo){
-  if(!dentro){ alert('⛔ Sei FUORI dal plesso! Avvicinati per timbrare (150m, Pietrobono 400m)'); return; }
+  if(!dentro){ alert('⛔ Sei FUORI dal plesso! Avvicinati per timbrare (150m per tutti i plessi)'); return; }
   const sel=document.getElementById('dipendente'); const nome=sel.value; if(!nome){ alert('Seleziona nome!'); return; }
   const a=anagrafiche.find(x=>x.nome===nome); const plesso = vicino ? vicino.n : (a ? a.plesso : 'Pietrobono');
   const ora=new Date(); const dataStr=ora.toLocaleDateString('it-IT')+', '+ora.toLocaleTimeString('it-IT');
