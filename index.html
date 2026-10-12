@@ -367,11 +367,7 @@ function aggiornaLog(){
 }
 function eliminaTimbratura(idx){
   var t=timbratureSalvate[idx]; if(!t) return;
-  if(!confirm('Cancellare timbratura?
-
-'+t.data+' - '+t.tipo+' - '+t.nome+' @ '+t.plesso+'
-
-Confermi?')) return;
+  if(!confirm('Cancellare timbratura?\n\n'+t.data+' - '+t.tipo+' - '+t.nome+' @ '+t.plesso+'\n\nConfermi?')) return;
   timbratureSalvate.splice(idx,1);
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
