@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V100 FINALE SEMPLICE - 32 Dip</title>
+<title>IC Frosinone 2 - V101 FINALE - LOG CONDIVISO - 32 Dip</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V100 - 32 Dip - FINALE SEMPLICE - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V101 - 32 Dip - FINALE SEMPLICE - LOG CONDIVISO RIPARATO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -442,11 +442,80 @@ function generaSchedeConQR(){
 
 function generaResocontoDareAvere(){ alert('Resoconto: usa log timbrature per ora'); }
 
-// Firebase condiviso semplice
-const firebaseConfig = { apiKey: "AIzaSyDummy", authDomain: "dummy.firebaseapp.com", databaseURL: "https://ic-frosinone2-default-rtdb.firebaseio.com", projectId: "ic-frosinone2" };
-try{ firebase.initializeApp(firebaseConfig); }catch(e){}
-function salvaCondivisa(t){ try{ const db=firebase.database(); db.ref('timbrature/'+t.timestamp).set(t); }catch(e){} }
-function caricaCondivise(){ try{ const db=firebase.database(); db.ref('timbrature').limitToLast(200).once('value', snap=>{ const val=snap.val(); if(val){ const arr=Object.values(val); arr.sort((a,b)=>b.timestamp-a.timestamp); timbratureSalvate=arr; localStorage.setItem('timbrature_v93', JSON.stringify(arr.slice(0,500))); aggiornaLog(); } }); }catch(e){} }
+// ===== CLOUD CONDIVISO - RIPRISTINATO PER LOG SU TUTTI I TABLET =====
+const DB_URLS = [
+  "https://icfrosinone2-default-rtdb.firebaseio.com",
+  "https://icfrosinone2-default-rtdb.europe-west1.firebasedatabase.app"
+];
+let DB_URL = DB_URLS[0];
+
+async function fetchWithFallback(path){
+  for(let base of DB_URLS){
+    try{
+      const url = base + path + "?ts="+Date.now();
+      console.log("☁️ Provo fetch:", url);
+      const r = await fetch(url, {cache:"no-store"});
+      if(r.ok){
+        DB_URL = base;
+        const j = await r.json();
+        return j;
+      }
+    }catch(e){ console.log("☁️ Fetch errore su", base, e); }
+  }
+  return null;
+}
+
+async function caricaCondivise(){
+  try{
+    let val = await fetchWithFallback("/timbrature.json");
+    if(val){
+      let arr = Array.isArray(val) ? val : Object.values(val);
+      arr = arr.filter(x=>x && x.data);
+      arr.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+      // merge con locale senza duplicati
+      let merged = [...arr, ...timbratureSalvate];
+      let seen = new Set();
+      let uniq = [];
+      merged.forEach(t=>{
+        let key = (t.data||'') + '|' + (t.nome||'') + '|' + (t.tipo||'') + '|' + (t.plesso||'') + '|' + (t.ora||'');
+        if(!seen.has(key)){
+          seen.add(key);
+          uniq.push(t);
+        }
+      });
+      uniq.sort((a,b)=> (b.timestamp||0)-(a.timestamp||0) );
+      timbratureSalvate = uniq.slice(0,500);
+      try{ localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate)); }catch(e){}
+      aggiornaLog();
+      console.log("☁️ Condiviso attivo - "+uniq.length+" timbrature");
+    } else {
+      aggiornaLog();
+    }
+  }catch(e){ 
+    console.log("Cloud fetch errore", e); 
+    aggiornaLog();
+  }
+}
+
+async function salvaNuovaTimbratura(t){
+  try{
+    if(!t.timestamp) t.timestamp = Date.now();
+    console.log("☁️ Invio timbratura a cloud:", t);
+    const res = await fetch(DB_URL + "/timbrature.json", {
+      method: "POST",
+      body: JSON.stringify(t),
+      headers: {"Content-Type":"application/json"}
+    });
+    if(res.ok){
+      setTimeout(caricaCondivise, 500);
+    }
+  }catch(e){ console.log("Cloud save errore", e); }
+}
+function salvaCondivisa(t){ salvaNuovaTimbratura(t); }
+
+// Auto-sync ogni 3 secondi per tutti i tablet
+setInterval(()=>{ caricaCondivise(); }, 3000);
+
 
 window.addEventListener('load', ()=>{
   try{ bloccaPIN(); }catch(e){}
