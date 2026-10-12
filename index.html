@@ -41,7 +41,7 @@ console.log('V62 LISTA 32 DIP + SCHEDE:', LISTA_COMPLETA_DIPENDENTI_V59.length);
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V69 - 32 Dip - Schede + DARE AVERE - FIX ELENCO</title>
+<title>IC Frosinone 2 - V70 - 32 Dip - Schede + DARE AVERE - FIX ELENCO</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -138,7 +138,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 
 <div class="top-verde">
 <div class="top-left">
-<b>✅ V69 - 32 Dip - GPS RIPARATO - QR REALI - FINALE</b>
+<b>✅ V70 - 32 Dip - GPS + TEST MODE - FINALE</b>
 <small>Non puoi timbrare se sei fuori dal plesso • Puoi timbrare anche se fai servizio in un altro plesso</small>
 </div>
 <div class="top-right" style="display:flex; flex-direction:column; align-items:flex-end; margin-left:auto; padding-right:6px">
@@ -171,7 +171,9 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <div id="vicinoBox" style="font-size:13px; font-weight:800; margin-top:6px">⏳ GPS auto in corso... clicca Aggiorna se non parte</div>
 <div id="listaDistanze" style="margin-top:6px; text-align:center; margin-left:4px; transform:translateX(2px)"></div>
 <div id="coordBox" style="font-size:9px; color:#64748b; text-align:center; margin-top:6px; background:rgba(255,255,255,.7); padding:5px; border-radius:8px; border:1px solid #e2e8f0">GPS automatico - su PC clicca Aggiorna GPS e consenti posizione</div>
-<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> </div>
+<div style="text-align:center; margin-top:8px"><button onclick="attivaGPS()" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:12px">📍 Aggiorna GPS</button> 
+<button onclick="forzaDentroTest()" style="background:#f59e0b; color:white; border:0; border-radius:8px; padding:8px 14px; font-weight:800; font-size:11px; margin-left:6px">🧪 TEST 10min DENTRO (prova da casa)</button>
+<button onclick="debugGPS()" style="background:#64748b; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:10px; margin-left:6px">🔍 Debug</button> </div>
 
 </div>
 </div>
@@ -563,8 +565,39 @@ function attivaGPS(){
     if(box) box.innerHTML=msg + '<br><button onclick="attivaGPS()" style="margin-top:6px; background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 12px; font-weight:800">🔄 Riprova GPS</button>';
     aggiornaUIBlocco(); 
     setTimeout(attivaGPS,5000); 
-  }, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
+  }, {enableHighAccuracy:true, timeout:30000, maximumAge:5000});
 }
+
+
+function forzaDentroTest(){
+  if(!confirm('🧪 TEST - Vuoi simulare di essere DENTRO al plesso per 10 minuti per provare scanner e badge?')) return;
+  dentro = true;
+  lastDentroTime = Date.now() + 10*60*1000; // 10 min in futuro per grace
+  vicino = PLESSI[0];
+  // Simula posizione
+  if(!last){
+    last = {coords:{latitude:41.626603, longitude:13.331938, accuracy:10}};
+  }
+  aggiornaUIBlocco();
+  document.getElementById('vicinoBox').innerHTML = 'Vicino: <b>Pietrobono (TEST)</b> a 10m ✅ DENTRO 🧪 TEST 10 min';
+  document.getElementById('coordBox').innerHTML = '🧪 MODALITA TEST ATTIVA 10 min - puoi timbrare anche da casa';
+  alert('✅ TEST ATTIVO 10 min - Ora puoi provare scanner QR anche da casa!');
+  setTimeout(()=>{ dentro=false; aggiornaUIBlocco(); alert('⏰ Test finito - GPS reale ripristinato'); }, 10*60*1000);
+}
+
+function debugGPS(){
+  var info = 'DEBUG GPS:\n';
+  info += 'navigator.geolocation: ' + (!!navigator.geolocation) + '\n';
+  info += 'last: ' + (last ? last.coords.latitude.toFixed(5)+','+last.coords.longitude.toFixed(5) : 'null') + '\n';
+  info += 'vicino: ' + (vicino ? vicino.n : 'null') + '\n';
+  info += 'dentro: ' + dentro + '\n';
+  info += 'PLESSI: ' + PLESSI.length + '\n';
+  info += 'HTTPS: ' + location.protocol + '\n';
+  info += 'UserAgent: ' + navigator.userAgent.substring(0,100);
+  alert(info);
+  console.log(info);
+}
+
 
 function modalitaPC(){ 
   // V53 GPS esatto - non bypassa, solo info
