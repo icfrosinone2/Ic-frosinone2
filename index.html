@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V103 - FIX COMPLETO - 32 Dip</title>
+<title>IC Frosinone 2 - V104 - FIX COMPLETO - 32 Dip</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V103 - 32 Dip - FIX COMPLETO - EDIT/DELETE - PIN SICURO - QR FIX - RESOCONTO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V104 - 32 Dip - FIX GPS + LOG + PIN + EDIT - FINALE - EDIT/DELETE - PIN SICURO - QR FIX - RESOCONTO - GPS + QR + BADGE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -351,80 +351,62 @@ function timbra(tipo){
 }
 function aggiornaLog(){
   try{
-    const logDiv=document.getElementById('log'); if(!logDiv) return;
-    let html=''; 
-    // Pulsanti utilità in alto
-    html+='<div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap"><button onclick="eliminaTutteTimbratureProva()" style="background:#f97316; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">🧹 Elimina prove Casa Test</button><button onclick="eliminaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">🗑️ Elimina TUTTE</button><button onclick="caricaCondivise()" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px">🔄 Aggiorna</button></div>';
-    timbratureSalvate.slice(0,80).forEach((t,i)=>{
-      const colore=t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
-      const isProva = (t.plesso||'').includes('Casa Test');
-      html+=`<div style="border-left:3px solid ${colore}; padding:6px; margin:5px 0; background:${isProva?'#fffbeb':'white'}; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; gap:6px"><div><span style="color:#64748b; font-size:10px">${t.data}</span> - <b style="color:${colore}">${t.tipo}</b> - <b>${t.nome}</b> @ <b>${t.plesso}</b> ${t.distanza? '('+t.distanza+'m)':''} ${isProva?'<span style="background:#fbbf24; color:white; padding:1px 5px; border-radius:999px; font-size:9px">PROVA</span>':''}</div><div style="display:flex; gap:4px"><button onclick="modificaTimbratura(${i})" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">✏️</button><button onclick="eliminaTimbratura(${i})" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">🗑️</button></div></div>`;
-    });
+    var logDiv=document.getElementById('log'); if(!logDiv) return;
+    var html=''; 
+    html+='<div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap"><button onclick="eliminaTutteTimbratureProva()" style="background:#f97316; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">Elimina prove Casa Test</button><button onclick="eliminaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">Elimina TUTTE</button><button onclick="caricaCondivise()" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px">Aggiorna</button></div>';
+    for(var i=0;i<Math.min(timbratureSalvate.length,80);i++){
+      var t=timbratureSalvate[i];
+      var colore=t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      var isProva = (t.plesso||'').indexOf('Casa Test')>=0;
+      var provaBadge = isProva ? '<span style="background:#fbbf24; color:white; padding:1px 5px; border-radius:999px; font-size:9px">PROVA</span>' : '';
+      html+='<div style="border-left:3px solid '+colore+'; padding:6px; margin:5px 0; background:'+(isProva?'#fffbeb':'white')+'; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; gap:6px"><div><span style="color:#64748b; font-size:10px">'+t.data+'</span> - <b style="color:'+colore+'">'+t.tipo+'</b> - <b>'+t.nome+'</b> @ <b>'+t.plesso+'</b> '+(t.distanza?'('+t.distanza+'m)':'')+' '+provaBadge+'</div><div style="display:flex; gap:4px"><button onclick="modificaTimbratura('+i+')" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">Mod</button><button onclick="eliminaTimbratura('+i+')" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">Del</button></div></div>';
+    }
     if(timbratureSalvate.length===0) html+='<div style="text-align:center; color:#94a3b8; padding:10px">Nessuna timbratura</div>';
     logDiv.innerHTML=html;
   }catch(e){ console.log('log errore', e); }
 }
-
 function eliminaTimbratura(idx){
-  const t=timbratureSalvate[idx]; if(!t) return;
-  if(!confirm('🗑️ Cancellare timbratura?
+  var t=timbratureSalvate[idx]; if(!t) return;
+  if(!confirm('Cancellare timbratura?
 
 '+t.data+' - '+t.tipo+' - '+t.nome+' @ '+t.plesso+'
 
 Confermi?')) return;
   timbratureSalvate.splice(idx,1);
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
-  // Rimuovi anche da cloud se ha timestamp
-  try{ if(t.timestamp){ fetch(DB_URL+'/timbrature.json').then(r=>r.json()).then(all=>{ if(all){ Object.entries(all).forEach(([k,v])=>{ if(v && v.timestamp===t.timestamp){ fetch(DB_URL+'/timbrature/'+k+'.json', {method:'DELETE'}); } }); } }); } }catch(e){}
   aggiornaLog();
 }
-
 function modificaTimbratura(idx){
-  const t=timbratureSalvate[idx]; if(!t) return;
-  const nuovaOra = prompt('Modifica ora (HH:MM):', t.ora);
+  var t=timbratureSalvate[idx]; if(!t) return;
+  var nuovaOra = prompt('Modifica ora (HH:MM):', t.ora);
   if(!nuovaOra) return;
-  const nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo);
-  const nuovoPlesso = prompt('Modifica plesso:', t.plesso);
+  var nuovoTipo = prompt('Modifica tipo (ENTRATA/USCITA):', t.tipo);
+  var nuovoPlesso = prompt('Modifica plesso:', t.plesso);
   if(nuovaOra) t.ora=nuovaOra;
   if(nuovoTipo) t.tipo=nuovoTipo.toUpperCase();
   if(nuovoPlesso) t.plesso=nuovoPlesso;
-  // Aggiorna data se cambia ora
-  try{
-    let parts = t.data.split(',')[0];
-    t.data = parts + ', ' + nuovaOra;
-  }catch(e){}
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
-  alert('✅ Modificata: '+t.nome+' '+t.tipo+' @ '+t.ora);
+  alert('Modificata: '+t.nome+' '+t.tipo+' @ '+t.ora);
 }
-
 function eliminaTutteTimbratureProva(){
-  if(!confirm('🧹 Eliminare TUTTE le timbrature di PROVA (Casa Test)?
-
-Verranno eliminate solo quelle con plesso Casa Test.
-Confermi?')) return;
-  let prima = timbratureSalvate.length;
-  timbratureSalvate = timbratureSalvate.filter(t=> !(t.plesso||'').includes('Casa Test'));
+  if(!confirm('Eliminare TUTTE le timbrature di PROVA (Casa Test)?')) return;
+  var prima = timbratureSalvate.length;
+  var filtrate=[];
+  for(var i=0;i<timbratureSalvate.length;i++){ if((timbratureSalvate[i].plesso||'').indexOf('Casa Test')<0) filtrate.push(timbratureSalvate[i]); }
+  timbratureSalvate=filtrate;
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
-  alert('🧹 Eliminate '+(prima-timbratureSalvate.length)+' timbrature di prova');
+  alert('Eliminate '+(prima-timbratureSalvate.length)+' prove');
 }
-
 function eliminaTutteTimbrature(){
-  if(prompt('⚠️ ELIMINARE TUTTE LE TIMBRATURE SU TUTTI I TABLET?
-Scrivi ELIMINA TUTTO per confermare')!=='ELIMINA TUTTO'){ alert('Annullato'); return; }
+  if(prompt('ELIMINARE TUTTE LE TIMBRATURE? Scrivi ELIMINA TUTTO')!=='ELIMINA TUTTO'){ alert('Annullato'); return; }
   timbratureSalvate=[];
   localStorage.setItem('timbrature_v93', JSON.stringify([]));
   aggiornaLog();
-  alert('🗑️ Tutte le timbrature locali eliminate. Per cloud, elimina manualmente da Firebase se necessario.');
+  alert('Tutte le timbrature locali eliminate');
 }
 
-
-// ANAGRAFICA
-let pinSalvato='211285';
-function verificaPINStampa(){ return true; }
-function bloccaPIN(){ const area=document.getElementById('areaAnag'); if(area) area.style.display='none'; const pinEl=document.getElementById('pinAnag'); if(pinEl){ pinEl.value=''; pinEl.type='password'; } }
-function sbloccaAnag(){ try{ const pinEl=document.getElementById('pinAnag'); const pin=pinEl.value; if(pin!=='211285' && pin!==pinSalvato){ alert('PIN errato!'); return; } document.getElementById('areaAnag').style.display='block'; pinEl.value=''; pinEl.type='password'; render(); filtraElenco(); }catch(e){ alert('Errore: '+e.message); } }
 function loadAnag(){
   if(FORZA_LISTA_DA_HTML && LISTA_COMPLETA_DIPENDENTI_V59.length>0){
     anagrafiche = JSON.parse(JSON.stringify(LISTA_COMPLETA_DIPENDENTI_V59)); anagrafiche.sort((a,b)=> (a.nome||"").localeCompare(b.nome||""));
@@ -441,13 +423,15 @@ function render(){
   filtraElenco(); mostraOrario();
 }
 function filtraElenco(){
-  const cont=document.getElementById('tabellaOrari'); if(!cont) return;
-  let html='<div style="max-height:400px; overflow:auto">';
-  anagrafiche.forEach(a=>{
-    const nomeEsc = a.nome.replace(/'/g,"\'");
-    html+=`<div style="border:1.5px solid #cbd5e1; padding:8px; margin:5px 0; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center; gap:6px"><div style="flex:1"><b>${a.nome}</b><br><small style="color:#475569">${a.plesso} - ${a.qualifica} - ${a.totale}</small></div><div style="display:flex; gap:4px; flex-wrap:wrap"><button onclick="modificaAnagrafica('${nomeEsc}')" style="background:#f59e0b; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">✏️ Mod</button><button onclick="eliminaAnagrafica('${nomeEsc}')" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">🗑️ Del</button><button onclick="creaBadgeDa('${nomeEsc}')" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">🪪 Badge</button></div></div>`;
-  });
-  html+='</div><div style="text-align:center; margin-top:8px; font-size:11px; color:#64748b">Totale: <b>'+anagrafiche.length+'</b> dipendenti - Puoi aggiungere/eliminare</div>'; cont.innerHTML=html;
+  var cont=document.getElementById('tabellaOrari'); if(!cont) return;
+  var html='<div style="max-height:400px; overflow:auto">';
+  for(var i=0;i<anagrafiche.length;i++){
+    var a=anagrafiche[i];
+    var nomeEsc = a.nome.replace(/'/g, "\'");
+    html+='<div style="border:1.5px solid #cbd5e1; padding:8px; margin:5px 0; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center; gap:6px"><div style="flex:1"><b>'+a.nome+'</b><br><small style="color:#475569">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></div><div style="display:flex; gap:4px; flex-wrap:wrap"><button onclick="modificaAnagrafica(\''+nomeEsc+'\')" style="background:#f59e0b; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">Mod</button><button onclick="eliminaAnagrafica(\''+nomeEsc+'\')" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">Del</button><button onclick="creaBadgeDa(\''+nomeEsc+'\')" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">Badge</button></div></div>';
+  }
+  html+='</div><div style="text-align:center; margin-top:8px; font-size:11px; color:#64748b">Totale: <b>'+anagrafiche.length+'</b> dipendenti</div>';
+  cont.innerHTML=html;
 }
 function mostraOrario(){
   const nome=document.getElementById('dipendente')?.value; const box=document.getElementById('orarioGiornoBox'); if(!box) return;
