@@ -3,11 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V113 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V108 - ORARIO + RESOCONTO + 32 DIP</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<title>IC Frosinone 2 - V115 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V108 - ORARIO + RESOCONTO + 32 DIP</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
+}
+</script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+}
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js">
+}
+</script>
 <style>
 body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .top-verde{border:3px solid #16a34a; background:white; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center}
@@ -46,7 +54,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V113 - FINALISSIMO - GPS OK - TIMBRATURE OK - RESOCONTO DROPDOWN 32 NOMI - CANCELLA CLOUD - SETTIMANE ALTERNE - LOG CONDIVISO OK</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V115 - SCHEDA ANAGRAFICA + ORARIO MODAL - FIX ORARIO - GPS OK - LOG CONDIVISO OK - FINALISSIMO</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -504,17 +512,125 @@ function render(){
   const cur=sel.value; sel.innerHTML=''; anagrafiche.forEach(a=>{ const o=document.createElement('option'); o.value=a.nome; o.textContent=a.nome+' - '+a.qualifica+' - '+a.plesso; sel.appendChild(o); }); if(cur) sel.value=cur; else if(anagrafiche.length>0) sel.value=anagrafiche[0].nome;
   filtraElenco(); mostraOrario();
 }
+
 function filtraElenco(){
   var cont=document.getElementById('tabellaOrari'); if(!cont) return;
-  var html='<div style="max-height:400px; overflow:auto">';
+  var filtro = (document.getElementById('filtroAnag')?.value||'').toLowerCase();
+  var html='<div style="display:flex; gap:6px; margin-bottom:8px"><input id="filtroAnag" placeholder="Cerca nome..." style="flex:1; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px" oninput="filtraElenco()" value="'+(filtro||'')+'"><span style="font-size:11px; color:#64748b; padding:8px">Tot: '+anagrafiche.length+'</span></div>';
+  html+='<div style="max-height:420px; overflow:auto">';
+  var mostrati=0;
   for(var i=0;i<anagrafiche.length;i++){
     var a=anagrafiche[i];
+    if(filtro && a.nome.toLowerCase().indexOf(filtro)<0 && a.plesso.toLowerCase().indexOf(filtro)<0) continue;
     var nomeEsc = a.nome.replace(/'/g, "\'");
-    html+='<div style="border:1.5px solid #cbd5e1; padding:8px; margin:5px 0; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center; gap:6px"><div style="flex:1"><b>'+a.nome+'</b><br><small style="color:#475569">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></div><div style="display:flex; gap:4px; flex-wrap:wrap"><button onclick="modificaAnagrafica(\''+nomeEsc+'\')" style="background:#f59e0b; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">Mod</button><button onclick="eliminaAnagrafica(\''+nomeEsc+'\')" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">Del</button><button onclick="creaBadgeDa(\''+nomeEsc+'\')" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px; font-weight:700">Badge</button></div></div>';
+    var tipoBadge = a.orarioTipo==='alterne' ? '<span style="background:#f59e0b; color:white; padding:1px 5px; border-radius:999px; font-size:9px">A/B</span>' : '<span style="background:#16a34a; color:white; padding:1px 5px; border-radius:999px; font-size:9px">FISSO</span>';
+    html+='<div style="border:1.5px solid #cbd5e1; padding:8px; margin:5px 0; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center; gap:6px"><div style="flex:1"><b>'+a.nome+'</b> '+tipoBadge+'<br><small style="color:#475569">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></div><div style="display:flex; gap:4px; flex-wrap:wrap"><button onclick="apriSchedaAnagrafica(\''+nomeEsc+'\')" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:700">Scheda</button><button onclick="creaBadgeDa(\''+nomeEsc+'\')" style="background:#8b5cf6; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px">Badge</button></div></div>';
+    mostrati++;
   }
-  html+='</div><div style="text-align:center; margin-top:8px; font-size:11px; color:#64748b">Totale: <b>'+anagrafiche.length+'</b> dipendenti</div>';
+  html+='</div><div style="text-align:center; margin-top:8px; font-size:11px; color:#64748b">Mostrati: <b>'+mostrati+'</b> / '+anagrafiche.length+' dipendenti</div>';
   cont.innerHTML=html;
 }
+
+function apriSchedaAnagrafica(nome){
+  var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
+  if(!a) return;
+  var modal = document.getElementById('modalSchedaAnag');
+  if(!modal){
+    // Crea modal se non esiste
+    var div = document.createElement('div');
+    div.id='modalSchedaAnag';
+    div.style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; align-items:center; justify-content:center; padding:12px; box-sizing:border-box';
+    document.body.appendChild(div);
+    modal = div;
+  }
+  modal.style.display='flex';
+  var plessi = ['Pietrobono','Rinascita','XXIII','Verdi','Pinocchio','Spinelli','Casa Test'];
+  var qualifiche = ['Collaboratore Scolastico','Assistente Amministrativo','Docente','DSGA','Altro'];
+  
+  var htmlModal = '<div style="background:white; border-radius:14px; padding:16px; width:100%; max-width:480px; max-height:90vh; overflow:auto; border:2.5px solid #0ea5e9">';
+  htmlModal+='<h3 style="margin:0 0 12px 0; color:#0ea5e9">📋 Scheda Dipendente</h3>';
+  htmlModal+='<label style="font-weight:700; font-size:12px">Nome e Cognome:</label><input id="editNome" value="'+a.nome.replace(/"/g,'&quot;')+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0; box-sizing:border-box">';
+  
+  htmlModal+='<label style="font-weight:700; font-size:12px">Plesso:</label><select id="editPlesso" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0">';
+  for(var p=0;p<plessi.length;p++){ htmlModal+='<option value="'+plessi[p]+'" '+(a.plesso===plessi[p]?'selected':'')+'>'+plessi[p]+'</option>'; }
+  htmlModal+='</select>';
+  
+  htmlModal+='<label style="font-weight:700; font-size:12px">Qualifica:</label><select id="editQual" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0">';
+  for(var q=0;q<qualifiche.length;q++){ htmlModal+='<option value="'+qualifiche[q]+'" '+(a.qualifica===qualifiche[q]?'selected':'')+'>'+qualifiche[q]+'</option>'; }
+  htmlModal+='</select>';
+  
+  htmlModal+='<label style="font-weight:700; font-size:12px">Totale ore (es: 36h00m):</label><input id="editTot" value="'+a.totale+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0">';
+  
+  var orarioDesc = '';
+  if(a.orarioTipo==='alterne'){
+    orarioDesc = 'A/B alternato - A: '+(a.orariSettimanaA ? Object.keys(a.orariSettimanaA).length+' gg' : '?')+' / B: '+(a.orariSettimanaB ? Object.keys(a.orariSettimanaB).length+' gg' : '?')+' - '+a.totale;
+  } else {
+    var giorniConOrario = 0;
+    if(a.orariSettimana){ var keys=Object.keys(a.orariSettimana); for(var k=0;k<keys.length;k++){ if(a.orariSettimana[keys[k]] && a.orariSettimana[keys[k]].length>0) giorniConOrario++; } }
+    orarioDesc = 'Fisso - '+giorniConOrario+' giorni - '+a.totale;
+  }
+  htmlModal+='<div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; padding:8px; margin:8px 0; font-size:11px"><b>⏰ Orario attuale:</b><br>'+orarioDesc+'<br><small>'+(a.orarioTipo||'fisso')+'</small></div>';
+  
+  htmlModal+='<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px">';
+  htmlModal+='<button onclick="salvaSchedaAnagrafica(\''+a.nome.replace(/'/g, "\'")+'\')" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">💾 Salva</button>';
+  htmlModal+='<button onclick="chiudiSchedaAnagrafica()" style="background:#64748b; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">❌ Chiudi</button>';
+  htmlModal+='</div>';
+  htmlModal+='<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px">';
+  htmlModal+='<button onclick="modificaOrarioServizio(\''+a.nome.replace(/'/g, "\'")+'\')" style="background:#0ea5e9; color:white; border:0; border-radius:8px; padding:10px; font-weight:700; font-size:12px">⏰ Orario Servizio</button>';
+  htmlModal+='<button onclick="eliminaAnagraficaDaScheda(\''+a.nome.replace(/'/g, "\'")+'\')" style="background:#ef4444; color:white; border:0; border-radius:8px; padding:10px; font-weight:700; font-size:12px">🗑️ Elimina</button>';
+  htmlModal+='</div>';
+  htmlModal+='</div>';
+  
+  modal.innerHTML=htmlModal;
+}
+
+function chiudiSchedaAnagrafica(){
+  var modal=document.getElementById('modalSchedaAnag');
+  if(modal) modal.style.display='none';
+}
+
+function salvaSchedaAnagrafica(nomeVecchio){
+  var a=anagrafiche.find(function(x){ return x.nome===nomeVecchio; }); 
+  if(!a) return;
+  var nuovoNome = document.getElementById('editNome').value.trim();
+  var nuovoPlesso = document.getElementById('editPlesso').value;
+  var nuovaQual = document.getElementById('editQual').value;
+  var nuovoTot = document.getElementById('editTot').value.trim();
+  if(!nuovoNome){ alert('Nome obbligatorio'); return; }
+  a.nome=nuovoNome;
+  a.plesso=nuovoPlesso;
+  a.qualifica=nuovaQual;
+  a.totale=nuovoTot||a.totale;
+  anagrafiche.sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+  try{ salvaAnagraficheCloud(); }catch(e){}
+  render(); filtraElenco(); mostraOrario();
+  chiudiSchedaAnagrafica();
+  alert('✅ Salvato: '+a.nome);
+}
+
+function eliminaAnagraficaDaScheda(nome){
+  if(!confirm('🗑️ ELIMINARE DIPENDENTE '+nome+'?\n\nVerrà rimosso dalla lista.\nConfermi?')) return;
+  if(prompt('Scrivi ELIMINA per confermare')!=='ELIMINA'){ alert('Annullato'); return; }
+  anagrafiche = anagrafiche.filter(function(a){ return a.nome!==nome; });
+  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+  try{ salvaAnagraficheCloud(); }catch(e){}
+  render(); filtraElenco(); mostraOrario();
+  chiudiSchedaAnagrafica();
+  alert('🗑️ Eliminato '+nome+' - Rimasti: '+anagrafiche.length);
+}
+
+function modificaAnagrafica(nome){
+  // Vecchia funzione - ora apre scheda
+  apriSchedaAnagrafica(nome);
+}
+
+function eliminaAnagrafica(nome){
+  // Vecchia funzione - ora apre scheda con conferma
+  apriSchedaAnagrafica(nome);
+}
+
+
 function mostraOrario(){
   var nome=document.getElementById('dipendente')?.value; 
   var box=document.getElementById('orarioGiornoBox'); 
@@ -561,21 +677,7 @@ function modificaAnagrafica(nome){
   var nuovoNome = prompt('Modifica nome:', a.nome);
   if(nuovoNome===null) return;
   var nuovoPlesso = prompt('Modifica plesso (Pietrobono, Rinascita, XXIII, Verdi, Pinocchio, Spinelli):', a.plesso);
-  var nuovaQual = prompt('Modifica qualifica:', a.qualifica);
-  var nuovoTot = prompt('Modifica totale ore (es: 36h00m):', a.totale);
-  if(nuovoNome) a.nome=nuovoNome.trim();
-  if(nuovoPlesso) a.plesso=nuovoPlesso.trim();
-  if(nuovaQual) a.qualifica=nuovaQual.trim();
-  if(nuovoTot) a.totale=nuovoTot.trim();
-  if(confirm('Vuoi modificare anche ORARIO DI SERVIZIO per '+a.nome+'?')){
-    modificaOrarioServizio(a.nome);
-    return;
-  }
-  anagrafiche.sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
-  render(); filtraElenco();
-  alert('Modificato: '+a.nome);
-}
+
 function modificaOrarioServizio(nome){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
@@ -584,57 +686,148 @@ function modificaOrarioServizio(nome){
   if(!a.orariSettimanaB) a.orariSettimanaB = JSON.parse(JSON.stringify(a.orariSettimana));
   var tipo = a.orarioTipo || 'fisso';
   
-  var htmlForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Orario Servizio - '+a.nome+'</title><style>body{font-family:system-ui; padding:12px; background:#f8fafc} .day{border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin:8px 0; background:white} label{font-weight:700; font-size:13px} input{padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; width:80px} .btn{background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-gray{background:#64748b} .tab{padding:8px 14px; border:0; border-radius:8px 8px 0 0; font-weight:800; cursor:pointer} .tab.active{background:#0ea5e9; color:white} .tab.inactive{background:#e2e8f0} .panel{display:none} .panel.active{display:block}</style></head><body>';
-  htmlForm += '<h2>⏰ Orario Servizio - '+a.nome+'<br><small>'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></h2>';
+  var modal = document.getElementById('modalOrario');
+  if(!modal){
+    var div=document.createElement('div');
+    div.id='modalOrario';
+    div.style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; display:flex; align-items:center; justify-content:center; padding:10px; box-sizing:border-box';
+    document.body.appendChild(div);
+    modal=div;
+  }
+  modal.style.display='flex';
   
-  htmlForm += '<div style="background:white; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin-bottom:12px"><label><input type="radio" name="tipo" value="fisso" '+(tipo==='fisso'?'checked':'')+' onchange="cambiaTipo()"> <b>Orario FISSO (stesso ogni settimana)</b></label><br><label><input type="radio" name="tipo" value="alterne" '+(tipo==='alterne'?'checked':'')+' onchange="cambiaTipo()"> <b>Orario a SETTIMANE ALTERNE (A/B)</b> - es: mattina/pomeriggio alternati</label><p style="font-size:11px; color:#64748b; margin:6px 0 0 0">Settimana A = settimane DISPARI (1,3,5...), Settimana B = settimane PARI (2,4,6...) - Calcolo automatico ISO</p></div>';
+  var giorni = [{id:'lun', nome:'Lunedì'}, {id:'mar', nome:'Martedì'}, {id:'mer', nome:'Mercoledì'}, {id:'gio', nome:'Giovedì'}, {id:'ven', nome:'Venerdì'}, {id:'sab', nome:'Sabato'}, {id:'dom', nome:'Domenica'}];
   
-  htmlForm += '<div id="panel-fisso" class="panel '+(tipo==='fisso'?'active':'')+'">';
-  htmlForm += '<h3 style="margin:8px 0">Orario Fisso</h3>';
-  htmlForm += '<p style="font-size:12px; color:#64748b">Formato HH:MM es: 07:30-14:42. Vuoto=libero. Doppio turno: 07:30-12:00, 14:00-18:00</p>';
-  var giorni = [{id:'lun', nome:'Lunedi'}, {id:'mar', nome:'Martedi'}, {id:'mer', nome:'Mercoledi'}, {id:'gio', nome:'Giovedi'}, {id:'ven', nome:'Venerdi'}, {id:'sab', nome:'Sabato'}, {id:'dom', nome:'Domenica'}];
+  var htmlM = '<div style="background:white; border-radius:14px; padding:14px; width:100%; max-width:520px; max-height:90vh; overflow:auto; border:2.5px solid #16a34a">';
+  htmlM+='<h3 style="margin:0 0 10px 0">⏰ Orario Servizio - '+a.nome+'<br><small style="color:#64748b">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></h3>';
+  
+  htmlM+='<div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin-bottom:10px">';
+  htmlM+='<label style="font-size:12px"><input type="radio" name="tipoOrario" value="fisso" '+(tipo==='fisso'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>FISSO (stesso ogni settimana)</b></label><br>';
+  htmlM+='<label style="font-size:12px; margin-top:6px; display:block"><input type="radio" name="tipoOrario" value="alterne" '+(tipo==='alterne'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>ALTERNE A/B (mattina/pomeriggio)</b><br><small style="color:#64748b">A=dispari (1,3,5...), B=pari (2,4,6...)</small></label>';
+  htmlM+='</div>';
+  
+  // Fisso
+  htmlM+='<div id="panel-fisso" style="display:'+(tipo==='fisso'?'block':'none')+'">';
+  htmlM+='<h4 style="margin:6px 0; font-size:13px">Orario Fisso</h4><p style="font-size:11px; color:#64748b; margin:2px 0">Formato: 07:30-14:42 - Vuoto=libero - Doppio: 07:30-12:00, 14:00-18:00</p>';
   for(var gi=0;gi<giorni.length;gi++){
     var g=giorni[gi];
     var slots = a.orariSettimana[g.id] || [];
-    var txt = '';
-    for(var si=0;si<slots.length;si++){ txt += slots[si].entrata+'-'+slots[si].uscita+', '; }
-    txt = txt.replace(/, $/, '');
-    htmlForm += '<div class="day"><label>'+g.nome+':</label><br><input id="orario-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="width:90%; margin-top:4px"></div>';
+    var txt='';
+    for(var si=0;si<slots.length;si++){ txt+=slots[si].entrata+'-'+slots[si].uscita+', '; }
+    txt=txt.replace(/, $/, '');
+    htmlM+='<div style="border:1px solid #e2e8f0; border-radius:8px; padding:6px; margin:4px 0; display:flex; justify-content:space-between; align-items:center"><label style="font-weight:700; font-size:12px; width:80px">'+g.nome+':</label><input id="orario-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="flex:1; padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; margin-left:6px"></div>';
   }
-  htmlForm += '</div>';
+  htmlM+='</div>';
   
-  htmlForm += '<div id="panel-alterne" class="panel '+(tipo==='alterne'?'active':'')+'">';
-  htmlForm += '<div style="display:flex; gap:6px; margin-bottom:10px"><button id="tabA" class="tab active" onclick="mostraTab(\'A\')">Settimana A (DISPARI)</button><button id="tabB" class="tab inactive" onclick="mostraTab(\'B\')">Settimana B (PARI)</button></div>';
+  // Alterne
+  htmlM+='<div id="panel-alterne" style="display:'+(tipo==='alterne'?'block':'none')+'">';
+  htmlM+='<div style="display:flex; gap:6px; margin-bottom:8px"><button id="tabA" onclick="mostraTabOrario(\'A\')" style="flex:1; padding:8px; border:0; border-radius:8px 8px 0 0; font-weight:800; background:'+(tipo==='alterne'?'#0ea5e9':'#e2e8f0')+'; color:'+(tipo==='alterne'?'white':'#475569')+'">A DISPARI</button><button id="tabB" onclick="mostraTabOrario(\'B\')" style="flex:1; padding:8px; border:0; border-radius:8px 8px 0 0; font-weight:800; background:#e2e8f0; color:#475569">B PARI</button></div>';
   
-  htmlForm += '<div id="subA">';
-  htmlForm += '<h3 style="margin:8px 0; color:#0ea5e9">📅 Settimana A - DISPARI (1,3,5,7...)</h3><p style="font-size:11px; color:#64748b">Esempio: Mattina 07:30-14:42</p>';
+  htmlM+='<div id="subA">';
+  htmlM+='<h4 style="margin:6px 0; color:#0ea5e9; font-size:13px">Settimana A - DISPARI (es: mattina)</h4>';
   for(var gi=0;gi<giorni.length;gi++){
     var g=giorni[gi];
     var slots = (a.orariSettimanaA && a.orariSettimanaA[g.id]) ? a.orariSettimanaA[g.id] : (a.orariSettimana[g.id] || []);
-    var txt = '';
-    for(var si=0;si<slots.length;si++){ txt += slots[si].entrata+'-'+slots[si].uscita+', '; }
-    txt = txt.replace(/, $/, '');
-    htmlForm += '<div class="day"><label>'+g.nome+' (A):</label><br><input id="orarioA-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="width:90%; margin-top:4px"></div>';
+    var txt='';
+    for(var si=0;si<slots.length;si++){ txt+=slots[si].entrata+'-'+slots[si].uscita+', '; }
+    txt=txt.replace(/, $/, '');
+    htmlM+='<div style="border:1px solid #e2e8f0; border-radius:8px; padding:6px; margin:4px 0; display:flex; justify-content:space-between; align-items:center"><label style="font-weight:700; font-size:12px; width:70px">'+g.nome+' A:</label><input id="orarioA-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42" style="flex:1; padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; margin-left:6px"></div>';
   }
-  htmlForm += '</div>';
+  htmlM+='</div>';
   
-  htmlForm += '<div id="subB" style="display:none">';
-  htmlForm += '<h3 style="margin:8px 0; color:#16a34a">📅 Settimana B - PARI (2,4,6,8...)</h3><p style="font-size:11px; color:#64748b">Esempio: Pomeriggio 10:30-18:00</p>';
+  htmlM+='<div id="subB" style="display:none">';
+  htmlM+='<h4 style="margin:6px 0; color:#16a34a; font-size:13px">Settimana B - PARI (es: pomeriggio)</h4>';
   for(var gi=0;gi<giorni.length;gi++){
     var g=giorni[gi];
     var slots = (a.orariSettimanaB && a.orariSettimanaB[g.id]) ? a.orariSettimanaB[g.id] : [];
-    var txt = '';
-    for(var si=0;si<slots.length;si++){ txt += slots[si].entrata+'-'+slots[si].uscita+', '; }
-    txt = txt.replace(/, $/, '');
-    htmlForm += '<div class="day"><label>'+g.nome+' (B):</label><br><input id="orarioB-'+g.id+'" value="'+txt+'" placeholder="10:30-18:00 o vuoto" style="width:90%; margin-top:4px"></div>';
+    var txt='';
+    for(var si=0;si<slots.length;si++){ txt+=slots[si].entrata+'-'+slots[si].uscita+', '; }
+    txt=txt.replace(/, $/, '');
+    htmlM+='<div style="border:1px solid #e2e8f0; border-radius:8px; padding:6px; margin:4px 0; display:flex; justify-content:space-between; align-items:center"><label style="font-weight:700; font-size:12px; width:70px">'+g.nome+' B:</label><input id="orarioB-'+g.id+'" value="'+txt+'" placeholder="10:30-18:00" style="flex:1; padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; margin-left:6px"></div>';
   }
-  htmlForm += '</div>';
-  htmlForm += '</div>';
+  htmlM+='</div>';
+  htmlM+='</div>';
   
-  htmlForm += '<div style="text-align:center; margin-top:12px"><button class="btn" onclick="salvaOrari()">💾 Salva Orari</button><button class="btn btn-gray" onclick="window.close()">Annulla</button></div>';
-  htmlForm += '<script>function cambiaTipo(){ var t=document.querySelector(\'input[name="tipo"]:checked\').value; document.getElementById("panel-fisso").className = t==="fisso" ? "panel active" : "panel"; document.getElementById("panel-alterne").className = t==="alterne" ? "panel active" : "panel"; } function mostraTab(lettera){ document.getElementById("subA").style.display = lettera==="A" ? "block" : "none"; document.getElementById("subB").style.display = lettera==="B" ? "block" : "none"; document.getElementById("tabA").className = lettera==="A" ? "tab active" : "tab inactive"; document.getElementById("tabB").className = lettera==="B" ? "tab active" : "tab inactive"; } function salvaOrari(){ var tipo=document.querySelector(\'input[name="tipo"]:checked\').value; if(tipo==="fisso"){ var orari={}; var giorni=["lun","mar","mer","gio","ven","sab","dom"]; for(var i=0;i<giorni.length;i++){ var g=giorni[i]; var val=document.getElementById("orario-"+g).value.trim(); if(!val){ orari[g]=[]; } else { try{ var parts=val.split(","); var slots=[]; for(var j=0;j<parts.length;j++){ var p=parts[j].trim().split("-"); if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); } } orari[g]=slots; }catch(e){ alert("Errore formato giorno "+g+": "+val); return; } } } if(window.opener && window.opener.salvaOrariDaForm){ window.opener.salvaOrariDaForm("'+a.nome.replace(/'/g, "\'")+'", orari, null, null, "fisso"); } } else { var orariA={}, orariB={}; var giorni=["lun","mar","mer","gio","ven","sab","dom"]; for(var i=0;i<giorni.length;i++){ var g=giorni[i]; var valA=document.getElementById("orarioA-"+g).value.trim(); if(!valA){ orariA[g]=[]; } else { try{ var parts=valA.split(","); var slots=[]; for(var j=0;j<parts.length;j++){ var p=parts[j].trim().split("-"); if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); } } orariA[g]=slots; }catch(e){ alert("Errore formato giorno A "+g+": "+valA); return; } } var valB=document.getElementById("orarioB-"+g).value.trim(); if(!valB){ orariB[g]=[]; } else { try{ var parts=valB.split(","); var slots=[]; for(var j=0;j<parts.length;j++){ var p=parts[j].trim().split("-"); if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); } } orariB[g]=slots; }catch(e){ alert("Errore formato giorno B "+g+": "+valB); return; } } } if(window.opener && window.opener.salvaOrariDaForm){ window.opener.salvaOrariDaForm("'+a.nome.replace(/'/g, "\'")+'", null, orariA, orariB, "alterne"); } } window.close(); }<\/script></body></html>';
-  var w=window.open('', '_blank', 'width=600,height=800'); w.document.write(htmlForm); w.document.close();
+  htmlM+='<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px"><button onclick="salvaOrariDaModal(\''+a.nome.replace(/'/g, "\'")+'\')" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">💾 Salva Orari</button><button onclick="chiudiModalOrario()" style="background:#64748b; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">Chiudi</button></div>';
+  htmlM+='</div>';
+  
+  modal.innerHTML=htmlM;
 }
+
+function cambiaTipoOrario(){
+  var t=document.querySelector('input[name="tipoOrario"]:checked').value;
+  document.getElementById('panel-fisso').style.display = t==='fisso' ? 'block' : 'none';
+  document.getElementById('panel-alterne').style.display = t==='alterne' ? 'block' : 'none';
+}
+
+function mostraTabOrario(lettera){
+  document.getElementById('subA').style.display = lettera==='A' ? 'block' : 'none';
+  document.getElementById('subB').style.display = lettera==='B' ? 'block' : 'none';
+  var tabA=document.getElementById('tabA'), tabB=document.getElementById('tabB');
+  if(tabA){ tabA.style.background = lettera==='A' ? '#0ea5e9' : '#e2e8f0'; tabA.style.color = lettera==='A' ? 'white' : '#475569'; }
+  if(tabB){ tabB.style.background = lettera==='B' ? '#16a34a' : '#e2e8f0'; tabB.style.color = lettera==='B' ? 'white' : '#475569'; }
+}
+
+function chiudiModalOrario(){
+  var modal=document.getElementById('modalOrario');
+  if(modal) modal.style.display='none';
+}
+
+function salvaOrariDaModal(nome){
+  var tipo=document.querySelector('input[name="tipoOrario"]:checked').value;
+  var orari=null, orariA=null, orariB=null;
+  var giorni=["lun","mar","mer","gio","ven","sab","dom"];
+  try{
+    if(tipo==='fisso'){
+      orari={};
+      for(var i=0;i<giorni.length;i++){
+        var g=giorni[i];
+        var val=document.getElementById('orario-'+g).value.trim();
+        if(!val){ orari[g]=[]; }
+        else {
+          var parts=val.split(",");
+          var slots=[];
+          for(var j=0;j<parts.length;j++){
+            var p=parts[j].trim().split("-");
+            if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); }
+          }
+          orari[g]=slots;
+        }
+      }
+    } else {
+      orariA={}; orariB={};
+      for(var i=0;i<giorni.length;i++){
+        var g=giorni[i];
+        var valA=document.getElementById('orarioA-'+g).value.trim();
+        if(!valA){ orariA[g]=[]; }
+        else {
+          var parts=valA.split(",");
+          var slots=[];
+          for(var j=0;j<parts.length;j++){
+            var p=parts[j].trim().split("-");
+            if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); }
+          }
+          orariA[g]=slots;
+        }
+        var valB=document.getElementById('orarioB-'+g).value.trim();
+        if(!valB){ orariB[g]=[]; }
+        else {
+          var parts=valB.split(",");
+          var slots=[];
+          for(var j=0;j<parts.length;j++){
+            var p=parts[j].trim().split("-");
+            if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); }
+          }
+          orariB[g]=slots;
+        }
+      }
+    }
+    salvaOrariDaForm(nome, orari, orariA, orariB, tipo);
+    chiudiModalOrario();
+  }catch(e){ alert('Errore formato orario: '+e.message); }
+}
+
+
 function salvaOrariDaForm(nome, orari, orariA, orariB, tipo){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
@@ -709,44 +902,8 @@ function eliminaAnagrafica(nome){
   render(); filtraElenco();
   alert('🗑️ Eliminato '+nome+' - Rimasti: '+anagrafiche.length);
 }
-
-function modificaAnagrafica(nome){
-  var a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  var nuovoNome = prompt('Modifica nome:', a.nome);
-  if(nuovoNome===null) return;
-  var nuovoPlesso = prompt('Modifica plesso (Pietrobono, Rinascita, XXIII, Verdi, Pinocchio, Spinelli):', a.plesso);
-  var nuovaQual = prompt('Modifica qualifica:', a.qualifica);
-  var nuovoTot = prompt('Modifica totale ore (es: 36h00m):', a.totale);
-  if(nuovoNome) a.nome=nuovoNome.trim();
-  if(nuovoPlesso) a.plesso=nuovoPlesso.trim();
-  if(nuovaQual) a.qualifica=nuovaQual.trim();
-  if(nuovoTot) a.totale=nuovoTot.trim();
-  if(confirm('Vuoi modificare anche ORARIO DI SERVIZIO per '+a.nome+'?')){
-    modificaOrarioServizio(a.nome);
-    return;
-  }
-  anagrafiche.sort((a,b)=>a.nome.localeCompare(b.nome));
-  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
-  try{ salvaAnagraficheCloud(); }catch(e){}
   render(); filtraElenco();
   alert('✅ Modificato: '+a.nome);
-}
-
-function modificaOrarioServizio(nome){
-  var a=anagrafiche.find(x=>x.nome===nome); if(!a) return;
-  if(!a.orariSettimana) a.orariSettimana={lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[]};
-  var htmlForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Orario Servizio - '+a.nome+'</title><style>body{font-family:system-ui; padding:12px; background:#f8fafc} .day{border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin:8px 0; background:white} label{font-weight:700; font-size:13px} input{padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; width:80px} .btn{background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-gray{background:#64748b}</style></head><body>';
-  htmlForm += '<h2>⏰ Orario di Servizio - '+a.nome+'<br><small>'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></h2>';
-  htmlForm += '<p style="font-size:12px; color:#64748b">Inserisci orario per ogni giorno. Lascia vuoto se libero. Formato HH:MM (es: 07:30 - 14:42). Per doppio turno usa virgola: 07:30-12:00, 14:00-18:00</p>';
-  var giorni = [{id:'lun', nome:'Lunedì'}, {id:'mar', nome:'Martedì'}, {id:'mer', nome:'Mercoledì'}, {id:'gio', nome:'Giovedì'}, {id:'ven', nome:'Venerdì'}, {id:'sab', nome:'Sabato'}, {id:'dom', nome:'Domenica'}];
-  giorni.forEach(function(g){
-    var slots = a.orariSettimana[g.id] || [];
-    var txt = slots.map(function(s){ return s.entrata+'-'+s.uscita; }).join(', ');
-    htmlForm += '<div class="day"><label>'+g.nome+':</label><br><input id="orario-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="width:90%; margin-top:4px"></div>';
-  });
-  htmlForm += '<div style="text-align:center; margin-top:12px"><button class="btn" onclick="salvaOrari()">💾 Salva Orari</button><button class="btn btn-gray" onclick="window.close()">Annulla</button></div>';
-  htmlForm += '<script>function salvaOrari(){ var orari={}; var giorni=["lun","mar","mer","gio","ven","sab","dom"]; var ok=true; giorni.forEach(function(g){ var val=document.getElementById("orario-"+g).value.trim(); if(!val){ orari[g]=[]; } else { try{ var parts=val.split(","); var slots=[]; parts.forEach(function(p){ var pp=p.trim().split("-"); if(pp.length===2){ slots.push({entrata:pp[0].trim(), uscita:pp[1].trim()}); } }); orari[g]=slots; }catch(e){ alert("Errore formato giorno "+g+": "+val); ok=false; } } }); if(!ok) return; if(window.opener && window.opener.salvaOrariDaForm){ window.opener.salvaOrariDaForm("'+a.nome.replace(/'/g, "\'")+'", orari); } window.close(); }<\/script></body></html>';
-  var w=window.open('', '_blank', 'width=500,height=700'); w.document.write(htmlForm); w.document.close();
 }
 
 function salvaOrariDaForm(nome, orari){
@@ -973,21 +1130,6 @@ function modificaAnagrafica(nome){
   var nuovoNome = prompt('Modifica nome:', a.nome);
   if(nuovoNome===null) return;
   var nuovoPlesso = prompt('Modifica plesso (Pietrobono, Rinascita, XXIII, Verdi, Pinocchio, Spinelli):', a.plesso);
-  var nuovaQual = prompt('Modifica qualifica:', a.qualifica);
-  var nuovoTot = prompt('Modifica totale ore (es: 36h00m):', a.totale);
-  if(nuovoNome) a.nome=nuovoNome.trim();
-  if(nuovoPlesso) a.plesso=nuovoPlesso.trim();
-  if(nuovaQual) a.qualifica=nuovaQual.trim();
-  if(nuovoTot) a.totale=nuovoTot.trim();
-  if(confirm('Vuoi modificare anche ORARIO DI SERVIZIO per '+a.nome+'?')){
-    modificaOrarioServizio(a.nome);
-    return;
-  }
-  anagrafiche.sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
-  render(); filtraElenco();
-  alert('Modificato: '+a.nome);
-}
 function modificaOrarioServizio(nome){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
@@ -1132,6 +1274,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 500);
 });
 document.getElementById('dipendente')?.addEventListener('change', mostraOrario);
+
+}
 </script>
 </body>
 </html>
