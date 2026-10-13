@@ -4,18 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IC Frosinone 2 - V115 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V108 - ORARIO + RESOCONTO + 32 DIP</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
-}
-</script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
-}
-</script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
-}
-</script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js">
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 .top-verde{border:3px solid #16a34a; background:white; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center}
@@ -1130,65 +1122,6 @@ function modificaAnagrafica(nome){
   var nuovoNome = prompt('Modifica nome:', a.nome);
   if(nuovoNome===null) return;
   var nuovoPlesso = prompt('Modifica plesso (Pietrobono, Rinascita, XXIII, Verdi, Pinocchio, Spinelli):', a.plesso);
-function modificaOrarioServizio(nome){
-  var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
-  if(!a) return;
-  if(!a.orariSettimana) a.orariSettimana={lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[]};
-  if(!a.orariSettimanaA) a.orariSettimanaA = JSON.parse(JSON.stringify(a.orariSettimana));
-  if(!a.orariSettimanaB) a.orariSettimanaB = JSON.parse(JSON.stringify(a.orariSettimana));
-  var tipo = a.orarioTipo || 'fisso';
-  
-  var htmlForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Orario Servizio - '+a.nome+'</title><style>body{font-family:system-ui; padding:12px; background:#f8fafc} .day{border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin:8px 0; background:white} label{font-weight:700; font-size:13px} input{padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; width:80px} .btn{background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-gray{background:#64748b} .tab{padding:8px 14px; border:0; border-radius:8px 8px 0 0; font-weight:800; cursor:pointer} .tab.active{background:#0ea5e9; color:white} .tab.inactive{background:#e2e8f0} .panel{display:none} .panel.active{display:block}</style></head><body>';
-  htmlForm += '<h2>⏰ Orario Servizio - '+a.nome+'<br><small>'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></h2>';
-  
-  htmlForm += '<div style="background:white; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin-bottom:12px"><label><input type="radio" name="tipo" value="fisso" '+(tipo==='fisso'?'checked':'')+' onchange="cambiaTipo()"> <b>Orario FISSO (stesso ogni settimana)</b></label><br><label><input type="radio" name="tipo" value="alterne" '+(tipo==='alterne'?'checked':'')+' onchange="cambiaTipo()"> <b>Orario a SETTIMANE ALTERNE (A/B)</b> - es: mattina/pomeriggio alternati</label><p style="font-size:11px; color:#64748b; margin:6px 0 0 0">Settimana A = settimane DISPARI (1,3,5...), Settimana B = settimane PARI (2,4,6...) - Calcolo automatico ISO</p></div>';
-  
-  htmlForm += '<div id="panel-fisso" class="panel '+(tipo==='fisso'?'active':'')+'">';
-  htmlForm += '<h3 style="margin:8px 0">Orario Fisso</h3>';
-  htmlForm += '<p style="font-size:12px; color:#64748b">Formato HH:MM es: 07:30-14:42. Vuoto=libero. Doppio turno: 07:30-12:00, 14:00-18:00</p>';
-  var giorni = [{id:'lun', nome:'Lunedi'}, {id:'mar', nome:'Martedi'}, {id:'mer', nome:'Mercoledi'}, {id:'gio', nome:'Giovedi'}, {id:'ven', nome:'Venerdi'}, {id:'sab', nome:'Sabato'}, {id:'dom', nome:'Domenica'}];
-  for(var gi=0;gi<giorni.length;gi++){
-    var g=giorni[gi];
-    var slots = a.orariSettimana[g.id] || [];
-    var txt = '';
-    for(var si=0;si<slots.length;si++){ txt += slots[si].entrata+'-'+slots[si].uscita+', '; }
-    txt = txt.replace(/, $/, '');
-    htmlForm += '<div class="day"><label>'+g.nome+':</label><br><input id="orario-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="width:90%; margin-top:4px"></div>';
-  }
-  htmlForm += '</div>';
-  
-  htmlForm += '<div id="panel-alterne" class="panel '+(tipo==='alterne'?'active':'')+'">';
-  htmlForm += '<div style="display:flex; gap:6px; margin-bottom:10px"><button id="tabA" class="tab active" onclick="mostraTab(\'A\')">Settimana A (DISPARI)</button><button id="tabB" class="tab inactive" onclick="mostraTab(\'B\')">Settimana B (PARI)</button></div>';
-  
-  htmlForm += '<div id="subA">';
-  htmlForm += '<h3 style="margin:8px 0; color:#0ea5e9">📅 Settimana A - DISPARI (1,3,5,7...)</h3><p style="font-size:11px; color:#64748b">Esempio: Mattina 07:30-14:42</p>';
-  for(var gi=0;gi<giorni.length;gi++){
-    var g=giorni[gi];
-    var slots = (a.orariSettimanaA && a.orariSettimanaA[g.id]) ? a.orariSettimanaA[g.id] : (a.orariSettimana[g.id] || []);
-    var txt = '';
-    for(var si=0;si<slots.length;si++){ txt += slots[si].entrata+'-'+slots[si].uscita+', '; }
-    txt = txt.replace(/, $/, '');
-    htmlForm += '<div class="day"><label>'+g.nome+' (A):</label><br><input id="orarioA-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42 o vuoto" style="width:90%; margin-top:4px"></div>';
-  }
-  htmlForm += '</div>';
-  
-  htmlForm += '<div id="subB" style="display:none">';
-  htmlForm += '<h3 style="margin:8px 0; color:#16a34a">📅 Settimana B - PARI (2,4,6,8...)</h3><p style="font-size:11px; color:#64748b">Esempio: Pomeriggio 10:30-18:00</p>';
-  for(var gi=0;gi<giorni.length;gi++){
-    var g=giorni[gi];
-    var slots = (a.orariSettimanaB && a.orariSettimanaB[g.id]) ? a.orariSettimanaB[g.id] : [];
-    var txt = '';
-    for(var si=0;si<slots.length;si++){ txt += slots[si].entrata+'-'+slots[si].uscita+', '; }
-    txt = txt.replace(/, $/, '');
-    htmlForm += '<div class="day"><label>'+g.nome+' (B):</label><br><input id="orarioB-'+g.id+'" value="'+txt+'" placeholder="10:30-18:00 o vuoto" style="width:90%; margin-top:4px"></div>';
-  }
-  htmlForm += '</div>';
-  htmlForm += '</div>';
-  
-  htmlForm += '<div style="text-align:center; margin-top:12px"><button class="btn" onclick="salvaOrari()">💾 Salva Orari</button><button class="btn btn-gray" onclick="window.close()">Annulla</button></div>';
-  htmlForm += '<script>function cambiaTipo(){ var t=document.querySelector(\'input[name="tipo"]:checked\').value; document.getElementById("panel-fisso").className = t==="fisso" ? "panel active" : "panel"; document.getElementById("panel-alterne").className = t==="alterne" ? "panel active" : "panel"; } function mostraTab(lettera){ document.getElementById("subA").style.display = lettera==="A" ? "block" : "none"; document.getElementById("subB").style.display = lettera==="B" ? "block" : "none"; document.getElementById("tabA").className = lettera==="A" ? "tab active" : "tab inactive"; document.getElementById("tabB").className = lettera==="B" ? "tab active" : "tab inactive"; } function salvaOrari(){ var tipo=document.querySelector(\'input[name="tipo"]:checked\').value; if(tipo==="fisso"){ var orari={}; var giorni=["lun","mar","mer","gio","ven","sab","dom"]; for(var i=0;i<giorni.length;i++){ var g=giorni[i]; var val=document.getElementById("orario-"+g).value.trim(); if(!val){ orari[g]=[]; } else { try{ var parts=val.split(","); var slots=[]; for(var j=0;j<parts.length;j++){ var p=parts[j].trim().split("-"); if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); } } orari[g]=slots; }catch(e){ alert("Errore formato giorno "+g+": "+val); return; } } } if(window.opener && window.opener.salvaOrariDaForm){ window.opener.salvaOrariDaForm("'+a.nome.replace(/'/g, "\'")+'", orari, null, null, "fisso"); } } else { var orariA={}, orariB={}; var giorni=["lun","mar","mer","gio","ven","sab","dom"]; for(var i=0;i<giorni.length;i++){ var g=giorni[i]; var valA=document.getElementById("orarioA-"+g).value.trim(); if(!valA){ orariA[g]=[]; } else { try{ var parts=valA.split(","); var slots=[]; for(var j=0;j<parts.length;j++){ var p=parts[j].trim().split("-"); if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); } } orariA[g]=slots; }catch(e){ alert("Errore formato giorno A "+g+": "+valA); return; } } var valB=document.getElementById("orarioB-"+g).value.trim(); if(!valB){ orariB[g]=[]; } else { try{ var parts=valB.split(","); var slots=[]; for(var j=0;j<parts.length;j++){ var p=parts[j].trim().split("-"); if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); } } orariB[g]=slots; }catch(e){ alert("Errore formato giorno B "+g+": "+valB); return; } } } if(window.opener && window.opener.salvaOrariDaForm){ window.opener.salvaOrariDaForm("'+a.nome.replace(/'/g, "\'")+'", null, orariA, orariB, "alterne"); } } window.close(); }<\/script></body></html>';
-  var w=window.open('', '_blank', 'width=600,height=800'); w.document.write(htmlForm); w.document.close();
-}
 function salvaOrariDaForm(nome, orari, orariA, orariB, tipo){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
