@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V111 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V116 - RIPRISTINO GPS OK + SCHEDA ANAGRAFICA + ORARIO MODAL + RESOCONTO DROPDOWN - FINALISSIMO</title>
+<title>IC Frosinone 2 - V113 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V117 - RIPRISTINO GPS OK + SCHEDA + ORARIO MODAL - FINALISSIMO</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V111 - FIX PROVE + RESOCONTO DIPENDENTE + PERIODO - SETTIMANE ALTERNE - GPS OK - LOG CONDIVISO OK - FINALE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V113 - FINALISSIMO - GPS OK - TIMBRATURE OK - RESOCONTO DROPDOWN 32 NOMI - CANCELLA CLOUD - SETTIMANE ALTERNE - LOG CONDIVISO OK</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -424,6 +424,7 @@ function eliminaTimbratura(idx){
 }
 
 
+
 function modificaTimbratura(idx){
   var t=timbratureSalvate[idx]; if(!t) return;
   var nuovaOra = prompt('Modifica ora (HH:MM):', t.ora);
@@ -437,15 +438,17 @@ function modificaTimbratura(idx){
   aggiornaLog();
   alert('Modificata: '+t.nome+' '+t.tipo+' @ '+t.ora);
 }
-
 function eliminaTutteTimbratureProva(){
   if(!confirm('Eliminare TUTTE le timbrature di PROVA (Casa Test) LOCALI e su CLOUD condiviso?')) return;
   var prima = timbratureSalvate.length;
+  // Filtra locali
   var filtrate=[];
   for(var i=0;i<timbratureSalvate.length;i++){ if((timbratureSalvate[i].plesso||'').indexOf('Casa Test')<0) filtrate.push(timbratureSalvate[i]); }
   timbratureSalvate=filtrate;
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
+  
+  // Elimina anche da CLOUD condiviso
   (async function(){
     try{
       for(var base of DB_URLS){
@@ -459,24 +462,32 @@ function eliminaTutteTimbratureProva(){
           for(var k=0;k<keys.length;k++){
             var key=keys[k];
             var t=data[key];
-            if(t && t.plesso && t.plesso.indexOf('Casa Test')>=0){ daCancellare.push(key); }
+            if(t && t.plesso && t.plesso.indexOf('Casa Test')>=0){
+              daCancellare.push(key);
+            }
           }
+          console.log('Cloud: trovo '+daCancellare.length+' prove da cancellare su '+base);
           for(var d=0;d<daCancellare.length;d++){
-            try{ await fetch(base + '/timbrature/'+daCancellare[d]+'.json', {method:'DELETE'}); }catch(e){}
+            var keyDel = daCancellare[d];
+            try{
+              await fetch(base + '/timbrature/'+keyDel+'.json', {method:'DELETE'});
+            }catch(e){ console.log('Delete errore', keyDel, e); }
           }
           if(daCancellare.length>0){
             alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali + '+daCancellare.length+' dal cloud condiviso');
             setTimeout(function(){ caricaCondivise(); }, 1000);
             return;
           }
-        }catch(e){}
+        }catch(e){ console.log('Cloud delete errore su '+base, e); }
       }
-      alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali (nessuna su cloud)');
+      alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali (nessuna trovata su cloud o gia cancellate)');
     }catch(e){ alert('Eliminate locali, ma errore cloud: '+e.message); }
   })();
 }
 
 
+
+function eliminaTutteTimbrature(){ if(prompt("ELIMINARE TUTTE LE TIMBRATURE LOCALI? Scrivi ELIMINA TUTTO")!=="ELIMINA TUTTO"){ alert("Annullato"); return; } timbratureSalvate=[]; localStorage.setItem("timbrature_v93", JSON.stringify([])); aggiornaLog(); alert("Tutte le timbrature locali eliminate - Cloud rimane (usa Elimina prove per cloud)"); }
 
 function loadAnag(){
   if(FORZA_LISTA_DA_HTML && LISTA_COMPLETA_DIPENDENTI_V59.length>0){
@@ -505,13 +516,12 @@ function filtraElenco(){
     if(filtro && a.nome.toLowerCase().indexOf(filtro)<0 && a.plesso.toLowerCase().indexOf(filtro)<0) continue;
     var nomeEsc = a.nome.replace(/'/g, "\'");
     var tipoBadge = a.orarioTipo==='alterne' ? '<span style="background:#f59e0b; color:white; padding:1px 5px; border-radius:999px; font-size:9px">A/B</span>' : '<span style="background:#16a34a; color:white; padding:1px 5px; border-radius:999px; font-size:9px">FISSO</span>';
-    html+='<div style="border:1.5px solid #cbd5e1; padding:8px; margin:5px 0; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center; gap:6px"><div style="flex:1"><b>'+a.nome+'</b> '+tipoBadge+'<br><small style="color:#475569">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></div><div style="display:flex; gap:4px; flex-wrap:wrap"><button onclick="apriSchedaAnagrafica(\''+nomeEsc+'\')" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:700">Scheda</button><button onclick="creaBadgeDa(\''+nomeEsc+'\')" style="background:#8b5cf6; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px">Badge</button></div></div>';
+    html+='<div style="border:1.5px solid #cbd5e1; padding:8px; margin:5px 0; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center; gap:6px"><div style="flex:1"><b>'+a.nome+'</b> '+tipoBadge+'<br><small style="color:#475569">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></div><div style="display:flex; gap:4px"><button onclick="apriSchedaAnagrafica(\''+nomeEsc+'\')" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:700">Scheda</button><button onclick="creaBadgeDa(\''+nomeEsc+'\')" style="background:#8b5cf6; color:white; border:0; border-radius:6px; padding:5px 8px; font-size:10px">Badge</button></div></div>';
     mostrati++;
   }
-  html+='</div><div style="text-align:center; margin-top:8px; font-size:11px; color:#64748b">Mostrati: <b>'+mostrati+'</b> / '+anagrafiche.length+' dipendenti</div>';
+  html+='</div><div style="text-align:center; margin-top:8px; font-size:11px; color:#64748b">Mostrati: <b>'+mostrati+'</b> / '+anagrafiche.length+'</div>';
   cont.innerHTML=html;
 }
-
 function apriSchedaAnagrafica(nome){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
@@ -528,7 +538,7 @@ function apriSchedaAnagrafica(nome){
   var qualifiche = ['Collaboratore Scolastico','Assistente Amministrativo','Docente','DSGA','Altro'];
   var htmlModal = '<div style="background:white; border-radius:14px; padding:16px; width:100%; max-width:480px; max-height:90vh; overflow:auto; border:2.5px solid #0ea5e9">';
   htmlModal+='<h3 style="margin:0 0 12px 0; color:#0ea5e9">📋 Scheda Dipendente</h3>';
-  htmlModal+='<label style="font-weight:700; font-size:12px">Nome e Cognome:</label><input id="editNome" value="'+a.nome.replace(/"/g,'&quot;')+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0; box-sizing:border-box">';
+  htmlModal+='<label style="font-weight:700; font-size:12px">Nome:</label><input id="editNome" value="'+a.nome.replace(/"/g,'&quot;')+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0; box-sizing:border-box">';
   htmlModal+='<label style="font-weight:700; font-size:12px">Plesso:</label><select id="editPlesso" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0">';
   for(var p=0;p<plessi.length;p++){ htmlModal+='<option value="'+plessi[p]+'" '+(a.plesso===plessi[p]?'selected':'')+'>'+plessi[p]+'</option>'; }
   htmlModal+='</select>';
@@ -536,9 +546,7 @@ function apriSchedaAnagrafica(nome){
   for(var q=0;q<qualifiche.length;q++){ htmlModal+='<option value="'+qualifiche[q]+'" '+(a.qualifica===qualifiche[q]?'selected':'')+'>'+qualifiche[q]+'</option>'; }
   htmlModal+='</select>';
   htmlModal+='<label style="font-weight:700; font-size:12px">Totale ore:</label><input id="editTot" value="'+a.totale+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; margin:4px 0 10px 0">';
-  var orarioDesc = '';
-  if(a.orarioTipo==='alterne'){ orarioDesc = 'A/B alternato - '+a.totale; } else { orarioDesc = 'Fisso - '+a.totale; }
-  htmlModal+='<div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; padding:8px; margin:8px 0; font-size:11px"><b>⏰ Orario:</b><br>'+orarioDesc+'</div>';
+  htmlModal+='<div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; padding:8px; margin:8px 0; font-size:11px"><b>⏰ Orario:</b> '+(a.orarioTipo||'fisso')+' - '+a.totale+'</div>';
   htmlModal+='<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px">';
   htmlModal+='<button onclick="salvaSchedaAnagrafica(\''+a.nome.replace(/'/g, "\'")+'\')" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">💾 Salva</button>';
   htmlModal+='<button onclick="chiudiSchedaAnagrafica()" style="background:#64748b; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">❌ Chiudi</button>';
@@ -568,8 +576,8 @@ function salvaSchedaAnagrafica(nomeVecchio){
   alert('✅ Salvato: '+a.nome);
 }
 function eliminaAnagraficaDaScheda(nome){
-  if(!confirm('🗑️ ELIMINARE DIPENDENTE '+nome+'?')) return;
-  if(prompt('Scrivi ELIMINA per confermare')!=='ELIMINA'){ alert('Annullato'); return; }
+  if(!confirm('🗑️ ELIMINARE '+nome+'?')) return;
+  if(prompt('Scrivi ELIMINA')!=='ELIMINA'){ alert('Annullato'); return; }
   anagrafiche = anagrafiche.filter(function(a){ return a.nome!==nome; });
   localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
   try{ salvaAnagraficheCloud(); }catch(e){}
@@ -714,9 +722,6 @@ function cambiaTipoOrario(){
 function mostraTabOrario(lettera){
   document.getElementById('subA').style.display = lettera==='A' ? 'block' : 'none';
   document.getElementById('subB').style.display = lettera==='B' ? 'block' : 'none';
-  var tabA=document.getElementById('tabA'), tabB=document.getElementById('tabB');
-  if(tabA){ tabA.style.background = lettera==='A' ? '#0ea5e9' : '#e2e8f0'; tabA.style.color = lettera==='A' ? 'white' : '#475569'; }
-  if(tabB){ tabB.style.background = lettera==='B' ? '#16a34a' : '#e2e8f0'; tabB.style.color = lettera==='B' ? 'white' : '#475569'; }
 }
 function chiudiModalOrario(){ var modal=document.getElementById('modalOrario'); if(modal) modal.style.display='none'; }
 function salvaOrariDaModal(nome){
@@ -934,35 +939,72 @@ function generaSchedeConQR(){
 
 
 
+
 function generaResocontoDareAvere(){
   try{
     var listaNomi = anagrafiche.map(function(a){ return a.nome; }).sort();
     var oggi = new Date();
     var primoGiorno = new Date(oggi.getFullYear(), oggi.getMonth(), 1).toISOString().slice(0,10);
     var ultimoGiorno = oggi.toISOString().slice(0,10);
-    var timbratureJson = JSON.stringify(timbratureSalvate).replace(/</g, '\\u003c');
-    var finalForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resoconto Ore</title>';
-    finalForm += '<style>body{font-family:system-ui; padding:20px; background:#f8fafc; max-width:700px; margin:0 auto} .card{background:white; border:2px solid #0ea5e9; border-radius:12px; padding:16px} label{font-weight:700; display:block; margin:10px 0 4px 0} select,input{width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box} .btn{border:0; padding:12px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-blue{background:#0ea5e9; color:white} .btn-gray{background:#64748b; color:white} table{width:100%; border-collapse:collapse; margin-top:12px} th,td{border:1px solid #cbd5e1; padding:6px; font-size:11px} th{background:#0ea5e9; color:white}<\/style></head><body>';
+    
+    var timbratureJson = JSON.stringify(timbratureSalvate).replace(/</g, '\u003c');
+    
+    var finalForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resoconto Ore - Selezione</title>';
+    finalForm += '<style>body{font-family:system-ui; padding:20px; background:#f8fafc; max-width:700px; margin:0 auto} .card{background:white; border:2px solid #0ea5e9; border-radius:12px; padding:16px} label{font-weight:700; display:block; margin:10px 0 4px 0} select,input{width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box} .btn{border:0; padding:12px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-blue{background:#0ea5e9; color:white} .btn-green{background:#16a34a; color:white} .btn-gray{background:#64748b; color:white} table{width:100%; border-collapse:collapse; margin-top:12px} th,td{border:1px solid #cbd5e1; padding:6px; font-size:11px} th{background:#0ea5e9; color:white}</style>';
+    finalForm += '</head><body>';
     finalForm += '<div class="card"><h2>📊 Resoconto Ore - IC Frosinone 2</h2>';
-    finalForm += '<p style="font-size:12px; color:#64748b">Seleziona dipendente e periodo ('+timbratureSalvate.length+' timbrature - '+listaNomi.length+' dipendenti)</p>';
-    finalForm += '<label>👤 Dipendente:</label><select id="selDip"><option value="TUTTI">TUTTI - Tutti ('+listaNomi.length+')</option>';
-    for(var i=0;i<listaNomi.length;i++){ finalForm += '<option value="'+listaNomi[i].replace(/"/g,'&quot;')+'">'+listaNomi[i]+'</option>'; }
+    finalForm += '<p style="font-size:12px; color:#64748b">Seleziona dipendente e periodo ('+timbratureSalvate.length+' timbrature totali - tutti i '+listaNomi.length+' dipendenti disponibili)</p>';
+    
+    finalForm += '<label>👤 Dipendente:</label>';
+    finalForm += '<select id="selDip"><option value="TUTTI">TUTTI - Tutti i dipendenti ('+listaNomi.length+')</option>';
+    for(var i=0;i<listaNomi.length;i++){
+      finalForm += '<option value="'+listaNomi[i].replace(/"/g,'&quot;')+'">'+listaNomi[i]+'</option>';
+    }
     finalForm += '</select>';
-    finalForm += '<label>📅 DAL:</label><input type="date" id="dal" value="'+primoGiorno+'">';
-    finalForm += '<label>📅 AL:</label><input type="date" id="al" value="'+ultimoGiorno+'">';
-    finalForm += '<div style="text-align:center; margin-top:16px"><button class="btn btn-blue" onclick="genera()">📊 Genera</button><button class="btn btn-gray" onclick="window.close()">Chiudi</button></div><div id="risultato" style="margin-top:20px"></div></div>';
+    
+    finalForm += '<label>📅 DAL giorno:</label><input type="date" id="dal" value="'+primoGiorno+'">';
+    finalForm += '<label>📅 AL giorno:</label><input type="date" id="al" value="'+ultimoGiorno+'">';
+    
+    finalForm += '<div style="text-align:center; margin-top:16px"><button class="btn btn-blue" onclick="genera()">📊 Genera Resoconto</button><button class="btn btn-gray" onclick="window.close()">Chiudi</button></div>';
+    finalForm += '<div id="risultato" style="margin-top:20px"></div>';
+    finalForm += '</div>';
+    
     finalForm += '<script>';
     finalForm += 'var timbratureSalvate = '+timbratureJson+';';
-    finalForm += 'var anagrafiche = '+JSON.stringify(anagrafiche).replace(/</g, '\\u003c')+';';
-    finalForm += 'function genera(){ var dip=document.getElementById("selDip").value; var dal=document.getElementById("dal").value; var al=document.getElementById("al").value; var filtrate=timbratureSalvate.slice(); if(dip!=="TUTTI" && dip!==""){ filtrate=filtrate.filter(function(t){ return t.nome===dip; }); } if(dal){ var dalTime=new Date(dal).getTime(); filtrate=filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt>=dalTime; } return (t.timestamp||0)>=dalTime; }catch(e){ return true; } }); } if(al){ var alTime=new Date(al).getTime()+24*60*60*1000-1; filtrate=filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt<=alTime; } return (t.timestamp||0)<=alTime; }catch(e){ return true; } }); } if(filtrate.length===0){ document.getElementById("risultato").innerHTML="<p style=\"color:red\">Nessuna timbratura</p>"; return; } filtrate.sort(function(a,b){ return (a.timestamp||0)-(b.timestamp||0); }); var perDip={}; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; if(!perDip[t.nome]) perDip[t.nome]=[]; perDip[t.nome].push(t); } var html="<h3>Riepilogo - "+dip+" - "+dal+" → "+al+" ("+filtrate.length+")</h3><table><tr><th>Dipendente</th><th>Ent</th><th>Usc</th><th>Giorni</th><th>Ore</th><th>Plessi</th></tr>"; var nomi=Object.keys(perDip).sort(); var totE=0, totU=0; for(var ni=0;ni<nomi.length;ni++){ var nome=nomi[ni]; var list=perDip[nome]; var ent=0, usc=0; for(var li=0;li<list.length;li++){ if(list[li].tipo==="ENTRATA") ent++; if(list[li].tipo==="USCITA") usc++; } totE+=ent; totU+=usc; var giorniUnici={}; for(var li=0;li<list.length;li++){ var gg=list[li].data.split(",")[0]; giorniUnici[gg]=1; } var numGiorni=Object.keys(giorniUnici).length; var plessi=[]; for(var li=0;li<list.length;li++){ if(plessi.indexOf(list[li].plesso)<0) plessi.push(list[li].plesso); } html+="<tr><td><b>"+nome+"</b></td><td>"+ent+"</td><td>"+usc+"</td><td>"+numGiorni+"</td><td>"+(Math.min(ent,usc)*7)+"h</td><td>"+plessi.join(", ")+"</td></tr>"; } html+="<tr style=\"background:#dcfce7; font-weight:800\"><td>TOTALE</td><td>"+totE+"</td><td>"+totU+"</td><td colspan=\"3\"></td></tr></table>"; html+="<h3 style=\"margin-top:16px\">Dettaglio ("+filtrate.length+")</h3><table><tr><th>Data</th><th>Ora</th><th>Nome</th><th>Tipo</th><th>Plesso</th></tr>"; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; var col=t.tipo==="ENTRATA"?"#16a34a":"#dc2626"; html+="<tr><td>"+t.data.split(",")[0]+"</td><td>"+(t.ora||"")+"</td><td>"+t.nome+"</td><td style=\"color:"+col+"; font-weight:800\">"+t.tipo+"</td><td>"+t.plesso+"</td></tr>"; } html+="</table><br><button onclick=\"window.print()\" style=\"background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800\">Stampa</button> <button onclick=\"esporta()\" style=\"background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; margin-left:6px\">CSV</button>"; document.getElementById("risultato").innerHTML=html; window._filtrate=filtrate; window._dip=dip; window._dal=dal; window._al=al; }';
+    finalForm += 'var anagrafiche = '+JSON.stringify(anagrafiche).replace(/</g, '\u003c')+';';
+    finalForm += 'function genera(){';
+    finalForm += '  var dipScelto = document.getElementById("selDip").value;';
+    finalForm += '  var dal = document.getElementById("dal").value;';
+    finalForm += '  var al = document.getElementById("al").value;';
+    finalForm += '  var filtrate = timbratureSalvate.slice();';
+    finalForm += '  if(dipScelto!=="TUTTI" && dipScelto!==""){ filtrate = filtrate.filter(function(t){ return t.nome===dipScelto; }); }';
+    finalForm += '  if(dal){ var dalTime = new Date(dal).getTime(); filtrate = filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt>=dalTime; } return (t.timestamp||0)>=dalTime; }catch(e){ return true; } }); }';
+    finalForm += '  if(al){ var alTime = new Date(al).getTime()+24*60*60*1000-1; filtrate = filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt<=alTime; } return (t.timestamp||0)<=alTime; }catch(e){ return true; } }); }';
+    finalForm += '  if(filtrate.length===0){ document.getElementById("risultato").innerHTML="<p style=\"color:red\">Nessuna timbratura per "+dipScelto+" nel periodo "+dal+" - "+al+"</p>"; return; }';
+    finalForm += '  filtrate.sort(function(a,b){ return (a.timestamp||0)-(b.timestamp||0); });';
+    finalForm += '  var perDip={}; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; if(!perDip[t.nome]) perDip[t.nome]=[]; perDip[t.nome].push(t); }';
+    finalForm += '  var html="<h3>Riepilogo - "+dipScelto+" - "+dal+" → "+al+" ("+filtrate.length+" timbrature)</h3><table><tr><th>Dipendente</th><th>Entrate</th><th>Uscite</th><th>Giorni</th><th>Ore stimate</th><th>Plessi</th></tr>";';
+    finalForm += '  var nomi=Object.keys(perDip).sort(); var totE=0, totU=0; for(var ni=0;ni<nomi.length;ni++){ var nome=nomi[ni]; var list=perDip[nome]; var ent=0, usc=0; for(var li=0;li<list.length;li++){ if(list[li].tipo==="ENTRATA") ent++; if(list[li].tipo==="USCITA") usc++; } totE+=ent; totU+=usc; var giorniUnici={}; for(var li=0;li<list.length;li++){ var gg=list[li].data.split(",")[0]; giorniUnici[gg]=1; } var numGiorni=Object.keys(giorniUnici).length; var plessi=[]; for(var li=0;li<list.length;li++){ if(plessi.indexOf(list[li].plesso)<0) plessi.push(list[li].plesso); } var aInfo=anagrafiche.find(function(x){ return x.nome===nome; }); var orarioInfo=aInfo ? (aInfo.orarioTipo==="alterne" ? "A/B - "+aInfo.totale : aInfo.totale) : ""; html+="<tr><td><b>"+nome+"</b><br><small style=\"color:#64748b\">"+orarioInfo+"</small></td><td>"+ent+"</td><td>"+usc+"</td><td>"+numGiorni+"</td><td>"+(Math.min(ent,usc)*7)+"h circa</td><td>"+plessi.join(", ")+"</td></tr>"; } html+="<tr style=\"background:#dcfce7; font-weight:800\"><td>TOTALE</td><td>"+totE+"</td><td>"+totU+"</td><td colspan=\"3\"></td></tr></table>";';
+    finalForm += '  html+="<h3 style=\"margin-top:16px\">Dettaglio ("+filtrate.length+")</h3><table><tr><th>Data</th><th>Ora</th><th>Dipendente</th><th>Tipo</th><th>Plesso</th><th>Dist</th></tr>"; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; var col=t.tipo==="ENTRATA"?"#16a34a":"#dc2626"; html+="<tr><td>"+t.data.split(",")[0]+"</td><td>"+(t.ora||"")+"</td><td>"+t.nome+"</td><td style=\"color:"+col+"; font-weight:800\">"+t.tipo+"</td><td>"+t.plesso+"</td><td>"+(t.distanza||"")+"m</td></tr>"; } html+="</table><br><button onclick=\"window.print()\" style=\"background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800\">Stampa</button> <button onclick=\"esporta()\" style=\"background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; margin-left:6px\">Export CSV</button>";';
+    finalForm += '  document.getElementById("risultato").innerHTML=html; window._filtrate=filtrate; window._dip=dipScelto; window._dal=dal; window._al=al; }';
     finalForm += 'function esporta(){ var filtrate=window._filtrate||[]; var dip=window._dip||"TUTTI"; var dal=window._dal||"inizio"; var al=window._al||"oggi"; var csv="Dipendente,Data,Ora,Tipo,Plesso\n"; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; csv+=t.nome+","+t.data+","+t.ora+","+t.tipo+","+t.plesso+"\n"; } var blob=new Blob([csv], {type:"text/csv"}); var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download="resoconto_"+dip+"_"+dal+"_"+al+".csv"; a.click(); }';
-    finalForm += '<\/script></body></html>';
+    finalForm += '<\/script>';
+    finalForm += '</body></html>';
+    
     var w=window.open("", "_blank");
-    if(!w){ alert("Popup bloccato! Consenti popup per icfrosinone2.github.io e riprova tenendo premuto Ctrl"); return; }
-    try{ w.document.write(finalForm); w.document.close(); w.focus(); }catch(e){ alert("Errore: "+e.message); }
-  }catch(e){ alert("Errore resoconto: "+e.message); }
+    if(!w){
+      alert("Popup bloccato! Consenti popup per icfrosinone2.github.io e riprova tenendo premuto Ctrl");
+      return;
+    }
+    try{
+      w.document.write(finalForm);
+      w.document.close();
+      w.focus();
+    }catch(e){
+      alert("Errore apertura resoconto: "+e.message+" Prova a consentire i popup");
+    }
+  }catch(e){ alert("Errore resoconto: "+e.message+" "+e.stack); }
 }
-
 
 
 
@@ -1219,12 +1261,16 @@ window.addEventListener('load', ()=>{
   try{ bloccaPIN(); }catch(e){}
   renderPlessiUI();
   try{ loadAnag(); }catch(e){}
+  try{ render(); }catch(e){}
+  try{ filtraElenco(); }catch(e){}
   try{ aggiornaLog(); }catch(e){}
   setTimeout(()=>{ try{ caricaCondivise(); }catch(e){} }, 500);
   try{ attivaGPS(); }catch(e){}
   setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 1000);
   setTimeout(()=>{ try{ attivaGPS(); }catch(e){} }, 3000);
   setInterval(()=>{ if(navigator.geolocation) try{ attivaGPS(); }catch(e){} }, 15000);
+  // Forza render timbratura manuale dopo 1.5s se vuota
+  setTimeout(()=>{ try{ var sel=document.getElementById('dipendente'); if(sel && sel.options.length===0 && anagrafiche.length>0){ render(); console.log('Forzato render timbratura manuale'); } }catch(e){} }, 1500);
 });
 document.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{ try{ attivaGPS(); avviaWatchGPS(); }catch(e){} }, 500);
