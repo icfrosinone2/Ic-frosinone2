@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V110 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V108 - ORARIO + RESOCONTO + 32 DIP</title>
+<title>IC Frosinone 2 - V111 - ORARIO + RESOCONTO PERIODO - 32 DIP - GPS FIX - V108 - ORARIO + RESOCONTO + 32 DIP</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V110 - SETTIMANE ALTERNE A/B - ORARIO + RESOCONTO - 32 DIP - GPS FIX - FINALE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V111 - FIX PROVE + RESOCONTO DIPENDENTE + PERIODO - SETTIMANE ALTERNE - GPS OK - LOG CONDIVISO OK - FINALE</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -413,22 +413,53 @@ function modificaTimbratura(idx){
   alert('Modificata: '+t.nome+' '+t.tipo+' @ '+t.ora);
 }
 function eliminaTutteTimbratureProva(){
-  if(!confirm('Eliminare TUTTE le timbrature di PROVA (Casa Test)?')) return;
+  if(!confirm('Eliminare TUTTE le timbrature di PROVA (Casa Test) LOCALI e su CLOUD condiviso?')) return;
   var prima = timbratureSalvate.length;
+  // Filtra locali
   var filtrate=[];
   for(var i=0;i<timbratureSalvate.length;i++){ if((timbratureSalvate[i].plesso||'').indexOf('Casa Test')<0) filtrate.push(timbratureSalvate[i]); }
   timbratureSalvate=filtrate;
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
-  alert('Eliminate '+(prima-timbratureSalvate.length)+' prove');
+  
+  // Elimina anche da CLOUD condiviso
+  (async function(){
+    try{
+      for(var base of DB_URLS){
+        try{
+          var r = await fetch(base + '/timbrature.json?ts='+Date.now(), {cache:'no-store'});
+          if(!r.ok) continue;
+          var data = await r.json();
+          if(!data) continue;
+          var keys = Object.keys(data);
+          var daCancellare = [];
+          for(var k=0;k<keys.length;k++){
+            var key=keys[k];
+            var t=data[key];
+            if(t && t.plesso && t.plesso.indexOf('Casa Test')>=0){
+              daCancellare.push(key);
+            }
+          }
+          console.log('Cloud: trovo '+daCancellare.length+' prove da cancellare su '+base);
+          for(var d=0;d<daCancellare.length;d++){
+            var keyDel = daCancellare[d];
+            try{
+              await fetch(base + '/timbrature/'+keyDel+'.json', {method:'DELETE'});
+            }catch(e){ console.log('Delete errore', keyDel, e); }
+          }
+          if(daCancellare.length>0){
+            alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali + '+daCancellare.length+' dal cloud condiviso');
+            setTimeout(function(){ caricaCondivise(); }, 1000);
+            return;
+          }
+        }catch(e){ console.log('Cloud delete errore su '+base, e); }
+      }
+      alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali (nessuna trovata su cloud o gia cancellate)');
+    }catch(e){ alert('Eliminate locali, ma errore cloud: '+e.message); }
+  })();
 }
-function eliminaTutteTimbrature(){
-  if(prompt('ELIMINARE TUTTE LE TIMBRATURE? Scrivi ELIMINA TUTTO')!=='ELIMINA TUTTO'){ alert('Annullato'); return; }
-  timbratureSalvate=[];
-  localStorage.setItem('timbrature_v93', JSON.stringify([]));
-  aggiornaLog();
-  alert('Tutte le timbrature locali eliminate');
-}
+
+
 
 function loadAnag(){
   if(FORZA_LISTA_DA_HTML && LISTA_COMPLETA_DIPENDENTI_V59.length>0){
@@ -737,6 +768,14 @@ function generaSchedeConQR(){
 
 function generaResocontoDareAvere(){
   try{
+    // 1. Scegli dipendente
+    var listaNomi = anagrafiche.map(function(a){ return a.nome; }).sort();
+    var opzioni = 'TUTTI\n' + listaNomi.join('\n');
+    var dipScelto = prompt('Resoconto per quale DIPENDENTE?\nScrivi TUTTI o nome esatto.\n\nOpzioni:\n' + opzioni + '\n\nScrivi TUTTI per tutti, o un nome:', 'TUTTI');
+    if(dipScelto===null) return;
+    dipScelto = dipScelto.trim();
+    
+    // 2. Scegli periodo
     var oggi = new Date();
     var primoGiorno = new Date(oggi.getFullYear(), oggi.getMonth(), 1).toISOString().slice(0,10);
     var ultimoGiorno = oggi.toISOString().slice(0,10);
@@ -745,7 +784,14 @@ function generaResocontoDareAvere(){
     var al = prompt('Resoconto AL giorno (YYYY-MM-DD) - lascia vuoto per oggi:', ultimoGiorno);
     if(al===null) return;
     
-    var filtrate = timbratureSalvate;
+    var filtrate = timbratureSalvate.slice();
+    
+    // Filtro dipendente
+    if(dipScelto.toUpperCase()!=='TUTTI' && dipScelto!==''){
+      filtrate = filtrate.filter(function(t){ return t.nome.toLowerCase()===dipScelto.toLowerCase() || t.nome.toLowerCase().indexOf(dipScelto.toLowerCase())>=0; });
+    }
+    
+    // Filtro periodo
     if(dal){
       var dalTime = new Date(dal).getTime();
       filtrate = filtrate.filter(function(t){ 
@@ -767,7 +813,7 @@ function generaResocontoDareAvere(){
       });
     }
     
-    if(filtrate.length===0){ alert('Nessuna timbratura nel periodo '+dal+' - '+al); return; }
+    if(filtrate.length===0){ alert('Nessuna timbratura per: '+dipScelto+' nel periodo '+dal+' - '+al); return; }
     
     var perDip = {};
     for(var i=0;i<filtrate.length;i++){
@@ -776,29 +822,52 @@ function generaResocontoDareAvere(){
       perDip[t.nome].push(t);
     }
     
-    var htmlRes = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resoconto Ore</title><style>body{font-family:system-ui; padding:12px} table{width:100%; border-collapse:collapse} th,td{border:1px solid #cbd5e1; padding:6px; font-size:11px} th{background:#0ea5e9; color:white}</style></head><body>';
-    htmlRes += '<h2>Resoconto Ore - IC Frosinone 2</h2>';
-    htmlRes += '<p><b>Periodo:</b> '+(dal||'inizio')+' - '+(al||'oggi')+' - <b>Timbrature:</b> '+filtrate.length+'</p>';
-    htmlRes += '<table><tr><th>Dipendente</th><th>Entrate</th><th>Uscite</th><th>Giorni</th><th>Ore stimate</th><th>Plessi</th></tr>';
+    // Ordina per data
+    filtrate.sort(function(a,b){ return (a.timestamp||0)-(b.timestamp||0); });
+    
+    var htmlRes = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resoconto Ore</title><style>body{font-family:system-ui; padding:12px} table{width:100%; border-collapse:collapse} th,td{border:1px solid #cbd5e1; padding:6px; font-size:11px} th{background:#0ea5e9; color:white} .evidenzia{background:#fef3c7}</style></head><body>';
+    htmlRes += '<h2>📊 Resoconto Ore - IC Frosinone 2</h2>';
+    htmlRes += '<p><b>Dipendente:</b> '+(dipScelto||'TUTTI')+' - <b>Periodo:</b> '+(dal||'inizio')+' → '+(al||'oggi')+' - <b>Timbrature:</b> '+filtrate.length+'</p>';
+    
+    // Tabella riassunto
+    htmlRes += '<h3>Riepilogo</h3><table><tr><th>Dipendente</th><th>Entrate</th><th>Uscite</th><th>Giorni lavorati</th><th>Ore stimate</th><th>Plessi</th></tr>';
     var nomi = Object.keys(perDip).sort();
+    var totGenEntrate=0, totGenUscite=0;
     for(var ni=0;ni<nomi.length;ni++){
       var nome=nomi[ni];
       var list=perDip[nome];
       var ent=0, usc=0;
       for(var li=0;li<list.length;li++){ if(list[li].tipo==='ENTRATA') ent++; if(list[li].tipo==='USCITA') usc++; }
+      totGenEntrate+=ent; totGenUscite+=usc;
       var giorniUnici = {};
       for(var li=0;li<list.length;li++){ var gg=list[li].data.split(',')[0]; giorniUnici[gg]=1; }
       var numGiorni=Object.keys(giorniUnici).length;
       var plessi=[];
       for(var li=0;li<list.length;li++){ if(plessi.indexOf(list[li].plesso)<0) plessi.push(list[li].plesso); }
-      htmlRes += '<tr><td><b>'+nome+'</b></td><td>'+ent+'</td><td>'+usc+'</td><td>'+numGiorni+'</td><td>'+(Math.min(ent,usc)*7)+'h circa</td><td>'+plessi.join(', ')+'</td></tr>';
+      // Cerca orario del dipendente
+      var aInfo = anagrafiche.find(function(x){ return x.nome===nome; });
+      var orarioInfo = aInfo ? (aInfo.orarioTipo==='alterne' ? 'A/B alternato - '+aInfo.totale : aInfo.totale) : '';
+      htmlRes += '<tr><td><b>'+nome+'</b><br><small style="color:#64748b">'+orarioInfo+'</small></td><td>'+ent+'</td><td>'+usc+'</td><td>'+numGiorni+'</td><td>'+(Math.min(ent,usc)*7)+'h circa</td><td>'+plessi.join(', ')+'</td></tr>';
+    }
+    htmlRes += '<tr style="background:#dcfce7; font-weight:800"><td>TOTALE</td><td>'+totGenEntrate+'</td><td>'+totGenUscite+'</td><td colspan="3"></td></tr>';
+    htmlRes += '</table>';
+    
+    // Tabella dettaglio timbrature
+    htmlRes += '<h3 style="margin-top:20px">Dettaglio timbrature ('+filtrate.length+')</h3><table><tr><th>Data</th><th>Ora</th><th>Dipendente</th><th>Tipo</th><th>Plesso</th><th>Distanza</th></tr>';
+    for(var i=0;i<filtrate.length;i++){
+      var t=filtrate[i];
+      var colore = t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
+      htmlRes += '<tr><td>'+t.data.split(',')[0]+'</td><td>'+(t.ora||'')+'</td><td>'+t.nome+'</td><td style="color:'+colore+'; font-weight:800">'+t.tipo+'</td><td>'+t.plesso+'</td><td>'+(t.distanza||'')+'m</td></tr>';
     }
     htmlRes += '</table><br>';
-    htmlRes += '<button onclick="window.print()" style="background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800">Stampa</button> ';
-    htmlRes += '<button onclick="window.close()" style="background:#64748b; color:white; border:0; padding:10px 20px; border-radius:8px">Chiudi</button>';
+    htmlRes += '<div style="margin-top:10px"><button onclick="window.print()" style="background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800">🖨️ Stampa Resoconto</button> ';
+    htmlRes += '<button onclick="esportaExcel()" style="background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; margin-left:6px">📊 Esporta Excel (CSV)</button> ';
+    htmlRes += '<button onclick="window.close()" style="background:#64748b; color:white; border:0; padding:10px 20px; border-radius:8px; margin-left:6px">Chiudi</button></div>';
+    htmlRes += '<p style="font-size:11px; color:#64748b; margin-top:12px">Basato su '+filtrate.length+' timbrature filtrate su '+timbratureSalvate.length+' totali. Ore stimate: 7h per coppia Entrata/Uscita. Filtro: dipendente='+dipScelto+' periodo='+dal+'→'+al+'</p>';
+    htmlRes += '<script>function esportaExcel(){ var csv="Dipendente,Data,Ora,Tipo,Plesso,Distanza\n"; var dati='+JSON.stringify(filtrate).replace(/</g, '\\u003c')+'; for(var i=0;i<dati.length;i++){ var t=dati[i]; csv+= "\""+t.nome.replace(/"/g,"")+"\",\""+t.data+"\",\""+t.ora+"\",\""+t.tipo+"\",\""+t.plesso+"\","+(t.distanza||"")+"\n"; } var blob=new Blob([csv], {type:"text/csv"}); var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download="resoconto_'+(dipScelto||'TUTTI')+'_'+(dal||'inizio')+'_'+(al||'oggi')+'.csv"; a.click(); }<\/script>';
     htmlRes += '</body></html>';
     var w=window.open('', '_blank'); w.document.write(htmlRes); w.document.close();
-  }catch(e){ alert('Errore resoconto: '+e.message); }
+  }catch(e){ alert('Errore resoconto: '+e.message+'\n'+e.stack); }
 }
 
 
