@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V117 - RIPRISTINO GPS OK + SCHEDA + ORARIO MODAL</title>
+<title>IC Frosinone 2 - V118 - RIPRISTINO GPS OK + SCHEDA + ORARIO MODAL</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V117 - RIPRISTINO GPS OK + SCHEDA ANAGRAFICA + ORARIO MODAL - FINALISSIMO</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V118 - FIX RESOCONTO MODAL - SCHEDA ANAGRAFICA OK - GPS OK - FINALISSIMO</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -940,6 +940,7 @@ function generaSchedeConQR(){
 
 
 
+
 function generaResocontoDareAvere(){
   try{
     var listaNomi = anagrafiche.map(function(a){ return a.nome; }).sort();
@@ -947,64 +948,79 @@ function generaResocontoDareAvere(){
     var primoGiorno = new Date(oggi.getFullYear(), oggi.getMonth(), 1).toISOString().slice(0,10);
     var ultimoGiorno = oggi.toISOString().slice(0,10);
     
-    var timbratureJson = JSON.stringify(timbratureSalvate).replace(/</g, '\u003c');
-    
-    var finalForm = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Resoconto Ore - Selezione</title>';
-    finalForm += '<style>body{font-family:system-ui; padding:20px; background:#f8fafc; max-width:700px; margin:0 auto} .card{background:white; border:2px solid #0ea5e9; border-radius:12px; padding:16px} label{font-weight:700; display:block; margin:10px 0 4px 0} select,input{width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box} .btn{border:0; padding:12px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px} .btn-blue{background:#0ea5e9; color:white} .btn-green{background:#16a34a; color:white} .btn-gray{background:#64748b; color:white} table{width:100%; border-collapse:collapse; margin-top:12px} th,td{border:1px solid #cbd5e1; padding:6px; font-size:11px} th{background:#0ea5e9; color:white}</style>';
-    finalForm += '</head><body>';
-    finalForm += '<div class="card"><h2>📊 Resoconto Ore - IC Frosinone 2</h2>';
-    finalForm += '<p style="font-size:12px; color:#64748b">Seleziona dipendente e periodo ('+timbratureSalvate.length+' timbrature totali - tutti i '+listaNomi.length+' dipendenti disponibili)</p>';
-    
-    finalForm += '<label>👤 Dipendente:</label>';
-    finalForm += '<select id="selDip"><option value="TUTTI">TUTTI - Tutti i dipendenti ('+listaNomi.length+')</option>';
-    for(var i=0;i<listaNomi.length;i++){
-      finalForm += '<option value="'+listaNomi[i].replace(/"/g,'&quot;')+'">'+listaNomi[i]+'</option>';
+    var modal = document.getElementById('modalResoconto');
+    if(!modal){
+      var div=document.createElement('div');
+      div.id='modalResoconto';
+      div.style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10001; display:flex; align-items:flex-start; justify-content:center; padding:10px; box-sizing:border-box; overflow:auto';
+      document.body.appendChild(div);
+      modal=div;
     }
-    finalForm += '</select>';
+    modal.style.display='flex';
     
-    finalForm += '<label>📅 DAL giorno:</label><input type="date" id="dal" value="'+primoGiorno+'">';
-    finalForm += '<label>📅 AL giorno:</label><input type="date" id="al" value="'+ultimoGiorno+'">';
+    var htmlModal = '<div style="background:white; border-radius:14px; padding:16px; width:100%; max-width:750px; max-height:95vh; overflow:auto; border:2.5px solid #0ea5e9; margin-top:20px">';
+    htmlModal+='<div style="display:flex; justify-content:space-between; align-items:center"><h2 style="margin:0">📊 Resoconto Ore - IC Frosinone 2</h2><button onclick="chiudiModalResoconto()" style="background:#64748b; color:white; border:0; border-radius:50%; width:32px; height:32px; font-weight:800; cursor:pointer">✕</button></div>';
+    htmlModal+='<p style="font-size:12px; color:#64748b">Seleziona dipendente e periodo ('+timbratureSalvate.length+' timbrature totali - '+listaNomi.length+' dipendenti)</p>';
+    htmlModal+='<label style="font-weight:700; display:block; margin:10px 0 4px 0">👤 Dipendente:</label><select id="selDip" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px"><option value="TUTTI">TUTTI - Tutti i dipendenti ('+listaNomi.length+')</option>';
+    for(var i=0;i<listaNomi.length;i++){ htmlModal+='<option value="'+listaNomi[i].replace(/"/g,'&quot;')+'">'+listaNomi[i]+'</option>'; }
+    htmlModal+='</select>';
+    htmlModal+='<label style="font-weight:700; display:block; margin:10px 0 4px 0">📅 DAL giorno:</label><input type="date" id="dal" value="'+primoGiorno+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px">';
+    htmlModal+='<label style="font-weight:700; display:block; margin:10px 0 4px 0">📅 AL giorno:</label><input type="date" id="al" value="'+ultimoGiorno+'" style="width:100%; padding:10px; border:1.5px solid #cbd5e1; border-radius:8px">';
+    htmlModal+='<div style="text-align:center; margin-top:16px"><button onclick="generaResocontoInterno()" style="background:#0ea5e9; color:white; border:0; padding:12px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px">📊 Genera Resoconto</button><button onclick="chiudiModalResoconto()" style="background:#64748b; color:white; border:0; padding:12px 20px; border-radius:8px; font-weight:800; cursor:pointer; margin:4px">Chiudi</button></div>';
+    htmlModal+='<div id="risultatoResoconto" style="margin-top:20px"></div>';
+    htmlModal+='</div>';
     
-    finalForm += '<div style="text-align:center; margin-top:16px"><button class="btn btn-blue" onclick="genera()">📊 Genera Resoconto</button><button class="btn btn-gray" onclick="window.close()">Chiudi</button></div>';
-    finalForm += '<div id="risultato" style="margin-top:20px"></div>';
-    finalForm += '</div>';
-    
-    finalForm += '<script>';
-    finalForm += 'var timbratureSalvate = '+timbratureJson+';';
-    finalForm += 'var anagrafiche = '+JSON.stringify(anagrafiche).replace(/</g, '\u003c')+';';
-    finalForm += 'function genera(){';
-    finalForm += '  var dipScelto = document.getElementById("selDip").value;';
-    finalForm += '  var dal = document.getElementById("dal").value;';
-    finalForm += '  var al = document.getElementById("al").value;';
-    finalForm += '  var filtrate = timbratureSalvate.slice();';
-    finalForm += '  if(dipScelto!=="TUTTI" && dipScelto!==""){ filtrate = filtrate.filter(function(t){ return t.nome===dipScelto; }); }';
-    finalForm += '  if(dal){ var dalTime = new Date(dal).getTime(); filtrate = filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt>=dalTime; } return (t.timestamp||0)>=dalTime; }catch(e){ return true; } }); }';
-    finalForm += '  if(al){ var alTime = new Date(al).getTime()+24*60*60*1000-1; filtrate = filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt<=alTime; } return (t.timestamp||0)<=alTime; }catch(e){ return true; } }); }';
-    finalForm += '  if(filtrate.length===0){ document.getElementById("risultato").innerHTML="<p style=\"color:red\">Nessuna timbratura per "+dipScelto+" nel periodo "+dal+" - "+al+"</p>"; return; }';
-    finalForm += '  filtrate.sort(function(a,b){ return (a.timestamp||0)-(b.timestamp||0); });';
-    finalForm += '  var perDip={}; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; if(!perDip[t.nome]) perDip[t.nome]=[]; perDip[t.nome].push(t); }';
-    finalForm += '  var html="<h3>Riepilogo - "+dipScelto+" - "+dal+" → "+al+" ("+filtrate.length+" timbrature)</h3><table><tr><th>Dipendente</th><th>Entrate</th><th>Uscite</th><th>Giorni</th><th>Ore stimate</th><th>Plessi</th></tr>";';
-    finalForm += '  var nomi=Object.keys(perDip).sort(); var totE=0, totU=0; for(var ni=0;ni<nomi.length;ni++){ var nome=nomi[ni]; var list=perDip[nome]; var ent=0, usc=0; for(var li=0;li<list.length;li++){ if(list[li].tipo==="ENTRATA") ent++; if(list[li].tipo==="USCITA") usc++; } totE+=ent; totU+=usc; var giorniUnici={}; for(var li=0;li<list.length;li++){ var gg=list[li].data.split(",")[0]; giorniUnici[gg]=1; } var numGiorni=Object.keys(giorniUnici).length; var plessi=[]; for(var li=0;li<list.length;li++){ if(plessi.indexOf(list[li].plesso)<0) plessi.push(list[li].plesso); } var aInfo=anagrafiche.find(function(x){ return x.nome===nome; }); var orarioInfo=aInfo ? (aInfo.orarioTipo==="alterne" ? "A/B - "+aInfo.totale : aInfo.totale) : ""; html+="<tr><td><b>"+nome+"</b><br><small style=\"color:#64748b\">"+orarioInfo+"</small></td><td>"+ent+"</td><td>"+usc+"</td><td>"+numGiorni+"</td><td>"+(Math.min(ent,usc)*7)+"h circa</td><td>"+plessi.join(", ")+"</td></tr>"; } html+="<tr style=\"background:#dcfce7; font-weight:800\"><td>TOTALE</td><td>"+totE+"</td><td>"+totU+"</td><td colspan=\"3\"></td></tr></table>";';
-    finalForm += '  html+="<h3 style=\"margin-top:16px\">Dettaglio ("+filtrate.length+")</h3><table><tr><th>Data</th><th>Ora</th><th>Dipendente</th><th>Tipo</th><th>Plesso</th><th>Dist</th></tr>"; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; var col=t.tipo==="ENTRATA"?"#16a34a":"#dc2626"; html+="<tr><td>"+t.data.split(",")[0]+"</td><td>"+(t.ora||"")+"</td><td>"+t.nome+"</td><td style=\"color:"+col+"; font-weight:800\">"+t.tipo+"</td><td>"+t.plesso+"</td><td>"+(t.distanza||"")+"m</td></tr>"; } html+="</table><br><button onclick=\"window.print()\" style=\"background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800\">Stampa</button> <button onclick=\"esporta()\" style=\"background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; margin-left:6px\">Export CSV</button>";';
-    finalForm += '  document.getElementById("risultato").innerHTML=html; window._filtrate=filtrate; window._dip=dipScelto; window._dal=dal; window._al=al; }';
-    finalForm += 'function esporta(){ var filtrate=window._filtrate||[]; var dip=window._dip||"TUTTI"; var dal=window._dal||"inizio"; var al=window._al||"oggi"; var csv="Dipendente,Data,Ora,Tipo,Plesso\n"; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; csv+=t.nome+","+t.data+","+t.ora+","+t.tipo+","+t.plesso+"\n"; } var blob=new Blob([csv], {type:"text/csv"}); var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download="resoconto_"+dip+"_"+dal+"_"+al+".csv"; a.click(); }';
-    finalForm += '<\/script>';
-    finalForm += '</body></html>';
-    
-    var w=window.open("", "_blank");
-    if(!w){
-      alert("Popup bloccato! Consenti popup per icfrosinone2.github.io e riprova tenendo premuto Ctrl");
-      return;
-    }
-    try{
-      w.document.write(finalForm);
-      w.document.close();
-      w.focus();
-    }catch(e){
-      alert("Errore apertura resoconto: "+e.message+" Prova a consentire i popup");
-    }
+    modal.innerHTML=htmlModal;
+    // Salva dati globali per generazione
+    window._timbraturePerResoconto = timbratureSalvate.slice();
+    window._anagrafichePerResoconto = anagrafiche.slice();
   }catch(e){ alert("Errore resoconto: "+e.message+" "+e.stack); }
 }
+
+function chiudiModalResoconto(){
+  var modal=document.getElementById('modalResoconto');
+  if(modal) modal.style.display='none';
+}
+
+function generaResocontoInterno(){
+  try{
+    var dipScelto = document.getElementById("selDip").value;
+    var dal = document.getElementById("dal").value;
+    var al = document.getElementById("al").value;
+    var timbratureSalvate = window._timbraturePerResoconto || [];
+    var anagrafiche = window._anagrafichePerResoconto || [];
+    var filtrate = timbratureSalvate.slice();
+    if(dipScelto!=="TUTTI" && dipScelto!==""){ filtrate = filtrate.filter(function(t){ return t.nome===dipScelto; }); }
+    if(dal){ var dalTime = new Date(dal).getTime(); filtrate = filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt>=dalTime; } return (t.timestamp||0)>=dalTime; }catch(e){ return true; } }); }
+    if(al){ var alTime = new Date(al).getTime()+24*60*60*1000-1; filtrate = filtrate.filter(function(t){ try{ var d=t.data.split(",")[0].split("/"); if(d.length===3){ var dt=new Date(d[2], d[1]-1, d[0]).getTime(); return dt<=alTime; } return (t.timestamp||0)<=alTime; }catch(e){ return true; } }); }
+    if(filtrate.length===0){ document.getElementById("risultatoResoconto").innerHTML="<p style=\"color:red\">Nessuna timbratura per "+dipScelto+" nel periodo "+dal+" - "+al+"</p>"; return; }
+    filtrate.sort(function(a,b){ return (a.timestamp||0)-(b.timestamp||0); });
+    var perDip={}; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; if(!perDip[t.nome]) perDip[t.nome]=[]; perDip[t.nome].push(t); }
+    var html="<h3>Riepilogo - "+dipScelto+" - "+dal+" → "+al+" ("+filtrate.length+" timbrature)</h3><table style=\"width:100%; border-collapse:collapse; margin-top:12px\"><tr><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Dipendente</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Entrate</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Uscite</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Giorni</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Ore</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Plessi</th></tr>";
+    var nomi=Object.keys(perDip).sort(); var totE=0, totU=0; for(var ni=0;ni<nomi.length;ni++){ var nome=nomi[ni]; var list=perDip[nome]; var ent=0, usc=0; for(var li=0;li<list.length;li++){ if(list[li].tipo==="ENTRATA") ent++; if(list[li].tipo==="USCITA") usc++; } totE+=ent; totU+=usc; var giorniUnici={}; for(var li=0;li<list.length;li++){ var gg=list[li].data.split(",")[0]; giorniUnici[gg]=1; } var numGiorni=Object.keys(giorniUnici).length; var plessi=[]; for(var li=0;li<list.length;li++){ if(plessi.indexOf(list[li].plesso)<0) plessi.push(list[li].plesso); } var aInfo=anagrafiche.find(function(x){ return x.nome===nome; }); var orarioInfo=aInfo ? (aInfo.orarioTipo==="alterne" ? "A/B - "+aInfo.totale : aInfo.totale) : ""; html+="<tr><td style=\"border:1px solid #cbd5e1; padding:6px\"><b>"+nome+"</b><br><small style=\"color:#64748b\">"+orarioInfo+"</small></td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+ent+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+usc+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+numGiorni+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+(Math.min(ent,usc)*7)+"h circa</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+plessi.join(", ")+"</td></tr>"; } html+="<tr style=\"background:#dcfce7; font-weight:800\"><td style=\"border:1px solid #cbd5e1; padding:6px\">TOTALE</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+totE+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+totU+"</td><td colspan=\"3\" style=\"border:1px solid #cbd5e1; padding:6px\"></td></tr></table>";
+    html+="<h3 style=\"margin-top:16px\">Dettaglio ("+filtrate.length+")</h3><table style=\"width:100%; border-collapse:collapse\"><tr><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Data</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Ora</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Dipendente</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Tipo</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Plesso</th><th style=\"border:1px solid #cbd5e1; padding:6px; background:#0ea5e9; color:white\">Dist</th></tr>"; for(var i=0;i<filtrate.length;i++){ var t=filtrate[i]; var col=t.tipo==="ENTRATA"?"#16a34a":"#dc2626"; html+="<tr><td style=\"border:1px solid #cbd5e1; padding:6px\">"+t.data.split(",")[0]+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+(t.ora||"")+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+t.nome+"</td><td style=\"border:1px solid #cbd5e1; padding:6px; color:"+col+"; font-weight:800\">"+t.tipo+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+t.plesso+"</td><td style=\"border:1px solid #cbd5e1; padding:6px\">"+(t.distanza||"")+"m</td></tr>"; } html+="<\/table><br><button onclick=\"window.print()\" style=\"background:#0ea5e9; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; cursor:pointer\">Stampa</button> <button onclick=\"esportaResocontoInterno()\" style=\"background:#16a34a; color:white; border:0; padding:10px 20px; border-radius:8px; font-weight:800; margin-left:6px; cursor:pointer\">Export CSV</button>";
+    document.getElementById("risultatoResoconto").innerHTML=html; window._filtrateResoconto=filtrate; window._dipResoconto=dipScelto; window._dalResoconto=dal; window._alResoconto=al;
+  }catch(e){ alert("Errore genera resoconto: "+e.message+" "+e.stack); document.getElementById("risultatoResoconto").innerHTML="<p style=\"color:red\">Errore: "+e.message+"</p>"; }
+}
+
+function esportaResocontoInterno(){ 
+  var filtrate=window._filtrateResoconto||[]; 
+  var dip=window._dipResoconto||"TUTTI"; 
+  var dal=window._dalResoconto||"inizio"; 
+  var al=window._alResoconto||"oggi"; 
+  var csv="Dipendente,Data,Ora,Tipo,Plesso,Distanza\n"; 
+  for(var i=0;i<filtrate.length;i++){ 
+    var t=filtrate[i]; 
+    csv+=t.nome+","+t.data+","+t.ora+","+t.tipo+","+t.plesso+","+(t.distanza||"")+"\n"; 
+  } 
+  var blob=new Blob([csv], {type:"text/csv"}); 
+  var url=URL.createObjectURL(blob); 
+  var a=document.createElement("a"); 
+  a.href=url; 
+  a.download="resoconto_"+dip+"_"+dal+"_"+al+".csv"; 
+  a.click(); 
+}
+
 
 
 
