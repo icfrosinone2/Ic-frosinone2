@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IC Frosinone 2 - V118 - RIPRISTINO GPS OK + SCHEDA + ORARIO MODAL</title>
+<title>IC Frosinone 2 - V119 - RIPRISTINO GPS OK + SCHEDA + ORARIO MODAL</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -46,7 +46,7 @@ body{font-family:system-ui; background:#eef2f7; margin:0; padding:8px}
 <body>
 
 <div class="top-verde">
-<div class="top-left"><b>✅ V118 - FIX RESOCONTO MODAL - SCHEDA ANAGRAFICA OK - GPS OK - FINALISSIMO</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
+<div class="top-left"><b>✅ V119 - BADGE FIX + ORARIO PERSONALIZZATO + PROVE NASCOSTE - RESOCONTO OK - GPS OK - FINALISSIMO</b><br><small>GPS funziona su HTTPS - Scanner QR HD - Badge con QR veri</small></div>
 <div class="top-right"><div class="istituto">Istituto Comprensivo<br>Frosinone 2°</div></div>
 </div>
 
@@ -160,7 +160,7 @@ const LISTA_COMPLETA_DIPENDENTI_V59 = [
 { nome:"Calcagni Desire", plesso:"Spinelli", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Capezzera Raffaella", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Carnevale Marta", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Ceccarelli Anna T.", plesso:"Pietrobono", qualifica:"Assistente Amministrativo", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Ceccarelli Sanna T.", plesso:"Pietrobono", qualifica:"Assistente Amministrativo", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Cerro Massimo", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Cioe Lucia", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Ciolfi Antonietta", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
@@ -174,18 +174,18 @@ const LISTA_COMPLETA_DIPENDENTI_V59 = [
 { nome:"Fraioli Margherita", plesso:"XXIII", qualifica:"Assistente Amministrativo", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Gallina Angela", plesso:"Rinascita", qualifica:"Assistente Amministrativo", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
 { nome:"Giardullo Vincenzina", plesso:"Verdi", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"La Marra Alessandra", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Lolli Eleonora", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Muraglia Domenico", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Pittiglio Adriana", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Raponi Luciana", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Romano Anna Maria", plesso:"Verdi", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Ronga Daniele", plesso:"XXIII", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Sacco Anna", plesso:"Pinocchio", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Sanna Vittoria", plesso:"Spinelli", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Spaziani Anna Maria", plesso:"Verdi", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
-{ nome:"Taliento Angela", plesso:"XXIII", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } }
+{ nome:"Iafrate Elvio", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Iafrate Rita", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Lazio Marco", plesso:"Pietrobono", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Martini Franca", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Mingarelli Stefania", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Naddei Eleonora", plesso:"Rinascita", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Palombo Antonella", plesso:"Verdi", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Puglia Francesco", plesso:"XXIII", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Rossi Maria", plesso:"Pinocchio", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Scaccia Maria", plesso:"Spinelli", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Testa Giuseppe", plesso:"Verdi", qualifica:"Collaboratore Scolastico", totale:"36h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } },
+{ nome:"Ventura Anna", plesso:"XXIII", qualifica:"Collaboratore Scolastico", totale:"30h00m", orariSettimana:{ lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[] } }
 ];
 
 PLESSI_BASE=[
@@ -335,25 +335,57 @@ function attivaGPS(){
 }
 
 // QR SCANNER
+
 function avviaScanner(opts){
-  const reader=document.getElementById('reader'); reader.style.display='block';
-  document.getElementById('stopBtn').style.display='block'; document.getElementById('switchBtn').style.display='block';
+  const reader=document.getElementById('reader'); 
+  if(!reader){ alert('Reader non trovato'); return; }
+  reader.style.display='block';
+  var stopBtn=document.getElementById('stopBtn');
+  var switchBtn=document.getElementById('switchBtn');
+  if(stopBtn) stopBtn.style.display='block'; 
+  if(switchBtn) switchBtn.style.display='block';
   if(html5Qr){ try{ html5Qr.stop(); }catch(e){} }
   html5Qr=new Html5Qrcode("reader");
   html5Qr.start(opts||{facingMode:"environment"}, {fps:10, qrbox:{width:250, height:250}}, (decoded)=>{
     const ora=Date.now(); if(decoded===ultimoQR && (ora-ultimoTempo<3000)) return;
     ultimoQR=decoded; ultimoTempo=ora;
-    document.getElementById('qrResult').innerHTML='✅ Letto: '+decoded;
-    document.getElementById('ultimoScansionato').innerHTML='✅ '+decoded+' @ '+new Date().toLocaleTimeString();
+    var qrResultEl=document.getElementById('qrResult');
+    var ultimoEl=document.getElementById('ultimoScansionato');
+    if(qrResultEl) qrResultEl.innerHTML='✅ Letto: '+decoded;
+    if(ultimoEl) ultimoEl.innerHTML='✅ '+decoded+' @ '+new Date().toLocaleTimeString();
     beep();
-    // Cerca nome in lista
+    // Cerca nome in lista - supporta formato nome|plesso|qualifica e solo nome
     let nomeTrovato=null;
-    for(let a of anagrafiche){ if(decoded.includes(a.nome) || a.nome.toLowerCase().includes(decoded.toLowerCase()) || decoded.toLowerCase()===a.nome.toLowerCase()){ nomeTrovato=a.nome; break; } }
-    if(!nomeTrovato) nomeTrovato=decoded;
-    document.getElementById('dipendente').value=nomeTrovato;
-    if(document.getElementById('continuoCheck') && !document.getElementById('continuoCheck').checked){ fermaScanner(); }
-  }, (err)=>{}).catch(e=>{ document.getElementById('qrResult').innerHTML='❌ Errore camera: '+e; });
+    let decodedNome = decoded.split('|')[0].trim();
+    for(let a of anagrafiche){ 
+      if(decodedNome.toLowerCase()===a.nome.toLowerCase() || decoded.toLowerCase().includes(a.nome.toLowerCase()) || a.nome.toLowerCase().includes(decodedNome.toLowerCase())){ 
+        nomeTrovato=a.nome; break; 
+      } 
+    }
+    if(!nomeTrovato){
+      // Prova match parziale
+      for(let a of anagrafiche){ 
+        if(decoded.toLowerCase().indexOf(a.nome.split(' ')[0].toLowerCase())>=0){ nomeTrovato=a.nome; break; }
+      }
+    }
+    if(!nomeTrovato) nomeTrovato=decodedNome;
+    var dipEl=document.getElementById('dipendente');
+    if(dipEl){
+      dipEl.value=nomeTrovato;
+      // Trigger change per mostrare orario
+      try{ var ev=new Event('change'); dipEl.dispatchEvent(ev); }catch(e){}
+      try{ mostraOrario(); }catch(e){}
+    }
+    // Se continuo non attivo, ferma
+    var continuoCheck=document.getElementById('continuoCheck');
+    if(continuoCheck && !continuoCheck.checked){ fermaScanner(); }
+  }, (err)=>{}).catch(e=>{ 
+    var qrResultEl=document.getElementById('qrResult');
+    if(qrResultEl) qrResultEl.innerHTML='❌ Errore camera: '+e+' - Prova a consentire camera e usa HTTPS'; 
+  });
 }
+
+
 function avviaContinuo(){ avviaScanner({facingMode:"environment"}); }
 function avviaSingolo(){ avviaScanner({facingMode:"environment"}); }
 function fermaScanner(){ 
@@ -376,22 +408,43 @@ function timbra(tipo){
   document.getElementById('ultimoScansionato').innerHTML=`✅ ${tipo} ${nome} @ ${plesso} ${t.ora}`;
   beep(); alert(`✅ ${tipo} registrata: ${nome} @ ${plesso}`);
 }
+
+var mostraProveNascoste = false;
 function aggiornaLog(){
   try{
     var logDiv=document.getElementById('log'); if(!logDiv) return;
     var html=''; 
-    html+='<div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap"><button onclick="eliminaTutteTimbratureProva()" style="background:#f97316; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">Elimina prove Casa Test</button><button onclick="eliminaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">Elimina TUTTE</button><button onclick="caricaCondivise()" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px">Aggiorna</button></div>';
-    for(var i=0;i<Math.min(timbratureSalvate.length,80);i++){
-      var t=timbratureSalvate[i];
+    html+='<div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap"><button onclick="eliminaTutteTimbratureProva()" style="background:#f97316; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">🗑️ Elimina prove Casa Test (locale+cloud)</button><button onclick="eliminaTutteTimbrature()" style="background:#ef4444; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px; font-weight:800">Elimina TUTTE</button><button onclick="caricaCondivise()" style="background:#0ea5e9; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px">Aggiorna log</button><button onclick="toggleProveNascoste()" style="background:'+(mostraProveNascoste?'#16a34a':'#64748b')+'; color:white; border:0; border-radius:6px; padding:6px 10px; font-size:11px">'+(mostraProveNascoste?'👁️ Nascondi prove':'👁️‍🗨️ Mostra prove (PIN)')+'</button></div>';
+    var filtrate = timbratureSalvate.slice();
+    if(!mostraProveNascoste){
+      filtrate = filtrate.filter(function(t){ return (t.plesso||'').indexOf('Casa Test')<0; });
+    }
+    html+='<div style="font-size:10px; color:#64748b; margin-bottom:6px">Mostrati: '+filtrate.length+' / '+timbratureSalvate.length+' (prove '+(mostraProveNascoste?'visibili':'nascoste')+')</div>';
+    for(var i=0;i<Math.min(filtrate.length,80);i++){
+      var t=filtrate[i];
+      // Trova indice originale per modifica/elimina
+      var idxOriginale = timbratureSalvate.indexOf(t);
       var colore=t.tipo==='ENTRATA' ? '#16a34a' : '#dc2626';
       var isProva = (t.plesso||'').indexOf('Casa Test')>=0;
       var provaBadge = isProva ? '<span style="background:#fbbf24; color:white; padding:1px 5px; border-radius:999px; font-size:9px">PROVA</span>' : '';
-      html+='<div style="border-left:3px solid '+colore+'; padding:6px; margin:5px 0; background:'+(isProva?'#fffbeb':'white')+'; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; gap:6px"><div><span style="color:#64748b; font-size:10px">'+t.data+'</span> - <b style="color:'+colore+'">'+t.tipo+'</b> - <b>'+t.nome+'</b> @ <b>'+t.plesso+'</b> '+(t.distanza?'('+t.distanza+'m)':'')+' '+provaBadge+'</div><div style="display:flex; gap:4px"><button onclick="modificaTimbratura('+i+')" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">Mod</button><button onclick="eliminaTimbratura('+i+')" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">Del</button></div></div>';
+      html+='<div style="border-left:3px solid '+colore+'; padding:6px; margin:5px 0; background:'+(isProva?'#fffbeb':'white')+'; font-size:11px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; gap:6px"><div><span style="color:#64748b; font-size:10px">'+t.data+'</span> - <b style="color:'+colore+'">'+t.tipo+'</b> - <b>'+t.nome+'</b> @ <b>'+t.plesso+'</b> '+(t.distanza?'('+t.distanza+'m)':'')+' '+provaBadge+'</div><div style="display:flex; gap:4px"><button onclick="modificaTimbratura('+idxOriginale+')" style="background:#f59e0b; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">Mod</button><button onclick="eliminaTimbratura('+idxOriginale+')" style="background:#ef4444; color:white; border:0; border-radius:5px; padding:4px 6px; font-size:10px">Del</button></div></div>';
     }
-    if(timbratureSalvate.length===0) html+='<div style="text-align:center; color:#94a3b8; padding:10px">Nessuna timbratura</div>';
+    if(filtrate.length===0) html+='<div style="text-align:center; color:#94a3b8; padding:10px">'+(mostraProveNascoste?'Nessuna timbratura':'Nessuna timbratura (prove nascoste - clicca Mostra prove) ')+'</div>';
     logDiv.innerHTML=html;
   }catch(e){ console.log('log errore', e); }
 }
+
+function toggleProveNascoste(){
+  if(!mostraProveNascoste){
+    var pin=prompt('PIN per mostrare prove Casa Test (PIN anagrafica 211285):');
+    if(pin!=='211285'){ alert('PIN errato'); return; }
+    mostraProveNascoste=true;
+  } else {
+    mostraProveNascoste=false;
+  }
+  aggiornaLog();
+}
+
 
 function eliminaTimbratura(idx){
   var t=timbratureSalvate[idx]; if(!t) return;
@@ -438,19 +491,23 @@ function modificaTimbratura(idx){
   aggiornaLog();
   alert('Modificata: '+t.nome+' '+t.tipo+' @ '+t.ora);
 }
+
 function eliminaTutteTimbratureProva(){
-  if(!confirm('Eliminare TUTTE le timbrature di PROVA (Casa Test) LOCALI e su CLOUD condiviso?')) return;
+  if(!confirm('Eliminare TUTTE le timbrature di PROVA (Casa Test) LOCALI e su CLOUD condiviso? Questa azione elimina anche dal cloud su tutti i tablet!')) return;
+  var pin=prompt('Scrivi ELIMINA e PIN 211285 per confermare (es: ELIMINA 211285)');
+  if(pin!=='ELIMINA 211285'){ alert('Annullato - devi scrivere ELIMINA 211285'); return; }
   var prima = timbratureSalvate.length;
-  // Filtra locali
   var filtrate=[];
   for(var i=0;i<timbratureSalvate.length;i++){ if((timbratureSalvate[i].plesso||'').indexOf('Casa Test')<0) filtrate.push(timbratureSalvate[i]); }
+  var eliminateLocali = prima - filtrate.length;
   timbratureSalvate=filtrate;
   localStorage.setItem('timbrature_v93', JSON.stringify(timbratureSalvate.slice(0,500)));
   aggiornaLog();
+  alert('🗑️ Eliminate '+eliminateLocali+' prove locali. Ora elimino dal cloud condiviso... (attendi)');
   
-  // Elimina anche da CLOUD condiviso
   (async function(){
     try{
+      var totaleCloudEliminate=0;
       for(var base of DB_URLS){
         try{
           var r = await fetch(base + '/timbrature.json?ts='+Date.now(), {cache:'no-store'});
@@ -466,22 +523,19 @@ function eliminaTutteTimbratureProva(){
               daCancellare.push(key);
             }
           }
-          console.log('Cloud: trovo '+daCancellare.length+' prove da cancellare su '+base);
           for(var d=0;d<daCancellare.length;d++){
             var keyDel = daCancellare[d];
             try{
               await fetch(base + '/timbrature/'+keyDel+'.json', {method:'DELETE'});
+              totaleCloudEliminate++;
             }catch(e){ console.log('Delete errore', keyDel, e); }
           }
-          if(daCancellare.length>0){
-            alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali + '+daCancellare.length+' dal cloud condiviso');
-            setTimeout(function(){ caricaCondivise(); }, 1000);
-            return;
-          }
+          console.log('Cloud: eliminate '+daCancellare.length+' su '+base);
         }catch(e){ console.log('Cloud delete errore su '+base, e); }
       }
-      alert('Eliminate '+(prima-timbratureSalvate.length)+' prove locali (nessuna trovata su cloud o gia cancellate)');
-    }catch(e){ alert('Eliminate locali, ma errore cloud: '+e.message); }
+      alert('✅ FATTO! Eliminate '+eliminateLocali+' locali + '+totaleCloudEliminate+' dal cloud condiviso.\nRicarico log...');
+      setTimeout(function(){ try{ caricaCondivise(); }catch(e){} }, 1500);
+    }catch(e){ alert('Errore cloud: '+e.message+' - Locali comunque eliminate'); }
   })();
 }
 
@@ -651,12 +705,14 @@ function modificaAnagrafica(nome){
   alert('Modificato: '+a.nome);
 }
 
+
 function modificaOrarioServizio(nome){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
   if(!a.orariSettimana) a.orariSettimana={lun:[{entrata:"07:30", uscita:"14:42"}], mar:[{entrata:"07:30", uscita:"14:42"}], mer:[{entrata:"07:30", uscita:"14:42"}], gio:[{entrata:"07:30", uscita:"14:42"}], ven:[{entrata:"07:30", uscita:"14:42"}], sab:[], dom:[]};
   if(!a.orariSettimanaA) a.orariSettimanaA = JSON.parse(JSON.stringify(a.orariSettimana));
   if(!a.orariSettimanaB) a.orariSettimanaB = JSON.parse(JSON.stringify(a.orariSettimana));
+  if(!a.orariPersonalizzato) a.orariPersonalizzato = {note:"", giorni:{lun:"", mar:"", mer:"", gio:"", ven:"", sab:"", dom:""}};
   var tipo = a.orarioTipo || 'fisso';
   var modal = document.getElementById('modalOrario');
   if(!modal){
@@ -668,12 +724,14 @@ function modificaOrarioServizio(nome){
   }
   modal.style.display='flex';
   var giorni = [{id:'lun', nome:'Lunedì'}, {id:'mar', nome:'Martedì'}, {id:'mer', nome:'Mercoledì'}, {id:'gio', nome:'Giovedì'}, {id:'ven', nome:'Venerdì'}, {id:'sab', nome:'Sabato'}, {id:'dom', nome:'Domenica'}];
-  var htmlM = '<div style="background:white; border-radius:14px; padding:14px; width:100%; max-width:520px; max-height:90vh; overflow:auto; border:2.5px solid #16a34a">';
+  var htmlM = '<div style="background:white; border-radius:14px; padding:14px; width:100%; max-width:560px; max-height:92vh; overflow:auto; border:2.5px solid #16a34a">';
   htmlM+='<h3 style="margin:0 0 10px 0">⏰ Orario Servizio - '+a.nome+'<br><small style="color:#64748b">'+a.plesso+' - '+a.qualifica+' - '+a.totale+'</small></h3>';
   htmlM+='<div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:10px; margin-bottom:10px">';
-  htmlM+='<label style="font-size:12px"><input type="radio" name="tipoOrario" value="fisso" '+(tipo==='fisso'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>FISSO</b></label><br>';
-  htmlM+='<label style="font-size:12px; margin-top:6px; display:block"><input type="radio" name="tipoOrario" value="alterne" '+(tipo==='alterne'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>ALTERNE A/B</b><br><small style="color:#64748b">A=dispari, B=pari</small></label>';
+  htmlM+='<label style="font-size:12px; display:block; margin:4px 0"><input type="radio" name="tipoOrario" value="fisso" '+(tipo==='fisso'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>FISSO</b> - stesso ogni settimana</label>';
+  htmlM+='<label style="font-size:12px; display:block; margin:4px 0"><input type="radio" name="tipoOrario" value="alterne" '+(tipo==='alterne'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>ALTERNE A/B</b> - A=dispari, B=pari</label>';
+  htmlM+='<label style="font-size:12px; display:block; margin:4px 0"><input type="radio" name="tipoOrario" value="personalizzato" '+(tipo==='personalizzato'?'checked':'')+' onchange="cambiaTipoOrario()"> <b>PERSONALIZZATO</b> - orario diverso per giorno / note</label>';
   htmlM+='</div>';
+  // Fisso
   htmlM+='<div id="panel-fisso" style="display:'+(tipo==='fisso'?'block':'none')+'">';
   htmlM+='<h4 style="margin:6px 0; font-size:13px">Orario Fisso</h4>';
   for(var gi=0;gi<giorni.length;gi++){
@@ -685,6 +743,7 @@ function modificaOrarioServizio(nome){
     htmlM+='<div style="border:1px solid #e2e8f0; border-radius:8px; padding:6px; margin:4px 0; display:flex; justify-content:space-between; align-items:center"><label style="font-weight:700; font-size:12px; width:80px">'+g.nome+':</label><input id="orario-'+g.id+'" value="'+txt+'" placeholder="07:30-14:42" style="flex:1; padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; margin-left:6px"></div>';
   }
   htmlM+='</div>';
+  // Alterne
   htmlM+='<div id="panel-alterne" style="display:'+(tipo==='alterne'?'block':'none')+'">';
   htmlM+='<div style="display:flex; gap:6px; margin-bottom:8px"><button id="tabA" onclick="mostraTabOrario(\'A\')" style="flex:1; padding:8px; border:0; border-radius:8px; font-weight:800; background:'+(tipo==='alterne'?'#0ea5e9':'#e2e8f0')+'; color:'+(tipo==='alterne'?'white':'#475569')+'">A DISPARI</button><button id="tabB" onclick="mostraTabOrario(\'B\')" style="flex:1; padding:8px; border:0; border-radius:8px; font-weight:800; background:#e2e8f0; color:#475569">B PARI</button></div>';
   htmlM+='<div id="subA">';
@@ -710,23 +769,51 @@ function modificaOrarioServizio(nome){
   }
   htmlM+='</div>';
   htmlM+='</div>';
+  // Personalizzato
+  htmlM+='<div id="panel-personalizzato" style="display:'+(tipo==='personalizzato'?'block':'none')+'">';
+  htmlM+='<h4 style="margin:6px 0; font-size:13px; color:#8b5cf6">Orario Personalizzato</h4>';
+  htmlM+='<p style="font-size:11px; color:#64748b">Inserisci orario diverso per ogni giorno, es: 07:30-12:30, 13:00-16:00 oppure lascia vuoto per giorno libero. Puoi aggiungere note.</p>';
+  for(var gi=0;gi<giorni.length;gi++){
+    var g=giorni[gi];
+    var valPers = (a.orariPersonalizzato && a.orariPersonalizzato.giorni && a.orariPersonalizzato.giorni[g.id]) ? a.orariPersonalizzato.giorni[g.id] : '';
+    // Se non c'è personalizzato, usa fisso come default
+    if(!valPers && a.orariSettimana && a.orariSettimana[g.id]){
+      var slots = a.orariSettimana[g.id] || [];
+      var txt='';
+      for(var si=0;si<slots.length;si++){ txt+=slots[si].entrata+'-'+slots[si].uscita+', '; }
+      txt=txt.replace(/, $/, '');
+      valPers=txt;
+    }
+    htmlM+='<div style="border:1px solid #e2e8f0; border-radius:8px; padding:6px; margin:4px 0; display:flex; justify-content:space-between; align-items:center"><label style="font-weight:700; font-size:12px; width:80px">'+g.nome+':</label><input id="orarioP-'+g.id+'" value="'+valPers+'" placeholder="07:30-14:42 o vuoto" style="flex:1; padding:6px; border:1.5px solid #cbd5e1; border-radius:6px; margin-left:6px"></div>';
+  }
+  var notePers = (a.orariPersonalizzato && a.orariPersonalizzato.note) ? a.orariPersonalizzato.note : '';
+  htmlM+='<label style="font-weight:700; font-size:12px; display:block; margin-top:8px">Note / Orario speciale (es: sostituzioni, feste):</label><textarea id="orarioP-note" placeholder="Es: Lunedì 06/01 festivo, Martedì sostituzione a Verdi 08:00-13:00" style="width:100%; padding:8px; border:1.5px solid #cbd5e1; border-radius:8px; min-height:60px; box-sizing:border-box">'+notePers+'</textarea>';
+  htmlM+='</div>';
   htmlM+='<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px"><button onclick="salvaOrariDaModal(\''+a.nome.replace(/'/g, "\'")+'\')" style="background:#16a34a; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">💾 Salva Orari</button><button onclick="chiudiModalOrario()" style="background:#64748b; color:white; border:0; border-radius:8px; padding:12px; font-weight:800">Chiudi</button></div>';
   htmlM+='</div>';
   modal.innerHTML=htmlM;
 }
+
+
+
 function cambiaTipoOrario(){
   var t=document.querySelector('input[name="tipoOrario"]:checked').value;
   document.getElementById('panel-fisso').style.display = t==='fisso' ? 'block' : 'none';
   document.getElementById('panel-alterne').style.display = t==='alterne' ? 'block' : 'none';
+  var pers=document.getElementById('panel-personalizzato');
+  if(pers) pers.style.display = t==='personalizzato' ? 'block' : 'none';
 }
+
+
 function mostraTabOrario(lettera){
   document.getElementById('subA').style.display = lettera==='A' ? 'block' : 'none';
   document.getElementById('subB').style.display = lettera==='B' ? 'block' : 'none';
 }
 function chiudiModalOrario(){ var modal=document.getElementById('modalOrario'); if(modal) modal.style.display='none'; }
+
 function salvaOrariDaModal(nome){
   var tipo=document.querySelector('input[name="tipoOrario"]:checked').value;
-  var orari=null, orariA=null, orariB=null;
+  var orari=null, orariA=null, orariB=null, orariP=null;
   var giorni=["lun","mar","mer","gio","ven","sab","dom"];
   try{
     if(tipo==='fisso'){
@@ -745,7 +832,7 @@ function salvaOrariDaModal(nome){
           orari[g]=slots;
         }
       }
-    } else {
+    } else if(tipo==='alterne') {
       orariA={}; orariB={};
       for(var i=0;i<giorni.length;i++){
         var g=giorni[i];
@@ -772,24 +859,46 @@ function salvaOrariDaModal(nome){
           orariB[g]=slots;
         }
       }
+    } else if(tipo==='personalizzato'){
+      orariP={giorni:{}, note:""};
+      for(var i=0;i<giorni.length;i++){
+        var g=giorni[i];
+        var val=document.getElementById('orarioP-'+g).value.trim();
+        orariP.giorni[g]=val;
+      }
+      var noteEl=document.getElementById('orarioP-note');
+      if(noteEl) orariP.note=noteEl.value.trim();
+      // Converte personalizzato in orariSettimana per compatibilità
+      orari={};
+      for(var i=0;i<giorni.length;i++){
+        var g=giorni[i];
+        var val=orariP.giorni[g];
+        if(!val){ orari[g]=[]; }
+        else {
+          var parts=val.split(",");
+          var slots=[];
+          for(var j=0;j<parts.length;j++){
+            var p=parts[j].trim().split("-");
+            if(p.length===2){ slots.push({entrata:p[0].trim(), uscita:p[1].trim()}); }
+          }
+          orari[g]=slots;
+        }
+      }
     }
-    salvaOrariDaForm(nome, orari, orariA, orariB, tipo);
+    salvaOrariDaFormPersonalizzato(nome, orari, orariA, orariB, orariP, tipo);
     chiudiModalOrario();
   }catch(e){ alert('Errore formato orario: '+e.message); }
 }
 
-
-function salvaOrariDaForm(nome, orari, orariA, orariB, tipo){
+function salvaOrariDaFormPersonalizzato(nome, orari, orariA, orariB, orariP, tipo){
   var a=anagrafiche.find(function(x){ return x.nome===nome; }); 
   if(!a) return;
   if(tipo==='alterne'){
     a.orarioTipo='alterne';
     a.orariSettimanaA=orariA;
     a.orariSettimanaB=orariB;
-    // Per compatibilita, metti in orariSettimana quello della settimana corrente
     var pari = isSettimanaPari(new Date());
     a.orariSettimana = pari ? orariB : orariA;
-    // Calcola totale medio
     try{
       var calcTotale = function(orariObj){
         var tot=0;
@@ -811,6 +920,26 @@ function salvaOrariDaForm(nome, orari, orariA, orariB, tipo){
       var totMedio = Math.round((totA+totB)/2);
       var ore=Math.floor(totMedio/60); var min=totMedio%60;
       a.totale=ore+'h'+(min<10?'0'+min:min)+'m (medio A/B)';
+    }catch(e){}
+  } else if(tipo==='personalizzato'){
+    a.orarioTipo='personalizzato';
+    a.orariPersonalizzato=orariP;
+    a.orariSettimana=orari;
+    try{
+      var totMin=0;
+      var vals = Object.values(orari);
+      for(var i=0;i<vals.length;i++){
+        var slots=vals[i];
+        for(var j=0;j<slots.length;j++){
+          var s=slots[j];
+          var e=s.entrata.split(':'); var u=s.uscita.split(':');
+          var minE=parseInt(e[0])*60+parseInt(e[1]); var minU=parseInt(u[0])*60+parseInt(u[1]);
+          var diff=minU-minE; if(diff<0) diff+=24*60;
+          totMin+=diff;
+        }
+      }
+      var ore=Math.floor(totMin/60); var min=totMin%60;
+      a.totale=ore+'h'+(min<10?'0'+min:min)+'m (personalizzato)';
     }catch(e){}
   } else {
     a.orarioTipo='fisso';
@@ -834,9 +963,13 @@ function salvaOrariDaForm(nome, orari, orariA, orariB, tipo){
   }
   anagrafiche.sort(function(a,b){ return a.nome.localeCompare(b.nome); });
   localStorage.setItem('anagrafiche_v95', JSON.stringify(anagrafiche));
+  try{ salvaAnagraficheCloud(); }catch(e){}
   render(); filtraElenco(); mostraOrario();
-  alert('Orario salvato per '+nome+' - Tipo: '+(a.orarioTipo||'fisso')+' - Totale: '+a.totale);
+  alert('Orario salvato per '+nome+' - Tipo: '+(a.orarioTipo||'fisso')+' - Totale: '+a.totale + (a.orariPersonalizzato && a.orariPersonalizzato.note ? '\nNote: '+a.orariPersonalizzato.note : ''));
 }
+
+
+
 
 function bloccaPIN(){ 
   var area=document.getElementById('areaAnag'); 
@@ -916,6 +1049,72 @@ function salvaOrariDaForm(nome, orari){
   render(); filtraElenco(); mostraOrario();
   alert('✅ Orario salvato per '+nome+' - Totale: '+a.totale);
 }
+
+
+function creaBadgeDa(nome){
+  var a=anagrafiche.find(function(x){ return x.nome===nome; });
+  if(!a){ alert('Dipendente non trovato: '+nome); return; }
+  var box=document.getElementById('badgeCartaBox');
+  var nomeEl=document.getElementById('bNomeCarta');
+  var qualEl=document.getElementById('bQualificaCarta');
+  var plessoEl=document.getElementById('bPlessoCarta');
+  var orarioEl=document.getElementById('bOrarioCarta');
+  var idEl=document.getElementById('bIdCarta');
+  var fotoEl=document.getElementById('badgeFoto');
+  var fotoPh=document.getElementById('badgeFotoPlaceholder');
+  var qrEl=document.getElementById('qrcodeCarta');
+  
+  if(!box || !qrEl){ alert('Badge box non trovato'); return; }
+  
+  nomeEl.textContent=a.nome;
+  qualEl.textContent=a.qualifica||'';
+  plessoEl.textContent='🏫 '+a.plesso;
+  orarioEl.textContent=a.totale||'36h00m';
+  idEl.textContent='IC Frosinone 2 - '+a.nome;
+  
+  // Foto se presente
+  if(a.foto && fotoEl){
+    fotoEl.src=a.foto;
+    fotoEl.style.display='block';
+    if(fotoPh) fotoPh.style.display='none';
+  } else {
+    if(fotoEl) fotoEl.style.display='none';
+    if(fotoPh) fotoPh.style.display='flex';
+  }
+  
+  box.style.display='flex';
+  box.scrollIntoView({behavior:'smooth'});
+  
+  // Genera QR con QRCode.js
+  try{
+    qrEl.innerHTML='';
+    // QR contiene nome + plesso per scansione interna ed esterna
+    var qrText = a.nome + '|' + a.plesso + '|' + a.qualifica;
+    // Prova con libreria QRCode
+    if(typeof QRCode !== 'undefined'){
+      new QRCode(qrEl, {
+        text: qrText,
+        width: 75,
+        height: 75,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    } else {
+      qrEl.textContent=qrText;
+      qrEl.style.fontSize='7px';
+    }
+    console.log('Badge creato per', a.nome, 'QR:', qrText);
+  }catch(e){
+    console.log('QR errore', e);
+    qrEl.textContent=a.nome;
+  }
+}
+
+function creaBadgeSingolo(nome){
+  creaBadgeDa(nome);
+}
+
 
 function stampaBadgeCarta(){ const box=document.getElementById('badgeCartaBox'); if(!box || box.style.display==='none'){ alert('Prima clicca Badge!'); return; } window.print(); }
 
@@ -1273,7 +1472,7 @@ function bloccaPIN(){
   if(pinEl){ pinEl.value = ''; pinEl.type = 'password'; }
 }
 
-window.addEventListener('load', ()=>{
+window.addEventListener('load', ()=>{ mostraProveNascoste=false; 
   try{ bloccaPIN(); }catch(e){}
   renderPlessiUI();
   try{ loadAnag(); }catch(e){}
